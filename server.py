@@ -32,10 +32,8 @@ app = Flask(__name__)
 
 # Get configuration from environment
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
-PORT = int(os.environ.get('PORT', 8000))
+PORT = int(os.environ.get('PORT', 5000))
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
-WEBSOCKET_HOST = os.environ.get('WEBSOCKET_HOST', 'localhost')
-WEBSOCKET_PORT = int(os.environ.get('WEBSOCKET_PORT', 6789))
 
 # Configure CORS with more specific settings
 CORS(app, resources={
@@ -1173,22 +1171,21 @@ async def websocket_handler(websocket):
 async def start_websocket_server():
     try:
         # Log WebSocket server startup
-        websocket_url = f"ws://{WEBSOCKET_HOST}:{WEBSOCKET_PORT}"
-        print(f"Starting WebSocket server on {websocket_url}")
-        logger.info(f"🚀 WEBSOCKET SERVER STARTING on {websocket_url}")
+        print("Starting WebSocket server on ws://localhost:6789")
+        logger.info("🚀 WEBSOCKET SERVER STARTING on ws://localhost:6789")
         
         # Start WebSocket server with more explicit configuration
         server = await websockets.serve(
             websocket_handler, 
-            WEBSOCKET_HOST, 
-            WEBSOCKET_PORT,
+            "localhost", 
+            6789,
             ping_interval=30,  # Send ping every 30 seconds
             ping_timeout=10,   # Wait 10 seconds for pong response
             close_timeout=10   # Wait 10 seconds for close handshake
         )
         
-        print(f"WebSocket server started successfully on {websocket_url}")
-        logger.info(f"✅ WEBSOCKET SERVER RUNNING on {websocket_url}")
+        print("WebSocket server started successfully on ws://localhost:6789")
+        logger.info("✅ WEBSOCKET SERVER RUNNING on ws://localhost:6789")
         
         # Keep server running forever
         await asyncio.Future()
@@ -1236,11 +1233,8 @@ def main():
         time.sleep(2)
         print("WebSocket server thread started")
         
-        # Get host from environment (for Azure compatibility)
-        host = os.environ.get('HOST', 'localhost')
-        
-        print(f"Starting Flask server on http://{host}:{PORT}")
-        app.run(host=host, port=PORT, threaded=True, debug=DEBUG)
+        print("Starting Flask server on http://localhost:5000")
+        app.run(host='localhost', port=PORT, threaded=True, debug=DEBUG)
     except Exception as e:
         print(f"Server startup error: {e}")
         logger.error(f"Server startup error: {str(e)}", exc_info=True)

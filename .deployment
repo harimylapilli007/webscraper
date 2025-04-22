@@ -1,3 +1,0 @@
-[config]
-command = bash startup.sh
-SCM_DO_BUILD_DURING_DEPLOYMENT=true 
