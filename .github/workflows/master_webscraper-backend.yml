@@ -35,7 +35,8 @@ jobs:
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
-        run: cd webScraper_backend && zip -r ../release.zip ./*
+        run: zip -r release.zip . -x "venv/*" "__pycache__/*"
+
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
