@@ -6,7 +6,6 @@ from selenium.common.exceptions import NoSuchElementException, ElementClickInter
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.core.utils import ChromeType
 from selenium.webdriver.chrome.service import Service as ChromeService
 import json
 import time
@@ -209,35 +208,35 @@ def get_compatible_chromedriver_version(chrome_version):
         # Map of compatible ChromeDriver versions for various Chrome versions
         # Based on https://chromedriver.chromium.org/downloads
         version_map = {
-            "135": "114.0.5735.90",  # Latest compatible version we know works
-            "134": "114.0.5735.90",
-            "133": "114.0.5735.90",
-            "132": "114.0.5735.90",
-            "131": "114.0.5735.90",
-            "130": "114.0.5735.90",
-            "129": "114.0.5735.90",
-            "128": "114.0.5735.90",
-            "127": "114.0.5735.90",
-            "126": "114.0.5735.90",
-            "125": "114.0.5735.90",
-            "124": "114.0.5735.90",
-            "123": "114.0.5735.90",
-            "122": "114.0.5735.90", 
-            "121": "114.0.5735.90",
-            "120": "114.0.5735.90",
-            "119": "114.0.5735.90",
-            "118": "114.0.5735.90",
-            "117": "114.0.5735.90",
-            "116": "114.0.5735.90",
-            "115": "114.0.5735.90",
+            "135": "122.0.6261.94",  # Updated for Chrome 135
+            "134": "122.0.6261.94",
+            "133": "122.0.6261.94",
+            "132": "122.0.6261.94",
+            "131": "122.0.6261.94",
+            "130": "122.0.6261.94",
+            "129": "122.0.6261.94",
+            "128": "122.0.6261.94",
+            "127": "122.0.6261.94",
+            "126": "122.0.6261.94",
+            "125": "122.0.6261.94",
+            "124": "122.0.6261.94",
+            "123": "122.0.6261.94",
+            "122": "122.0.6261.94",
+            "121": "121.0.6167.85",
+            "120": "120.0.6099.109",
+            "119": "119.0.6045.105",
+            "118": "118.0.5993.70",
+            "117": "117.0.5938.149",
+            "116": "116.0.5845.96",
+            "115": "115.0.5790.102",
             "114": "114.0.5735.90"
         }
         if chrome_major in version_map:
             return version_map[chrome_major]
         else:
             # Default to a version that often works
-            return "114.0.5735.90"
-    return "114.0.5735.90"  # Default fallback
+            return "122.0.6261.94"  # Updated default version
+    return "122.0.6261.94"  # Updated default fallback
 
 def setup_driver(headless=True):
     """Initialize and return a Chrome WebDriver instance."""
@@ -251,88 +250,93 @@ def setup_driver(headless=True):
     sys.stderr = io.StringIO()
     
     try:
-        # Approach 1: Use undetected-chromedriver (recommended for bypassing detection)
-        logger.log("Attempting to use undetected-chromedriver...", level=logging.INFO)
-        import undetected_chromedriver as uc
+        # Get Chrome version for compatible driver
+        chrome_version = get_chrome_version()
+        if not chrome_version:
+            raise Exception("Could not detect Chrome version")
+            
+        # Extract major version number
+        match = re.match(r'^(\d+)\.', chrome_version)
+        if not match:
+            raise Exception(f"Invalid Chrome version format: {chrome_version}")
+            
+        chrome_major = match.group(1)
         
-        # Patch undetected_chromedriver's __del__ method to prevent exception messages
-        original_del = uc.Chrome.__del__
+        # Use ChromeDriverManager with specific version
+        from selenium.webdriver.chrome.service import Service
+        from webdriver_manager.chrome import ChromeDriverManager
         
-        def patched_del(self):
-            try:
-                original_del(self)
-            except Exception:
-                pass  # Ignore exceptions during cleanup
-        
-        uc.Chrome.__del__ = patched_del
-        
-        options = uc.ChromeOptions()
+        # Configure Chrome options
+        chrome_options = Options()
         # if headless:
-        #     options.add_argument('--headless')
-        options.add_argument('--disable-gpu')
-        options.add_argument('--no-sandbox')
-        options.add_argument('--disable-dev-shm-usage')
+        #     chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+        chrome_options.add_argument('--disable-extensions')
+        chrome_options.add_argument('--disable-software-rasterizer')
         
         # Add unique user agent and window size for concurrent jobs
         if 'job_id' in config:
-            options.add_argument(f'--user-agent=WebScraper-Job-{config["job_id"]}')
-            options.add_argument(f'--window-position={hash(config["job_id"]) % 1000},0')
+            chrome_options.add_argument(f'--user-agent=WebScraper-Job-{config["job_id"]}')
+            chrome_options.add_argument(f'--window-position={hash(config["job_id"]) % 1000},0')
         
-        driver = uc.Chrome(options=options)
-        logger.log("Successfully initialized Chrome with undetected-chromedriver", level=logging.INFO)
-        return driver
+        # Set Chrome binary location explicitly
+        chrome_options.binary_location = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
         
-    except Exception as e:
-        logger.log(f"undetected-chromedriver failed: {str(e)}", level=logging.WARNING)
-        
-        # Fallback approaches
+        # Try to use ChromeDriverManager with version matching
         try:
-            # Approach 2: Use regular Chrome with specific version detection
-            chrome_options = Options()
-            # if headless:
-            #     chrome_options.add_argument('--headless')
-            chrome_options.add_argument('--disable-gpu')
-            chrome_options.add_argument('--no-sandbox')
-            chrome_options.add_argument('--disable-dev-shm-usage')
-            
-            # Add unique user agent and window size for concurrent jobs
-            if 'job_id' in config:
-                chrome_options.add_argument(f'--user-agent=WebScraper-Job-{config["job_id"]}')
-                chrome_options.add_argument(f'--window-position={hash(config["job_id"]) % 1000},0')
-            
-            # Get Chrome version for compatible driver
-            chrome_version = get_chrome_version()
-            if chrome_version:
-                driver_version = get_compatible_chromedriver_version(chrome_version)
-                logger.log(f"Using ChromeDriver version {driver_version} for Chrome {chrome_version}", level=logging.INFO)
-                
-                # Try with version-specific driver
-                service = ChromeService(ChromeDriverManager(version=driver_version).install())
-                chrome_options.binary_location = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
-                driver = webdriver.Chrome(service=service, options=chrome_options)
-                logger.log("Successfully initialized Chrome driver with specific version", level=logging.INFO)
-                return driver
-            
-            # Default fallback
-            logger.log("Attempting with default ChromeDriver...", level=logging.INFO)
-            driver = webdriver.Chrome(options=chrome_options)
-            logger.log("Successfully initialized Chrome driver with default settings", level=logging.INFO)
+            # First try with exact version match
+            driver_version = f"{chrome_major}.0.0"
+            service = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=service, options=chrome_options)
+            logger.log(f"Successfully initialized Chrome driver with version {driver_version}", level=logging.INFO)
             return driver
+        except Exception as e1:
+            logger.log(f"Failed to initialize with exact version match: {str(e1)}", level=logging.WARNING)
             
-        except Exception as e2:
-            logger.log(f"All Chrome driver initialization methods failed", level=logging.ERROR)
-            logger.log(f"Error 1: {str(e)}", level=logging.ERROR)
-            logger.log(f"Error 2: {str(e2)}", level=logging.ERROR)
-            
-            # Provide helpful error message
-            error_message = """
+            try:
+                # Try with latest compatible version
+                service = Service(ChromeDriverManager().install())
+                driver = webdriver.Chrome(service=service, options=chrome_options)
+                logger.log("Successfully initialized Chrome driver with latest compatible version", level=logging.INFO)
+                return driver
+            except Exception as e2:
+                logger.log(f"Failed to initialize with latest version: {str(e2)}", level=logging.WARNING)
+                
+                # Try undetected-chromedriver as last resort
+                try:
+                    import undetected_chromedriver as uc
+                    options = uc.ChromeOptions()
+                    if headless:
+                        options.add_argument('--headless')
+                    options.add_argument('--disable-gpu')
+                    options.add_argument('--no-sandbox')
+                    options.add_argument('--disable-dev-shm-usage')
+                    
+                    if 'job_id' in config:
+                        options.add_argument(f'--user-agent=WebScraper-Job-{config["job_id"]}')
+                        options.add_argument(f'--window-position={hash(config["job_id"]) % 1000},0')
+                    
+                    driver = uc.Chrome(options=options)
+                    logger.log("Successfully initialized Chrome with undetected-chromedriver", level=logging.INFO)
+                    return driver
+                except Exception as e3:
+                    logger.log(f"All Chrome driver initialization methods failed", level=logging.ERROR)
+                    logger.log(f"Error 1: {str(e1)}", level=logging.ERROR)
+                    logger.log(f"Error 2: {str(e2)}", level=logging.ERROR)
+                    logger.log(f"Error 3: {str(e3)}", level=logging.ERROR)
+                    
+                    error_message = """
 Chrome driver initialization failed. Please try one of the following solutions:
-1. Install a version of Chrome that matches ChromeDriver version (114)
+1. Update Chrome to the latest version
 2. Manually download ChromeDriver matching your Chrome version from: https://chromedriver.chromium.org/downloads
 3. Add chromedriver.exe to your PATH
+4. Try running without headless mode
 """
-            logger.log(error_message, level=logging.ERROR)
-            raise Exception("Unable to initialize Chrome driver. See logs for troubleshooting steps.")
+                    logger.log(error_message, level=logging.ERROR)
+                    raise Exception("Unable to initialize Chrome driver. See logs for troubleshooting steps.")
+                    
     finally:
         # Restore stderr
         sys.stderr = original_stderr
@@ -640,7 +644,7 @@ def scrape_data(config):
             
             # Scroll if needed
             if config.get("scroll", False):
-                logger.log("Scrolling to load all content...", level=logging.INFO)
+                logger.log("Starting to scroll down the page to load all content...", level=logging.INFO)
                 last_height = driver.execute_script("return document.body.scrollHeight")
                 scroll_attempts = 0
                 max_scroll_attempts = config.get("max_scroll_attempts", 20)  # Prevent infinite scrolling
@@ -653,6 +657,7 @@ def scrape_data(config):
                     # Try to find and click load more button
                     if handle_load_more_button(driver, config):
                         scroll_attempts = 0  # Reset counter if we successfully loaded more content
+                        logger.log("Found and clicked 'Load More' button, continuing to scroll...", level=logging.INFO)
                         continue
                     
                     # Check if we've reached the bottom
@@ -660,15 +665,16 @@ def scrape_data(config):
                     if new_height == last_height:
                         scroll_attempts += 1
                         if scroll_attempts >= 3:  # If height hasn't changed after 3 attempts, we're done
-                            logger.log("Reached end of scrollable content", level=logging.INFO)
+                            logger.log("Reached the bottom of the page - no more content to load", level=logging.INFO)
                             break
                     else:
                         scroll_attempts = 0  # Reset counter if height changed
+                        logger.log("Scrolling further down to load more content...", level=logging.INFO)
                         
                     last_height = new_height
                 
                 if scroll_attempts >= max_scroll_attempts:
-                    logger.log(f"Reached maximum scroll attempts ({max_scroll_attempts})", level=logging.WARNING)
+                    logger.log(f"Reached maximum scroll attempts ({max_scroll_attempts}) - stopping scroll", level=logging.WARNING)
 
             # Get elements
             containers = driver.find_elements(By.CSS_SELECTOR, config["container_selector"])
@@ -788,13 +794,20 @@ def scrape_data(config):
         logger.log(f"\n[SUCCESS] Scraping complete. {len(results)} items saved.", level=logging.INFO)
         logger.log(f"Results saved to JSON: {output_json}", level=logging.INFO)
         logger.log(f"Results saved to Excel: {output_excel}", level=logging.INFO)
+        logger.log("Scraper completed successfully", level=logging.INFO)
+        
+        # Quit driver immediately after successful completion
+        driver.quit()
+        return
 
     except Exception as e:
         logger.log(f"[ERROR] Scraping failed: {e}", level=logging.ERROR)
         import traceback
         logger.log(traceback.format_exc(), level=logging.ERROR)
     finally:
-        driver.quit()
+        # Only quit driver here if we haven't already quit it after success
+        if 'driver' in locals() and driver:
+            driver.quit()
         # Close job-specific log file if it exists
         if config.get("log_file"):
             for handler in logger.logger.handlers[:]:

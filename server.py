@@ -14,6 +14,7 @@ from datetime import datetime
 import time
 import logging
 from dotenv import load_dotenv
+from flask_socketio import SocketIO, emit
 
 # Load environment variables from .env file
 load_dotenv()
@@ -36,24 +37,37 @@ PORT = int(os.environ.get('PORT', 5000))
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
 # Get WebSocket configuration from environment
-WS_HOST = os.environ.get('WS_HOST', '0.0.0.0')
-WS_PORT = int(os.environ.get('WS_PORT', 6789))
 WS_PING_INTERVAL = int(os.environ.get('WS_PING_INTERVAL', 30))
 WS_PING_TIMEOUT = int(os.environ.get('WS_PING_TIMEOUT', 10))
 WS_CLOSE_TIMEOUT = int(os.environ.get('WS_CLOSE_TIMEOUT', 10))
 
 # Get allowed origins from environment
-ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', 'http://localhost:3000').split(',')
+ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', '*').split(',')
 
 # Configure CORS with more specific settings
 CORS(app, resources={
     r"/*": {
         "origins": ALLOWED_ORIGINS,
-        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type", "X-User-Id", "Authorization"],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization", "X-User-Id"],
         "supports_credentials": True
     }
 })
+
+# Initialize SocketIO with CORS settings
+socketio = SocketIO(
+    app,
+    cors_allowed_origins="*",
+    async_mode='gevent',
+    ping_timeout=WS_PING_TIMEOUT,
+    ping_interval=WS_PING_INTERVAL,
+    logger=True,
+    engineio_logger=True,
+    transports=['websocket', 'polling']
+)
+
+# Store WebSocket clients
+clients = {}
 
 # Add request logging middleware
 @app.before_request
@@ -77,8 +91,6 @@ def after_request(response):
         logger.info(f"  {header}: {value}")
     return response
 
-loop = asyncio.new_event_loop()
-
 # Initialize data directories and default config
 def init_data_directories():
     """Create necessary directories for user configs and output"""
@@ -101,6 +113,7 @@ class ScraperJob:
         self.status = "pending"
         self.start_time = datetime.now()
         self.output_dir = f"output/{job_id}"
+        self.should_stop = False  # Flag to indicate if the scraper should be stopped
         os.makedirs(self.output_dir, exist_ok=True)
         logger.info(f"Created new job {job_id} for user {user_id}")
 
@@ -117,13 +130,116 @@ def signal_handler(sig, frame):
                 job.process.wait(timeout=5)
             except:
                 job.process.kill()
-    for task in asyncio.all_tasks(loop):
-        task.cancel()
-    loop.call_soon_threadsafe(loop.stop)
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
+
+# SocketIO event handlers
+@socketio.on('connect')
+def handle_connect():
+    client_id = request.sid
+    logger.info(f"Client connected: {client_id}")
+    # Store the client ID without a user ID initially
+    connected_clients[client_id] = None
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    client_id = request.sid
+    logger.info(f"Client disconnected: {client_id}")
+    if client_id in connected_clients:
+        del connected_clients[client_id]
+
+@socketio.on('init')
+def handle_init(data):
+    client_id = request.sid
+    user_id = data.get('user_id')
+    if user_id:
+        connected_clients[client_id] = user_id
+        if user_id not in clients:
+            clients[user_id] = set()
+        clients[user_id].add(client_id)
+        logger.info(f"✅ WEBSOCKET CLIENT REGISTERED - User ID: {user_id} - SID: {client_id}")
+        # Send a confirmation message back to the client
+        socketio.emit('connection', {
+            'type': 'connection',
+            'message': 'Connected successfully',
+            'user_id': user_id,
+            'timestamp': datetime.now().isoformat()
+        }, room=client_id)
+
+def send_log_to_clients(job_id: str, message: str):
+    """Send a log message to all clients associated with the job."""
+    try:
+        # Get the job object
+        job = active_jobs.get(job_id)
+        if not job:
+            logger.warning(f"No job found with ID {job_id}")
+            return
+            
+        # Get the user ID from the job object
+        user_id = job.user_id
+        if not user_id:
+            logger.warning(f"No user ID found for job {job_id}")
+            return
+
+        # Construct the message data in the exact format the frontend expects
+        data = {
+            'type': 'log',  # Explicitly set type to 'log'
+            'job_id': job_id,
+            'user_id': user_id,
+            'message': message,
+            'timestamp': datetime.now().isoformat()  # Add ISO format timestamp
+        }
+
+        # Log what we're about to send (truncated for readability)
+        logger.debug(f"Sending log to clients: {message[:100]}...")
+
+        # Get all clients for this user
+        user_clients = clients.get(user_id, set())
+        if not user_clients:
+            logger.warning(f"No clients found for user {user_id}")
+            return
+
+        # Send to all clients for this user
+        for client in user_clients:
+            try:
+                socketio.emit('log', data, room=client)
+                logger.debug(f"Log sent to client {client}")
+            except Exception as e:
+                logger.error(f"Error sending log to client {client}: {e}")
+
+    except Exception as e:
+        logger.error(f"Error in send_log_to_clients: {e}")
+
+def send_state_update(job_id, status):
+    """Send a state update to all connected clients."""
+    try:
+        # Get the user ID from the job
+        user_id = None
+        for job in active_jobs.values():
+            if job.job_id == job_id:
+                user_id = job.user_id
+                break
+        
+        if not user_id:
+            logger.error(f"No user ID found for job {job_id}")
+            return
+            
+        data = {
+            'type': 'state',
+            'job_id': job_id,
+            'status': status,
+            'user_id': user_id,
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        # Send to all clients for this user
+        if user_id in clients:
+            for client_id in clients[user_id]:
+                socketio.emit('state', data, room=client_id)
+    except Exception as e:
+        logger.error(f"Error sending state update to clients: {str(e)}")
 
 def get_base_config():
     """Get the base configuration structure for new users"""
@@ -282,235 +398,96 @@ def run_scraper_process(job):
         # Log the start of scraping
         logger.info(f"Starting scraper job {job.job_id} for user {job.user_id}")
         
-        # Check if any clients are connected for this user
-        client_count = sum(1 for client_user in connected_clients.values() if client_user == job.user_id)
-        logger.info(f"Found {client_count} connected clients for user {job.user_id} before starting job")
+        # Send initial state message using Socket.IO
+        send_state_update(job.job_id, "running")
+        send_log_to_clients(job.job_id, "Starting scraper process...")
         
-        if client_count == 0:
-            logger.warning(f"No connected clients for user {job.user_id}. Logs may not appear in real-time.")
-            logger.warning("Please ensure the frontend is connected before starting the scraper.")
-        
-        # Send initial state message
-        state_message = json.dumps({
-            "type": "state",
-            "status": "running",
-            "job_id": job.job_id,
-            "user_id": job.user_id,
-            "message": "Starting scraper...",
-            "timestamp": datetime.now().isoformat()
-        })
-        
-        # Debug log for monitoring WebSocket messages
-        logger.info(f"Preparing to send state message for job {job.job_id}")
-        
-        # Store message in job log queue first (for history)
-        job.log_queue.put(state_message)
+        # Update job status
         job.status = "running"
         
-        # Send to all WebSocket clients for this user
-        clients_for_user = [client for client, client_user_id in connected_clients.items() if client_user_id == job.user_id]
-        logger.info(f"Sending initial state to {len(clients_for_user)} clients for user {job.user_id}")
-        
-        for client in clients_for_user:
-            try:
-                asyncio.run_coroutine_threadsafe(
-                    client.send(state_message),
-                    loop
-                )
-            except Exception as e:
-                logger.error(f"Error sending state message to client: {e}")
-        
-        # Add an initial log message to confirm the job is running
-        initial_log = json.dumps({
-            "type": "log",
-            "job_id": job.job_id,
-            "user_id": job.user_id,
-            "message": "Starting scraper process...",
-            "timestamp": datetime.now().isoformat()
-        })
-        
-        # Store in queue for history
-        job.log_queue.put(initial_log)
-        
-        # Send to WebSocket clients
-        for client in clients_for_user:
-            try:
-                asyncio.run_coroutine_threadsafe(
-                    client.send(initial_log),
-                    loop
-                )
-            except Exception as e:
-                logger.error(f"Error sending initial log to client: {e}")
-        
-        # Start the scraper process with job-specific config
+        # Start the scraper process with unbuffered output and explicit encoding
         process = subprocess.Popen(
             ['python', '-u', 'scrap.py', '--config', job_config],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
-            bufsize=1,  # Line buffered
-            text=True,  # Use text mode instead of universal_newlines
+            universal_newlines=True,
             encoding='utf-8',
-            errors='replace'
+            errors='replace',  # Replace invalid characters instead of failing
+            bufsize=1
         )
         
         job.process = process
         
-        # Read process output line by line
+        # Monitor the process output
         while True:
-            line = process.stdout.readline()
-            if not line and process.poll() is not None:
-                break
-                
-            if job.status == "stopping":
-                logger.info(f"Job {job.job_id} received stop signal")
-                break
-                
-            stripped_line = line.strip()
-            if stripped_line:
-                logger.info(f"Job {job.job_id}: {stripped_line}")
-                
-                # Skip Chrome driver exception messages
-                if "Exception ignored in: <function Chrome.__del__" in stripped_line or \
-                   "OSError: [WinError 6] The handle is invalid" in stripped_line:
-                    continue
-                
-                # Send log message
-                log_message = json.dumps({
-                    "type": "log",
-                    "job_id": job.job_id,
-                    "user_id": job.user_id,
-                    "message": stripped_line,
-                    "timestamp": datetime.now().isoformat()
-                })
-                
-                # Store in queue for history
-                job.log_queue.put(log_message)
-                
-                # Get current connected clients (might have changed since job started)
-                clients_for_user = [client for client, client_user_id in connected_clients.items() if client_user_id == job.user_id]
-                
-                # If no clients connected, log a warning
-                if not clients_for_user:
-                    if (int(time.time()) % 10) == 0:  # Only log this warning occasionally
-                        logger.warning(f"No connected clients for user {job.user_id}. Logs are being queued but not displayed in real-time.")
-                
-                # Broadcast to relevant websocket clients immediately
-                for client in clients_for_user:
-                    try:
-                        asyncio.run_coroutine_threadsafe(
-                            client.send(log_message),
-                            loop
-                        )
-                    except Exception as e:
-                        logger.error(f"Error sending message to client: {e}")
-                
-                # Force flush stdout
-                sys.stdout.flush()
+            try:
+                output = process.stdout.readline()
+                if output == '' and process.poll() is not None:
+                    break
+                if output:
+                    # Strip whitespace and send log message using Socket.IO
+                    stripped_output = output.strip()
+                    if stripped_output:
+                        logger.info(f"Scraper output: {stripped_output}")
+                        send_log_to_clients(job.job_id, stripped_output)
+                        
+                        # Check if this is a completion message
+                        if "Scraper completed successfully" in stripped_output:
+                            # Set the flag to indicate we should stop the scraper
+                            job.should_stop = True
+                            logger.info(f"Setting should_stop flag for job {job.job_id}")
+            except UnicodeDecodeError as e:
+                # Handle any remaining encoding issues
+                logger.error(f"Unicode decode error: {str(e)}")
+                # Continue processing
+                continue
         
-        # Wait for process to complete
-        process.wait()
+        # Get the return code
+        return_code = process.poll()
         
-        # Check process return code
-        if process.returncode == 0:
-            completion_message = json.dumps({
-                "type": "state",
-                "status": "completed",
-                "job_id": job.job_id,
-                "user_id": job.user_id,
-                "message": "Scraper completed successfully",
-                "timestamp": datetime.now().isoformat()
-            })
-            
-            # Store in queue for history
-            job.log_queue.put(completion_message)
+        # Send final state based on return code
+        if return_code == 0:
+            # First update the job status
             job.status = "completed"
+            # Then send the state update
+            send_state_update(job.job_id, "completed")
+            send_log_to_clients(job.job_id, "Scraper completed successfully")
             
-            # Get current connected clients
-            clients_for_user = [client for client, client_user_id in connected_clients.items() if client_user_id == job.user_id]
+            # Always stop the scraper after successful completion
+            logger.info(f"Stopping scraper {job.job_id} after successful completion")
+            send_log_to_clients(job.job_id, "Stopping scraper after successful completion")
             
-            # Send to WebSocket clients
-            for client in clients_for_user:
+            # Clean up the process
+            if job.process:
                 try:
-                    asyncio.run_coroutine_threadsafe(
-                        client.send(completion_message),
-                        loop
-                    )
-                except Exception as e:
-                    logger.error(f"Error sending completion message to client: {e}")
-        else:
-            raise Exception(f"Scraper process exited with code {process.returncode}")
-                    
-    except Exception as e:
-        error_msg = f"Error in scraper process: {str(e)}"
-        logger.error(f"Job {job.job_id}: {error_msg}")
-        
-        # Send error state message
-        state_message = json.dumps({
-            "type": "state",
-            "status": "error",
-            "job_id": job.job_id,
-            "user_id": job.user_id,
-            "message": error_msg,
-            "timestamp": datetime.now().isoformat()
-        })
-        
-        # Store in queue for history
-        job.log_queue.put(state_message)
-        job.status = "error"
-        
-        # Get current connected clients
-        clients_for_user = [client for client, client_user_id in connected_clients.items() if client_user_id == job.user_id]
-        
-        # Send to WebSocket clients
-        for client in clients_for_user:
-            try:
-                asyncio.run_coroutine_threadsafe(
-                    client.send(state_message),
-                    loop
-                )
-            except Exception as e:
-                logger.error(f"Error sending error message to client: {e}")
-    finally:
-        if job.process:
-            try:
-                if job.process.stdout:
-                    job.process.stdout.close()
-                job.process.terminate()
-                try:
+                    job.process.terminate()
                     job.process.wait(timeout=5)
-                except subprocess.TimeoutExpired:
-                    job.process.kill()
-            except:
-                if job.process:
-                    job.process.kill()
-            job.process = None
-            
-        # Send final cleanup message
-        cleanup_message = json.dumps({
-            "type": "log",
-            "job_id": job.job_id,
-            "user_id": job.user_id,
-            "message": f"Scraper job {job.job_id} ended",
-            "timestamp": datetime.now().isoformat()
-        })
+                except:
+                    if job.process:
+                        job.process.kill()
+                job.process = None
+
+            # Send one final state update to ensure UI is updated
+            send_state_update(job.job_id, "completed")
+        else:
+            send_state_update(job.job_id, "failed")
+            send_log_to_clients(job.job_id, f"Scraper failed with return code {return_code}")
+            job.status = "failed"
         
-        # Store in queue for history
-        job.log_queue.put(cleanup_message)
-        
-        # Get current connected clients
-        clients_for_user = [client for client, client_user_id in connected_clients.items() if client_user_id == job.user_id]
-        
-        # Send to WebSocket clients
-        for client in clients_for_user:
+    except Exception as e:
+        logger.error(f"Error in scraper process: {str(e)}")
+        send_state_update(job.job_id, "failed")
+        send_log_to_clients(job.job_id, f"Error: {str(e)}")
+        job.status = "failed"
+    finally:
+        # Clean up
+        if hasattr(job, 'process') and job.process:
             try:
-                asyncio.run_coroutine_threadsafe(
-                    client.send(cleanup_message),
-                    loop
-                )
-            except Exception as e:
-                logger.error(f"Error sending cleanup message to client: {e}")
-        
-        logger.info(f"Scraper job {job.job_id} cleanup completed")
+                job.process.terminate()
+                job.process.wait(timeout=5)
+            except:
+                job.process.kill()
+        job.process = None
 
 @app.route('/get-config', methods=['GET'])
 def get_config():
@@ -905,8 +882,14 @@ def should_filter_log_message(message):
             if "Exception ignored in: <function Chrome.__del__" in log_content or \
                "OSError: [WinError 6] The handle is invalid" in log_content:
                 return True
-        except:
-            pass
+        except json.JSONDecodeError:
+            # Not valid JSON, check the raw message
+            if "Exception ignored in: <function Chrome.__del__" in message or \
+               "OSError: [WinError 6] The handle is invalid" in message:
+                return True
+        except Exception as e:
+            # Log any other errors but don't filter the message
+            logger.debug(f"Error in should_filter_log_message: {str(e)}")
     return False
 
 async def websocket_handler(websocket):
@@ -1075,7 +1058,9 @@ async def websocket_handler(websocket):
                                                 })
                                                 await websocket.send(message)
                                     except Exception as e:
-                                        logger.error(f"Error sending log message: {e}")
+                                        # Log any other errors but continue processing
+                                        logger.error(f"Error processing log message: {str(e)}")
+                                        continue
                 else:
                     logger.warning("Client connected without user ID, rejecting connection")
                     await websocket.close(1008, "No user ID provided")
@@ -1161,8 +1146,12 @@ async def websocket_handler(websocket):
                                             "timestamp": datetime.now().isoformat()
                                         })
                                         await websocket.send(message)
+                                    except Exception as e:
+                                        # Log any other errors but continue processing
+                                        logger.error(f"Error processing log message: {str(e)}")
+                                        continue
                             except Exception as e:
-                                logger.error(f"Error sending log message: {e}")
+                                logger.error(f"Error in websocket message loop: {e}")
                                 continue
             except Exception as e:
                 logger.error(f"Error in websocket message loop: {e}")
@@ -1241,22 +1230,47 @@ def start_websocket_server_thread():
             print(f"Error cleaning up WebSocket server: {e}")
             logger.error(f"Error cleaning up WebSocket server: {str(e)}")
 
-def main():
+def check_and_stop_completed_scrapers():
+    """Periodically check for and stop completed scrapers."""
     try:
-        # Start WebSocket server in a separate thread
-        print("Starting WebSocket server thread...")
-        websocket_thread = threading.Thread(target=start_websocket_server_thread, daemon=True)
-        websocket_thread.start()
-        
-        # Wait a moment to ensure WebSocket server is running
-        time.sleep(2)
-        print("WebSocket server thread started")
-        
-        print("Starting Flask server on http://localhost:5000")
-        app.run(host='localhost', port=PORT, threaded=True, debug=DEBUG)
+        for job_id, job in list(active_jobs.items()):
+            # Check if the job is completed but still has a process
+            if job.status == "completed" and job.process:
+                logger.info(f"Stopping completed scraper {job_id} that was missed by automatic stopping")
+                try:
+                    job.process.terminate()
+                    job.process.wait(timeout=5)
+                except:
+                    if job.process:
+                        job.process.kill()
+                job.process = None
     except Exception as e:
-        print(f"Server startup error: {e}")
-        logger.error(f"Server startup error: {str(e)}", exc_info=True)
+        logger.error(f"Error in check_and_stop_completed_scrapers: {str(e)}")
 
-if __name__ == "__main__":
+# Start a background thread to periodically check for completed scrapers
+def start_cleanup_thread():
+    def cleanup_loop():
+        while True:
+            try:
+                check_and_stop_completed_scrapers()
+                time.sleep(60)  # Check every minute
+            except Exception as e:
+                logger.error(f"Error in cleanup loop: {str(e)}")
+                time.sleep(60)  # Wait before retrying
+    
+    cleanup_thread = threading.Thread(target=cleanup_loop, daemon=True)
+    cleanup_thread.start()
+    logger.info("Started cleanup thread for completed scrapers")
+
+# Start the cleanup thread when the server starts
+start_cleanup_thread()
+
+def main():
+    init_data_directories()
+    logger.info("Initialized data directories")
+    
+    # Start the Flask server with SocketIO
+    socketio.run(app, host='0.0.0.0', port=PORT, debug=DEBUG)
+
+if __name__ == '__main__':
     main()

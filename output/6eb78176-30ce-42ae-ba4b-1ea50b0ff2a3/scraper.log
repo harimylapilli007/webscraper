@@ -1,0 +1,175 @@
+2025-04-23 01:06:05,178 - INFO - [2025-04-23 01:06:05] INFO - Added file handler for log file: output/6eb78176-30ce-42ae-ba4b-1ea50b0ff2a3\scraper.log
+2025-04-23 01:06:05,178 - INFO - [2025-04-23 01:06:05] INFO - Starting scraper with configuration:
+2025-04-23 01:06:05,178 - INFO - [2025-04-23 01:06:05] INFO - base_url: https://www.griclub.org/program/participants/empowered-by-gcc-global-capital-connectors-series_1810
+2025-04-23 01:06:05,179 - INFO - [2025-04-23 01:06:05] INFO - concurrent_settings: {'base_request_delay': 2, 'job_spacing_delay': 3, 'max_concurrent_jobs': 3, 'max_concurrent_requests': 2}
+2025-04-23 01:06:05,179 - INFO - [2025-04-23 01:06:05] INFO - container_selector: div.member-card__body
+2025-04-23 01:06:05,180 - INFO - [2025-04-23 01:06:05] INFO - initial_wait: 10
+2025-04-23 01:06:05,180 - INFO - [2025-04-23 01:06:05] INFO - load_more_selector: 
+2025-04-23 01:06:05,180 - INFO - [2025-04-23 01:06:05] INFO - load_more_wait: 3
+2025-04-23 01:06:05,180 - INFO - [2025-04-23 01:06:05] INFO - max_pages: 1
+2025-04-23 01:06:05,180 - INFO - [2025-04-23 01:06:05] INFO - max_scroll_attempts: 20
+2025-04-23 01:06:05,180 - INFO - [2025-04-23 01:06:05] INFO - next_page_selector: 
+2025-04-23 01:06:05,180 - INFO - [2025-04-23 01:06:05] INFO - output_excel: output/6eb78176-30ce-42ae-ba4b-1ea50b0ff2a3\scraped_data.xlsx
+2025-04-23 01:06:05,180 - INFO - [2025-04-23 01:06:05] INFO - output_json: output/6eb78176-30ce-42ae-ba4b-1ea50b0ff2a3\scraped_data.json
+2025-04-23 01:06:05,180 - INFO - [2025-04-23 01:06:05] INFO - page_wait: 2
+2025-04-23 01:06:05,181 - INFO - [2025-04-23 01:06:05] INFO - paginate: False
+2025-04-23 01:06:05,181 - INFO - [2025-04-23 01:06:05] INFO - scrape_subpages: False
+2025-04-23 01:06:05,181 - INFO - [2025-04-23 01:06:05] INFO - scroll: False
+2025-04-23 01:06:05,181 - INFO - [2025-04-23 01:06:05] INFO - scroll_wait: 3
+2025-04-23 01:06:05,181 - INFO - [2025-04-23 01:06:05] INFO - start_page: 1
+2025-04-23 01:06:05,181 - INFO - [2025-04-23 01:06:05] INFO - subpage_wait: 3
+2025-04-23 01:06:05,181 - INFO - [2025-04-23 01:06:05] INFO - job_id: 6eb78176-30ce-42ae-ba4b-1ea50b0ff2a3
+2025-04-23 01:06:05,181 - INFO - [2025-04-23 01:06:05] INFO - user_id: ang9rlp5bbn
+2025-04-23 01:06:05,181 - INFO - [2025-04-23 01:06:05] INFO - concurrent: True
+2025-04-23 01:06:05,181 - INFO - [2025-04-23 01:06:05] INFO - output_dir: output/6eb78176-30ce-42ae-ba4b-1ea50b0ff2a3
+2025-04-23 01:06:05,181 - INFO - [2025-04-23 01:06:05] INFO - log_file: output/6eb78176-30ce-42ae-ba4b-1ea50b0ff2a3\scraper.log
+2025-04-23 01:06:05,181 - INFO - [2025-04-23 01:06:05] INFO - request_delay: 4
+2025-04-23 01:06:05,181 - INFO - [2025-04-23 01:06:05] INFO - max_concurrent_requests: 2
+2025-04-23 01:06:05,181 - INFO - [2025-04-23 01:06:05] INFO - job_start_time: 2025-04-23T01:06:00.928999
+2025-04-23 01:06:05,181 - INFO - [2025-04-23 01:06:05] INFO - headless: True
+2025-04-23 01:06:05,181 - INFO - [2025-04-23 01:06:05] INFO - Concurrent scraping settings:
+2025-04-23 01:06:05,181 - INFO - [2025-04-23 01:06:05] INFO - Job ID: 6eb78176-30ce-42ae-ba4b-1ea50b0ff2a3
+2025-04-23 01:06:05,181 - INFO - [2025-04-23 01:06:05] INFO - User ID: ang9rlp5bbn
+2025-04-23 01:06:05,182 - INFO - [2025-04-23 01:06:05] INFO - Request delay: 4s
+2025-04-23 01:06:05,182 - INFO - [2025-04-23 01:06:05] INFO - Max concurrent requests: 2
+2025-04-23 01:06:05,182 - INFO - [2025-04-23 01:06:05] INFO - Concurrent scraping settings:
+2025-04-23 01:06:05,182 - INFO - [2025-04-23 01:06:05] INFO - Job ID: 6eb78176-30ce-42ae-ba4b-1ea50b0ff2a3
+2025-04-23 01:06:05,182 - INFO - [2025-04-23 01:06:05] INFO - User ID: ang9rlp5bbn
+2025-04-23 01:06:05,182 - INFO - [2025-04-23 01:06:05] INFO - Request delay: 4s
+2025-04-23 01:06:05,182 - INFO - [2025-04-23 01:06:05] INFO - Max concurrent requests: 2
+2025-04-23 01:06:05,182 - INFO - [2025-04-23 01:06:05] INFO - Starting scraper with configuration:
+2025-04-23 01:06:05,183 - INFO - [2025-04-23 01:06:05] INFO - {
+  "base_url": "https://www.griclub.org/program/participants/empowered-by-gcc-global-capital-connectors-series_1810",
+  "concurrent_settings": {
+    "base_request_delay": 2,
+    "job_spacing_delay": 3,
+    "max_concurrent_jobs": 3,
+    "max_concurrent_requests": 2
+  },
+  "container_selector": "div.member-card__body",
+  "initial_wait": 10,
+  "load_more_selector": "",
+  "load_more_wait": 3,
+  "max_pages": 1,
+  "max_scroll_attempts": 20,
+  "next_page_selector": "",
+  "output_excel": "output/6eb78176-30ce-42ae-ba4b-1ea50b0ff2a3\\scraped_data.xlsx",
+  "output_json": "output/6eb78176-30ce-42ae-ba4b-1ea50b0ff2a3\\scraped_data.json",
+  "page_wait": 2,
+  "paginate": false,
+  "scrape_subpages": false,
+  "scroll": false,
+  "scroll_wait": 3,
+  "start_page": 1,
+  "subpage_wait": 3,
+  "job_id": "6eb78176-30ce-42ae-ba4b-1ea50b0ff2a3",
+  "user_id": "ang9rlp5bbn",
+  "concurrent": true,
+  "output_dir": "output/6eb78176-30ce-42ae-ba4b-1ea50b0ff2a3",
+  "log_file": "output/6eb78176-30ce-42ae-ba4b-1ea50b0ff2a3\\scraper.log",
+  "request_delay": 4,
+  "max_concurrent_requests": 2,
+  "job_start_time": "2025-04-23T01:06:00.928999",
+  "headless": true
+}
+2025-04-23 01:06:05,183 - INFO - [2025-04-23 01:06:05] INFO - Attempting to use undetected-chromedriver...
+2025-04-23 01:06:32,543 - INFO - [2025-04-23 01:06:32] INFO - Successfully initialized Chrome with undetected-chromedriver
+2025-04-23 01:06:32,543 - INFO - [2025-04-23 01:06:32] INFO - Job started for user ang9rlp5bbn (Job ID: 6eb78176-30ce-42ae-ba4b-1ea50b0ff2a3)
+2025-04-23 01:06:32,543 - INFO - [2025-04-23 01:06:32] INFO - Phase 1: Collecting main fields and links from all pages...
+2025-04-23 01:06:57,698 - INFO - [2025-04-23 01:06:57] INFO - Navigated to base URL: https://www.griclub.org/program/participants/empowered-by-gcc-global-capital-connectors-series_1810
+2025-04-23 01:07:01,710 - INFO - [2025-04-23 01:07:01] INFO - Scraping main fields from page 1...
+2025-04-23 01:07:01,729 - INFO - [2025-04-23 01:07:01] INFO - Found 90 items on page 1
+2025-04-23 01:07:01,794 - INFO - [2025-04-23 01:07:01] INFO - Extracted 'name': Abdul Wahab Al Halabi
+2025-04-23 01:07:01,824 - INFO - [2025-04-23 01:07:01] INFO - Extracted 'name': Adam Sadiq
+2025-04-23 01:07:01,852 - INFO - [2025-04-23 01:07:01] INFO - Extracted 'name': Adnan Ozair
+2025-04-23 01:07:01,879 - INFO - [2025-04-23 01:07:01] INFO - Extracted 'name': Ahmed El Rabbat
+2025-04-23 01:07:01,904 - INFO - [2025-04-23 01:07:01] INFO - Extracted 'name': Ahmed Nasser Al Nowais
+2025-04-23 01:07:01,939 - INFO - [2025-04-23 01:07:01] INFO - Extracted 'name': Aidan Gallagher
+2025-04-23 01:07:01,966 - INFO - [2025-04-23 01:07:01] INFO - Extracted 'name': Aisha Al Hosani
+2025-04-23 01:07:01,988 - INFO - [2025-04-23 01:07:01] INFO - Extracted 'name': Ajay Rajendran
+2025-04-23 01:07:02,015 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Alberto López Balbas
+2025-04-23 01:07:02,047 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Aleem Siddiqui
+2025-04-23 01:07:02,080 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Alexandre Martin
+2025-04-23 01:07:02,117 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Alexi Antolovich
+2025-04-23 01:07:02,153 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Allen Chilten
+2025-04-23 01:07:02,197 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Amit Goenka
+2025-04-23 01:07:02,227 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Ammar Baroum
+2025-04-23 01:07:02,259 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Anand Lakhotia
+2025-04-23 01:07:02,302 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Anand Mirchandani
+2025-04-23 01:07:02,327 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Anastasia Panina
+2025-04-23 01:07:02,351 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Angad Bedi
+2025-04-23 01:07:02,377 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Angad Bilochpura
+2025-04-23 01:07:02,408 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Anna Shishkareva
+2025-04-23 01:07:02,449 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Anshu Kapoor
+2025-04-23 01:07:02,490 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Anthony Mohr
+2025-04-23 01:07:02,518 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': António Pereira Dias
+2025-04-23 01:07:02,544 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Aparna Verma
+2025-04-23 01:07:02,573 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Arvi Luoma
+2025-04-23 01:07:02,597 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Arvind Ramamurthy
+2025-04-23 01:07:02,624 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Asad Rahman
+2025-04-23 01:07:02,657 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Ashish Khandelia
+2025-04-23 01:07:02,695 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Audrey Klein
+2025-04-23 01:07:02,733 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Avnish Singh
+2025-04-23 01:07:02,768 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Avyay Jhunjhunwala
+2025-04-23 01:07:02,802 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Bassam Samman
+2025-04-23 01:07:02,835 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Bernardo Sampaio
+2025-04-23 01:07:02,865 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Brad Heming
+2025-04-23 01:07:02,891 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Brent Reynolds
+2025-04-23 01:07:02,917 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Cameron Adams
+2025-04-23 01:07:02,950 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Catherine Chan
+2025-04-23 01:07:02,990 - INFO - [2025-04-23 01:07:02] INFO - Extracted 'name': Chakyl Camal
+2025-04-23 01:07:03,033 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Chet Tailor
+2025-04-23 01:07:03,068 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Christian Bearman
+2025-04-23 01:07:03,102 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Christian Gartner
+2025-04-23 01:07:03,134 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Christina Georgiou
+2025-04-23 01:07:03,156 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Christophe Ben Naceur
+2025-04-23 01:07:03,181 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Christophoros Papachristophorou
+2025-04-23 01:07:03,206 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Craig Cowie
+2025-04-23 01:07:03,233 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Cristina García-Peri
+2025-04-23 01:07:03,259 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Cyrus Mody
+2025-04-23 01:07:03,283 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Daniel Farrier
+2025-04-23 01:07:03,307 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Daniel Gay
+2025-04-23 01:07:03,335 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': David Collett
+2025-04-23 01:07:03,360 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': David Iriso
+2025-04-23 01:07:03,391 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Dr Anita Yadav
+2025-04-23 01:07:03,430 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Drew Goldman
+2025-04-23 01:07:03,463 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Dr. Vivek Oberoi
+2025-04-23 01:07:03,488 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Ehab Alkhiary
+2025-04-23 01:07:03,516 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Elizabeth Tillmann
+2025-04-23 01:07:03,549 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Emma Jack
+2025-04-23 01:07:03,587 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Fadi Nwilati
+2025-04-23 01:07:03,631 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Faisal Aljefri
+2025-04-23 01:07:03,670 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Fernando Perez-Hickman
+2025-04-23 01:07:03,720 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': François Roth
+2025-04-23 01:07:03,758 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Frank Roseen
+2025-04-23 01:07:03,791 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Frédéric Dib
+2025-04-23 01:07:03,891 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Gary Carmell
+2025-04-23 01:07:03,917 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Gavin Neilan
+2025-04-23 01:07:03,941 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': George Saad
+2025-04-23 01:07:03,971 - INFO - [2025-04-23 01:07:03] INFO - Extracted 'name': Hakim Datawala
+2025-04-23 01:07:04,007 - INFO - [2025-04-23 01:07:04] INFO - Extracted 'name': Idan Kaplan
+2025-04-23 01:07:04,038 - INFO - [2025-04-23 01:07:04] INFO - Extracted 'name': Iseeb Rehman
+2025-04-23 01:07:04,063 - INFO - [2025-04-23 01:07:04] INFO - Extracted 'name': Jaime Lopez Marco
+2025-04-23 01:07:04,085 - INFO - [2025-04-23 01:07:04] INFO - Extracted 'name': Jamal Dutheil
+2025-04-23 01:07:04,107 - INFO - [2025-04-23 01:07:04] INFO - Extracted 'name': James Hessing
+2025-04-23 01:07:04,131 - INFO - [2025-04-23 01:07:04] INFO - Extracted 'name': James Kirimy
+2025-04-23 01:07:04,158 - INFO - [2025-04-23 01:07:04] INFO - Extracted 'name': Jamie Ritblat
+2025-04-23 01:07:04,187 - INFO - [2025-04-23 01:07:04] INFO - Extracted 'name': Jason Kow
+2025-04-23 01:07:04,216 - INFO - [2025-04-23 01:07:04] INFO - Extracted 'name': Jean-Philippe Küss
+2025-04-23 01:07:04,254 - INFO - [2025-04-23 01:07:04] INFO - Extracted 'name': Jeff Fastov
+2025-04-23 01:07:04,284 - INFO - [2025-04-23 01:07:04] INFO - Extracted 'name': Jinny Goel
+2025-04-23 01:07:04,309 - INFO - [2025-04-23 01:07:04] INFO - Extracted 'name': Joan Vidiella
+2025-04-23 01:07:04,335 - INFO - [2025-04-23 01:07:04] INFO - Extracted 'name': Johan Eriksson
+2025-04-23 01:07:04,361 - INFO - [2025-04-23 01:07:04] INFO - Extracted 'name': Jorge Cantonnet
+2025-04-23 01:07:04,386 - INFO - [2025-04-23 01:07:04] INFO - Extracted 'name': Jorge Pepa
+2025-04-23 01:07:04,412 - INFO - [2025-04-23 01:07:04] INFO - Extracted 'name': Jueane Thiessen
+2025-04-23 01:07:04,438 - INFO - [2025-04-23 01:07:04] INFO - Extracted 'name': Justin Hildebrandt
+2025-04-23 01:07:04,467 - INFO - [2025-04-23 01:07:04] INFO - Extracted 'name': Kamaldeep Manaktala
+2025-04-23 01:07:04,500 - INFO - [2025-04-23 01:07:04] INFO - Extracted 'name': Kaushik Desai
+2025-04-23 01:07:04,527 - INFO - [2025-04-23 01:07:04] INFO - Extracted 'name': Ken Jeswani
+2025-04-23 01:07:04,561 - INFO - [2025-04-23 01:07:04] INFO - Extracted 'name': Khadeer Shariff
+2025-04-23 01:07:04,593 - INFO - [2025-04-23 01:07:04] INFO - Extracted 'name': Khadija Benzit
+2025-04-23 01:07:05,334 - INFO - [2025-04-23 01:07:05] INFO - 
+[SUCCESS] Scraping complete. 90 items saved.
+2025-04-23 01:07:05,334 - INFO - [2025-04-23 01:07:05] INFO - Results saved to JSON: output/6eb78176-30ce-42ae-ba4b-1ea50b0ff2a3\scraped_data.json
+2025-04-23 01:07:05,334 - INFO - [2025-04-23 01:07:05] INFO - Results saved to Excel: output/6eb78176-30ce-42ae-ba4b-1ea50b0ff2a3\scraped_data.xlsx
