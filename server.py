@@ -35,13 +35,22 @@ DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 PORT = int(os.environ.get('PORT', 5000))
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
+# Get WebSocket configuration from environment
+WS_HOST = os.environ.get('WS_HOST', '0.0.0.0')
+WS_PORT = int(os.environ.get('WS_PORT', 6789))
+WS_PING_INTERVAL = int(os.environ.get('WS_PING_INTERVAL', 30))
+WS_PING_TIMEOUT = int(os.environ.get('WS_PING_TIMEOUT', 10))
+WS_CLOSE_TIMEOUT = int(os.environ.get('WS_CLOSE_TIMEOUT', 10))
+
+# Get allowed origins from environment
+ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', 'http://localhost:3000').split(',')
+
 # Configure CORS with more specific settings
 CORS(app, resources={
     r"/*": {
-        "origins": [FRONTEND_URL],  # Use frontend URL from environment
+        "origins": ALLOWED_ORIGINS,
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type", "X-User-Id", "Authorization"],
-        "expose_headers": ["Content-Type", "X-User-Id"],
         "supports_credentials": True
     }
 })
@@ -189,6 +198,19 @@ def create_default_config(user_id):
         json.dump(default_config, f, indent=4)
     
     return default_config
+
+@app.route('/', methods=['GET'])
+def welcome():
+    return jsonify({"message": "Welcome to the Web Scraper API!"})
+
+@app.route('/ws')
+def handle_websocket():
+    if request.environ.get('wsgi.websocket'):
+        ws = request.environ['wsgi.websocket']
+        while True:
+            message = ws.receive()
+            ws.send(message)
+    return ''
 
 @app.route('/run-scraper', methods=['POST'])
 def run_scraper():
@@ -1171,26 +1193,23 @@ async def websocket_handler(websocket):
 async def start_websocket_server():
     try:
         # Log WebSocket server startup
-        print("Starting WebSocket server on ws://localhost:6789")
-        logger.info("🚀 WEBSOCKET SERVER STARTING on ws://localhost:6789")
+        logger.info(f"🚀 WEBSOCKET SERVER STARTING on ws://{WS_HOST}:{WS_PORT}")
         
-        # Start WebSocket server with more explicit configuration
+        # Start WebSocket server with configuration from environment
         server = await websockets.serve(
             websocket_handler, 
-            "localhost", 
-            6789,
-            ping_interval=30,  # Send ping every 30 seconds
-            ping_timeout=10,   # Wait 10 seconds for pong response
-            close_timeout=10   # Wait 10 seconds for close handshake
+            WS_HOST,
+            WS_PORT,
+            ping_interval=WS_PING_INTERVAL,
+            ping_timeout=WS_PING_TIMEOUT,
+            close_timeout=WS_CLOSE_TIMEOUT
         )
         
-        print("WebSocket server started successfully on ws://localhost:6789")
-        logger.info("✅ WEBSOCKET SERVER RUNNING on ws://localhost:6789")
+        logger.info(f"✅ WEBSOCKET SERVER RUNNING on ws://{WS_HOST}:{WS_PORT}")
         
         # Keep server running forever
         await asyncio.Future()
     except Exception as e:
-        print(f"WebSocket server error: {e}")
         logger.error(f"WebSocket server error: {str(e)}", exc_info=True)
         # Try to restart
         await asyncio.sleep(5)
