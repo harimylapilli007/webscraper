@@ -1,0 +1,38 @@
+{
+    "base_url": "https://www.griclub.org/program/participants/empowered-by-gcc-global-capital-connectors-series_1810",
+    "concurrent_settings": {
+        "base_request_delay": 2,
+        "job_spacing_delay": 3,
+        "max_concurrent_jobs": 3,
+        "max_concurrent_requests": 2
+    },
+    "container_selector": "div.member-card__body",
+    "fields": {
+        "name": "a.member-card__name"
+    },
+    "initial_wait": 10,
+    "load_more_selector": "",
+    "load_more_wait": 3,
+    "max_pages": 1,
+    "max_scroll_attempts": 20,
+    "next_page_selector": "",
+    "output_excel": "output/495c18d5-6c96-4e53-b36e-663400fb5baa\\scraped_data.xlsx",
+    "output_json": "output/495c18d5-6c96-4e53-b36e-663400fb5baa\\scraped_data.json",
+    "page_wait": 2,
+    "paginate": false,
+    "scrape_subpages": false,
+    "scroll": false,
+    "scroll_wait": 3,
+    "start_page": 1,
+    "subpage_fields": {},
+    "subpage_wait": 3,
+    "job_id": "495c18d5-6c96-4e53-b36e-663400fb5baa",
+    "user_id": "ang9rlp5bbn",
+    "concurrent": true,
+    "output_dir": "output/495c18d5-6c96-4e53-b36e-663400fb5baa",
+    "log_file": "output/495c18d5-6c96-4e53-b36e-663400fb5baa\\scraper.log",
+    "request_delay": 4,
+    "max_concurrent_requests": 2,
+    "job_start_time": "2025-04-22T12:08:31.828648",
+    "headless": true
+}

@@ -1,0 +1,148 @@
+2025-04-22 11:52:35,724 - INFO - [2025-04-22 11:52:35] INFO - Added file handler for log file: output/0aeb7a43-ec22-474b-a661-576e6570206e\scraper.log
+2025-04-22 11:52:35,724 - INFO - [2025-04-22 11:52:35] INFO - Starting scraper with configuration:
+2025-04-22 11:52:35,724 - INFO - [2025-04-22 11:52:35] INFO - base_url: https://www.booking.com/searchresults.html?label=gog235jc-1DCAEoggI46AdIM1gDaGyIAQGYATG4AQfIAQzYAQPoAQH4AQKIAgGoAgO4As_0h8AGwAIB0gIkMzJhOGRkNTItN2Y0NS00OGIyLWI0NDMtOGRjODk1MjQxNDlh2AIE4AIB&aid=397594&ss=Himachal+Pradesh%2C+India&ssne=Uttarakhand&ssne_untouched=Uttarakhand&lang=en-us&src=searchresults&dest_id=3482&dest_type=region&ac_position=1&ac_click_type=b&ac_langcode=en&ac_suggestion_list_length=5&search_selected=true&search_pageview_id=ce3f33fa3adb003e&checkin=2025-04-18&checkout=2025-04-19&group_adults=2&no_rooms=1&group_children=0&nflt=hotelfacility%3D54%3Bht_id%3D206
+2025-04-22 11:52:35,726 - INFO - [2025-04-22 11:52:35] INFO - concurrent_settings: {'base_request_delay': 2, 'job_spacing_delay': 3, 'max_concurrent_jobs': 3, 'max_concurrent_requests': 2}
+2025-04-22 11:52:35,726 - INFO - [2025-04-22 11:52:35] INFO - container_selector: div.c82435a4b8.a178069f51.a6ae3c2b40
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - initial_wait: 3
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - load_more_selector: 
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - load_more_wait: 3
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - max_pages: 1
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - max_scroll_attempts: 20
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - next_page_selector: 
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - output_excel: output/0aeb7a43-ec22-474b-a661-576e6570206e\scraped_data.xlsx
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - output_json: output/0aeb7a43-ec22-474b-a661-576e6570206e\scraped_data.json
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - page_wait: 2
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - paginate: False
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - scrape_subpages: False
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - scroll: True
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - scroll_wait: 3
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - start_page: 1
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - subpage_wait: 3
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - job_id: 0aeb7a43-ec22-474b-a661-576e6570206e
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - user_id: user_khiboz5p84_1745132256993
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - concurrent: True
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - output_dir: output/0aeb7a43-ec22-474b-a661-576e6570206e
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - log_file: output/0aeb7a43-ec22-474b-a661-576e6570206e\scraper.log
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - request_delay: 6
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - max_concurrent_requests: 2
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - job_start_time: 2025-04-22T11:52:31.534459
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - headless: True
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - Concurrent scraping settings:
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - Job ID: 0aeb7a43-ec22-474b-a661-576e6570206e
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - User ID: user_khiboz5p84_1745132256993
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - Request delay: 6s
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - Max concurrent requests: 2
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - Concurrent scraping settings:
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - Job ID: 0aeb7a43-ec22-474b-a661-576e6570206e
+2025-04-22 11:52:35,727 - INFO - [2025-04-22 11:52:35] INFO - User ID: user_khiboz5p84_1745132256993
+2025-04-22 11:52:35,729 - INFO - [2025-04-22 11:52:35] INFO - Request delay: 6s
+2025-04-22 11:52:35,729 - INFO - [2025-04-22 11:52:35] INFO - Max concurrent requests: 2
+2025-04-22 11:52:35,729 - INFO - [2025-04-22 11:52:35] INFO - Starting scraper with configuration:
+2025-04-22 11:52:35,729 - INFO - [2025-04-22 11:52:35] INFO - {
+  "base_url": "https://www.booking.com/searchresults.html?label=gog235jc-1DCAEoggI46AdIM1gDaGyIAQGYATG4AQfIAQzYAQPoAQH4AQKIAgGoAgO4As_0h8AGwAIB0gIkMzJhOGRkNTItN2Y0NS00OGIyLWI0NDMtOGRjODk1MjQxNDlh2AIE4AIB&aid=397594&ss=Himachal+Pradesh%2C+India&ssne=Uttarakhand&ssne_untouched=Uttarakhand&lang=en-us&src=searchresults&dest_id=3482&dest_type=region&ac_position=1&ac_click_type=b&ac_langcode=en&ac_suggestion_list_length=5&search_selected=true&search_pageview_id=ce3f33fa3adb003e&checkin=2025-04-18&checkout=2025-04-19&group_adults=2&no_rooms=1&group_children=0&nflt=hotelfacility%3D54%3Bht_id%3D206",
+  "concurrent_settings": {
+    "base_request_delay": 2,
+    "job_spacing_delay": 3,
+    "max_concurrent_jobs": 3,
+    "max_concurrent_requests": 2
+  },
+  "container_selector": "div.c82435a4b8.a178069f51.a6ae3c2b40",
+  "initial_wait": 3,
+  "load_more_selector": "",
+  "load_more_wait": 3,
+  "max_pages": 1,
+  "max_scroll_attempts": 20,
+  "next_page_selector": "",
+  "output_excel": "output/0aeb7a43-ec22-474b-a661-576e6570206e\\scraped_data.xlsx",
+  "output_json": "output/0aeb7a43-ec22-474b-a661-576e6570206e\\scraped_data.json",
+  "page_wait": 2,
+  "paginate": false,
+  "scrape_subpages": false,
+  "scroll": true,
+  "scroll_wait": 3,
+  "start_page": 1,
+  "subpage_wait": 3,
+  "job_id": "0aeb7a43-ec22-474b-a661-576e6570206e",
+  "user_id": "user_khiboz5p84_1745132256993",
+  "concurrent": true,
+  "output_dir": "output/0aeb7a43-ec22-474b-a661-576e6570206e",
+  "log_file": "output/0aeb7a43-ec22-474b-a661-576e6570206e\\scraper.log",
+  "request_delay": 6,
+  "max_concurrent_requests": 2,
+  "job_start_time": "2025-04-22T11:52:31.534459",
+  "headless": true
+}
+2025-04-22 11:52:35,729 - INFO - [2025-04-22 11:52:35] INFO - Attempting to use undetected-chromedriver...
+2025-04-22 11:52:42,207 - INFO - [2025-04-22 11:52:42] INFO - Successfully initialized Chrome with undetected-chromedriver
+2025-04-22 11:52:42,207 - INFO - [2025-04-22 11:52:42] INFO - Job started for user user_khiboz5p84_1745132256993 (Job ID: 0aeb7a43-ec22-474b-a661-576e6570206e)
+2025-04-22 11:52:42,207 - INFO - [2025-04-22 11:52:42] INFO - Phase 1: Collecting main fields and links from all pages...
+2025-04-22 11:52:45,659 - INFO - [2025-04-22 11:52:45] INFO - Navigated to base URL: https://www.booking.com/searchresults.html?label=gog235jc-1DCAEoggI46AdIM1gDaGyIAQGYATG4AQfIAQzYAQPoAQH4AQKIAgGoAgO4As_0h8AGwAIB0gIkMzJhOGRkNTItN2Y0NS00OGIyLWI0NDMtOGRjODk1MjQxNDlh2AIE4AIB&aid=397594&ss=Himachal+Pradesh%2C+India&ssne=Uttarakhand&ssne_untouched=Uttarakhand&lang=en-us&src=searchresults&dest_id=3482&dest_type=region&ac_position=1&ac_click_type=b&ac_langcode=en&ac_suggestion_list_length=5&search_selected=true&search_pageview_id=ce3f33fa3adb003e&checkin=2025-04-18&checkout=2025-04-19&group_adults=2&no_rooms=1&group_children=0&nflt=hotelfacility%3D54%3Bht_id%3D206
+2025-04-22 11:52:51,769 - INFO - [2025-04-22 11:52:51] INFO - Scraping main fields from page 1...
+2025-04-22 11:52:51,769 - INFO - [2025-04-22 11:52:51] INFO - Scrolling to load all content...
+2025-04-22 11:53:04,050 - INFO - [2025-04-22 11:53:04] INFO - Reached end of scrollable content
+2025-04-22 11:53:04,067 - INFO - [2025-04-22 11:53:04] INFO - Found 34 items on page 1
+2025-04-22 11:53:04,104 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,131 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,151 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,187 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,206 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,229 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,263 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,283 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,302 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,338 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,360 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,395 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,417 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,435 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,469 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,489 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,508 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,527 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,633 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,701 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,738 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,761 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,781 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,802 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,822 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,833 - WARNING - [2025-04-22 11:53:04] WARNING - Couldn't extract 'resorts': Message: no such element: Unable to locate element: {"method":"css selector","selector":"div.f6431b446c.a15b38c233"}
+  (Session info: chrome=135.0.7049.96); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+	GetHandleVerifier [0x00658073+60707]
+	GetHandleVerifier [0x006580B4+60772]
+	(No symbol) [0x00480683]
+	(No symbol) [0x004C8660]
+	(No symbol) [0x004C89FB]
+	(No symbol) [0x004BDD81]
+	(No symbol) [0x004ED094]
+	(No symbol) [0x004BDCA4]
+	(No symbol) [0x004ED2C4]
+	(No symbol) [0x0050E824]
+	(No symbol) [0x004ECE46]
+	(No symbol) [0x004BC5D3]
+	(No symbol) [0x004BD424]
+	GetHandleVerifier [0x0089BB53+2435075]
+	GetHandleVerifier [0x008970F3+2416035]
+	GetHandleVerifier [0x008B349C+2531660]
+	GetHandleVerifier [0x0066F145+155125]
+	GetHandleVerifier [0x00675AED+182173]
+	GetHandleVerifier [0x0065F948+91640]
+	GetHandleVerifier [0x0065FAF0+92064]
+	GetHandleVerifier [0x0064A5B0+4704]
+	BaseThreadInitThunk [0x74BB5D49+25]
+	RtlInitializeExceptionChain [0x76ECCF0B+107]
+	RtlGetAppContainerNamedObjectPath [0x76ECCE91+561]
+
+2025-04-22 11:53:04,880 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,908 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,953 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:04,983 - INFO - [2025-04-22 11:53:04] INFO - Extracted 'resorts': 
+2025-04-22 11:53:05,012 - INFO - [2025-04-22 11:53:05] INFO - Extracted 'resorts': 
+2025-04-22 11:53:05,050 - INFO - [2025-04-22 11:53:05] INFO - Extracted 'resorts': 
+2025-04-22 11:53:05,079 - INFO - [2025-04-22 11:53:05] INFO - Extracted 'resorts': 
+2025-04-22 11:53:05,104 - INFO - [2025-04-22 11:53:05] INFO - Extracted 'resorts': 
+2025-04-22 11:53:05,735 - INFO - [2025-04-22 11:53:05] INFO - 
+[SUCCESS] Scraping complete. 34 items saved.
+2025-04-22 11:53:05,735 - INFO - [2025-04-22 11:53:05] INFO - Results saved to JSON: output/0aeb7a43-ec22-474b-a661-576e6570206e\scraped_data.json
+2025-04-22 11:53:05,735 - INFO - [2025-04-22 11:53:05] INFO - Results saved to Excel: output/0aeb7a43-ec22-474b-a661-576e6570206e\scraped_data.xlsx

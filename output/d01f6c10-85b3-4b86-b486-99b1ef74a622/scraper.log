@@ -1,0 +1,146 @@
+2025-04-22 12:05:09,146 - INFO - [2025-04-22 12:05:09] INFO - Added file handler for log file: output/d01f6c10-85b3-4b86-b486-99b1ef74a622\scraper.log
+2025-04-22 12:05:09,146 - INFO - [2025-04-22 12:05:09] INFO - Starting scraper with configuration:
+2025-04-22 12:05:09,146 - INFO - [2025-04-22 12:05:09] INFO - base_url: https://www.booking.com/searchresults.html?label=gog235jc-1DCAEoggI46AdIM1gDaGyIAQGYATG4AQfIAQzYAQPoAQH4AQKIAgGoAgO4As_0h8AGwAIB0gIkMzJhOGRkNTItN2Y0NS00OGIyLWI0NDMtOGRjODk1MjQxNDlh2AIE4AIB&aid=397594&ss=Himachal+Pradesh%2C+India&ssne=Uttarakhand&ssne_untouched=Uttarakhand&lang=en-us&src=searchresults&dest_id=3482&dest_type=region&ac_position=1&ac_click_type=b&ac_langcode=en&ac_suggestion_list_length=5&search_selected=true&search_pageview_id=ce3f33fa3adb003e&checkin=2025-04-18&checkout=2025-04-19&group_adults=2&no_rooms=1&group_children=0&nflt=hotelfacility%3D54%3Bht_id%3D206
+2025-04-22 12:05:09,146 - INFO - [2025-04-22 12:05:09] INFO - concurrent_settings: {'base_request_delay': 2, 'job_spacing_delay': 3, 'max_concurrent_jobs': 3, 'max_concurrent_requests': 2}
+2025-04-22 12:05:09,146 - INFO - [2025-04-22 12:05:09] INFO - container_selector: div.c82435a4b8.a178069f51.a6ae3c2b40
+2025-04-22 12:05:09,146 - INFO - [2025-04-22 12:05:09] INFO - initial_wait: 3
+2025-04-22 12:05:09,146 - INFO - [2025-04-22 12:05:09] INFO - load_more_selector: 
+2025-04-22 12:05:09,146 - INFO - [2025-04-22 12:05:09] INFO - load_more_wait: 3
+2025-04-22 12:05:09,146 - INFO - [2025-04-22 12:05:09] INFO - max_pages: 1
+2025-04-22 12:05:09,146 - INFO - [2025-04-22 12:05:09] INFO - max_scroll_attempts: 20
+2025-04-22 12:05:09,146 - INFO - [2025-04-22 12:05:09] INFO - next_page_selector: 
+2025-04-22 12:05:09,146 - INFO - [2025-04-22 12:05:09] INFO - output_excel: output/d01f6c10-85b3-4b86-b486-99b1ef74a622\scraped_data.xlsx
+2025-04-22 12:05:09,146 - INFO - [2025-04-22 12:05:09] INFO - output_json: output/d01f6c10-85b3-4b86-b486-99b1ef74a622\scraped_data.json
+2025-04-22 12:05:09,147 - INFO - [2025-04-22 12:05:09] INFO - page_wait: 2
+2025-04-22 12:05:09,147 - INFO - [2025-04-22 12:05:09] INFO - paginate: False
+2025-04-22 12:05:09,147 - INFO - [2025-04-22 12:05:09] INFO - scrape_subpages: False
+2025-04-22 12:05:09,147 - INFO - [2025-04-22 12:05:09] INFO - scroll: True
+2025-04-22 12:05:09,147 - INFO - [2025-04-22 12:05:09] INFO - scroll_wait: 3
+2025-04-22 12:05:09,147 - INFO - [2025-04-22 12:05:09] INFO - start_page: 1
+2025-04-22 12:05:09,147 - INFO - [2025-04-22 12:05:09] INFO - subpage_wait: 3
+2025-04-22 12:05:09,147 - INFO - [2025-04-22 12:05:09] INFO - job_id: d01f6c10-85b3-4b86-b486-99b1ef74a622
+2025-04-22 12:05:09,147 - INFO - [2025-04-22 12:05:09] INFO - user_id: user_khiboz5p84_1745132256993
+2025-04-22 12:05:09,147 - INFO - [2025-04-22 12:05:09] INFO - concurrent: True
+2025-04-22 12:05:09,147 - INFO - [2025-04-22 12:05:09] INFO - output_dir: output/d01f6c10-85b3-4b86-b486-99b1ef74a622
+2025-04-22 12:05:09,147 - INFO - [2025-04-22 12:05:09] INFO - log_file: output/d01f6c10-85b3-4b86-b486-99b1ef74a622\scraper.log
+2025-04-22 12:05:09,147 - INFO - [2025-04-22 12:05:09] INFO - request_delay: 4
+2025-04-22 12:05:09,147 - INFO - [2025-04-22 12:05:09] INFO - max_concurrent_requests: 2
+2025-04-22 12:05:09,147 - INFO - [2025-04-22 12:05:09] INFO - job_start_time: 2025-04-22T12:05:05.177879
+2025-04-22 12:05:09,147 - INFO - [2025-04-22 12:05:09] INFO - headless: True
+2025-04-22 12:05:09,148 - INFO - [2025-04-22 12:05:09] INFO - Concurrent scraping settings:
+2025-04-22 12:05:09,148 - INFO - [2025-04-22 12:05:09] INFO - Job ID: d01f6c10-85b3-4b86-b486-99b1ef74a622
+2025-04-22 12:05:09,148 - INFO - [2025-04-22 12:05:09] INFO - User ID: user_khiboz5p84_1745132256993
+2025-04-22 12:05:09,148 - INFO - [2025-04-22 12:05:09] INFO - Request delay: 4s
+2025-04-22 12:05:09,148 - INFO - [2025-04-22 12:05:09] INFO - Max concurrent requests: 2
+2025-04-22 12:05:09,148 - INFO - [2025-04-22 12:05:09] INFO - Concurrent scraping settings:
+2025-04-22 12:05:09,148 - INFO - [2025-04-22 12:05:09] INFO - Job ID: d01f6c10-85b3-4b86-b486-99b1ef74a622
+2025-04-22 12:05:09,148 - INFO - [2025-04-22 12:05:09] INFO - User ID: user_khiboz5p84_1745132256993
+2025-04-22 12:05:09,148 - INFO - [2025-04-22 12:05:09] INFO - Request delay: 4s
+2025-04-22 12:05:09,148 - INFO - [2025-04-22 12:05:09] INFO - Max concurrent requests: 2
+2025-04-22 12:05:09,148 - INFO - [2025-04-22 12:05:09] INFO - Starting scraper with configuration:
+2025-04-22 12:05:09,148 - INFO - [2025-04-22 12:05:09] INFO - {
+  "base_url": "https://www.booking.com/searchresults.html?label=gog235jc-1DCAEoggI46AdIM1gDaGyIAQGYATG4AQfIAQzYAQPoAQH4AQKIAgGoAgO4As_0h8AGwAIB0gIkMzJhOGRkNTItN2Y0NS00OGIyLWI0NDMtOGRjODk1MjQxNDlh2AIE4AIB&aid=397594&ss=Himachal+Pradesh%2C+India&ssne=Uttarakhand&ssne_untouched=Uttarakhand&lang=en-us&src=searchresults&dest_id=3482&dest_type=region&ac_position=1&ac_click_type=b&ac_langcode=en&ac_suggestion_list_length=5&search_selected=true&search_pageview_id=ce3f33fa3adb003e&checkin=2025-04-18&checkout=2025-04-19&group_adults=2&no_rooms=1&group_children=0&nflt=hotelfacility%3D54%3Bht_id%3D206",
+  "concurrent_settings": {
+    "base_request_delay": 2,
+    "job_spacing_delay": 3,
+    "max_concurrent_jobs": 3,
+    "max_concurrent_requests": 2
+  },
+  "container_selector": "div.c82435a4b8.a178069f51.a6ae3c2b40",
+  "initial_wait": 3,
+  "load_more_selector": "",
+  "load_more_wait": 3,
+  "max_pages": 1,
+  "max_scroll_attempts": 20,
+  "next_page_selector": "",
+  "output_excel": "output/d01f6c10-85b3-4b86-b486-99b1ef74a622\\scraped_data.xlsx",
+  "output_json": "output/d01f6c10-85b3-4b86-b486-99b1ef74a622\\scraped_data.json",
+  "page_wait": 2,
+  "paginate": false,
+  "scrape_subpages": false,
+  "scroll": true,
+  "scroll_wait": 3,
+  "start_page": 1,
+  "subpage_wait": 3,
+  "job_id": "d01f6c10-85b3-4b86-b486-99b1ef74a622",
+  "user_id": "user_khiboz5p84_1745132256993",
+  "concurrent": true,
+  "output_dir": "output/d01f6c10-85b3-4b86-b486-99b1ef74a622",
+  "log_file": "output/d01f6c10-85b3-4b86-b486-99b1ef74a622\\scraper.log",
+  "request_delay": 4,
+  "max_concurrent_requests": 2,
+  "job_start_time": "2025-04-22T12:05:05.177879",
+  "headless": true
+}
+2025-04-22 12:05:09,148 - INFO - [2025-04-22 12:05:09] INFO - Attempting to use undetected-chromedriver...
+2025-04-22 12:05:14,121 - INFO - [2025-04-22 12:05:14] INFO - Successfully initialized Chrome with undetected-chromedriver
+2025-04-22 12:05:14,121 - INFO - [2025-04-22 12:05:14] INFO - Job started for user user_khiboz5p84_1745132256993 (Job ID: d01f6c10-85b3-4b86-b486-99b1ef74a622)
+2025-04-22 12:05:14,121 - INFO - [2025-04-22 12:05:14] INFO - Phase 1: Collecting main fields and links from all pages...
+2025-04-22 12:05:17,713 - INFO - [2025-04-22 12:05:17] INFO - Navigated to base URL: https://www.booking.com/searchresults.html?label=gog235jc-1DCAEoggI46AdIM1gDaGyIAQGYATG4AQfIAQzYAQPoAQH4AQKIAgGoAgO4As_0h8AGwAIB0gIkMzJhOGRkNTItN2Y0NS00OGIyLWI0NDMtOGRjODk1MjQxNDlh2AIE4AIB&aid=397594&ss=Himachal+Pradesh%2C+India&ssne=Uttarakhand&ssne_untouched=Uttarakhand&lang=en-us&src=searchresults&dest_id=3482&dest_type=region&ac_position=1&ac_click_type=b&ac_langcode=en&ac_suggestion_list_length=5&search_selected=true&search_pageview_id=ce3f33fa3adb003e&checkin=2025-04-18&checkout=2025-04-19&group_adults=2&no_rooms=1&group_children=0&nflt=hotelfacility%3D54%3Bht_id%3D206
+2025-04-22 12:05:21,718 - ERROR - [2025-04-22 12:05:21] ERROR - [ERROR] Scraping failed: Message: invalid session id: session deleted as the browser has closed the connection
+from disconnected: not connected to DevTools
+  (Session info: chrome=135.0.7049.96)
+Stacktrace:
+	GetHandleVerifier [0x00F98073+60707]
+	GetHandleVerifier [0x00F980B4+60772]
+	(No symbol) [0x00DC0683]
+	(No symbol) [0x00DAFED0]
+	(No symbol) [0x00DCDD3F]
+	(No symbol) [0x00E33D7F]
+	(No symbol) [0x00E4E129]
+	(No symbol) [0x00E2CE46]
+	(No symbol) [0x00DFC5D3]
+	(No symbol) [0x00DFD424]
+	GetHandleVerifier [0x011DBB53+2435075]
+	GetHandleVerifier [0x011D70F3+2416035]
+	GetHandleVerifier [0x011F349C+2531660]
+	GetHandleVerifier [0x00FAF145+155125]
+	GetHandleVerifier [0x00FB5AED+182173]
+	GetHandleVerifier [0x00F9F948+91640]
+	GetHandleVerifier [0x00F9FAF0+92064]
+	GetHandleVerifier [0x00F8A5B0+4704]
+	BaseThreadInitThunk [0x74BB5D49+25]
+	RtlInitializeExceptionChain [0x76ECCF0B+107]
+	RtlGetAppContainerNamedObjectPath [0x76ECCE91+561]
+
+2025-04-22 12:05:21,761 - ERROR - [2025-04-22 12:05:21] ERROR - Traceback (most recent call last):
+  File "C:\Users\harim\Downloads\web-scrap-master\backend\scrap.py", line 631, in scrape_data
+    current_url = driver.current_url
+                  ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\harim\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\undetected_chromedriver\__init__.py", line 806, in __getattribute__
+    return super().__getattribute__(item)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\harim\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\selenium\webdriver\remote\webdriver.py", line 436, in current_url
+    return self.execute(Command.GET_CURRENT_URL)["value"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\harim\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\selenium\webdriver\remote\webdriver.py", line 346, in execute
+    self.error_handler.check_response(response)
+  File "C:\Users\harim\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\selenium\webdriver\remote\errorhandler.py", line 245, in check_response
+    raise exception_class(message, screen, stacktrace)
+selenium.common.exceptions.InvalidSessionIdException: Message: invalid session id: session deleted as the browser has closed the connection
+from disconnected: not connected to DevTools
+  (Session info: chrome=135.0.7049.96)
+Stacktrace:
+	GetHandleVerifier [0x00F98073+60707]
+	GetHandleVerifier [0x00F980B4+60772]
+	(No symbol) [0x00DC0683]
+	(No symbol) [0x00DAFED0]
+	(No symbol) [0x00DCDD3F]
+	(No symbol) [0x00E33D7F]
+	(No symbol) [0x00E4E129]
+	(No symbol) [0x00E2CE46]
+	(No symbol) [0x00DFC5D3]
+	(No symbol) [0x00DFD424]
+	GetHandleVerifier [0x011DBB53+2435075]
+	GetHandleVerifier [0x011D70F3+2416035]
+	GetHandleVerifier [0x011F349C+2531660]
+	GetHandleVerifier [0x00FAF145+155125]
+	GetHandleVerifier [0x00FB5AED+182173]
+	GetHandleVerifier [0x00F9F948+91640]
+	GetHandleVerifier [0x00F9FAF0+92064]
+	GetHandleVerifier [0x00F8A5B0+4704]
+	BaseThreadInitThunk [0x74BB5D49+25]
+	RtlInitializeExceptionChain [0x76ECCF0B+107]
+	RtlGetAppContainerNamedObjectPath [0x76ECCE91+561]
+
+
