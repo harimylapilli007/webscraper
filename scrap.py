@@ -604,12 +604,13 @@ def scrape_data(config):
     logger.log("Starting scraper with configuration:", level=logging.INFO)
     logger.log(json.dumps({k: v for k, v in config.items() if k not in ['fields', 'subpage_fields']}, indent=2), level=logging.INFO)
 
-    driver = setup_driver(config.get("headless", True))
-    results = []
-    page_num = config.get("start_page", 1)
-    max_pages = config.get("max_pages", 10)
-    
+    driver = None
     try:
+        driver = setup_driver(config.get("headless", True))
+        results = []
+        page_num = config.get("start_page", 1)
+        max_pages = config.get("max_pages", 10)
+        
         # Set up job-specific logging if configured
         if config.get("log_file"):
             logger.log(f"Job started for user {config.get('user_id')} (Job ID: {config.get('job_id')})", level=logging.INFO)
@@ -795,19 +796,91 @@ def scrape_data(config):
         logger.log(f"Results saved to JSON: {output_json}", level=logging.INFO)
         logger.log(f"Results saved to Excel: {output_excel}", level=logging.INFO)
         logger.log("Scraper completed successfully", level=logging.INFO)
-        
-        # Quit driver immediately after successful completion
-        driver.quit()
+
+        # Cleanup driver after successful completion
+        if driver is not None:
+            logger.log("Cleaning up driver after successful scraping...", level=logging.INFO)
+            try:
+                # Try to close the browser window first
+                try:
+                    driver.close()
+                    logger.log("Successfully closed browser window", level=logging.INFO)
+                except Exception as e:
+                    logger.log(f"Error closing browser window: {e}", level=logging.WARNING)
+                
+                # Then try to quit the driver
+                try:
+                    driver.quit()
+                    logger.log("Successfully quit driver", level=logging.INFO)
+                except Exception as e:
+                    logger.log(f"Error quitting driver: {e}", level=logging.WARNING)
+                
+                # Force cleanup of any remaining processes
+                try:
+                    import psutil
+                    chrome_processes_killed = 0
+                    for proc in psutil.process_iter(['pid', 'name']):
+                        try:
+                            if 'chrome' in proc.info['name'].lower():
+                                proc.kill()
+                                chrome_processes_killed += 1
+                        except:
+                            pass
+                    if chrome_processes_killed > 0:
+                        logger.log(f"Killed {chrome_processes_killed} remaining Chrome processes", level=logging.INFO)
+                except Exception as e:
+                    logger.log(f"Error during process cleanup: {e}", level=logging.WARNING)
+                
+                driver = None  # Clear the driver reference
+            except Exception as e:
+                logger.log(f"Error during driver cleanup: {e}", level=logging.ERROR)
+                
         return
 
     except Exception as e:
         logger.log(f"[ERROR] Scraping failed: {e}", level=logging.ERROR)
         import traceback
         logger.log(traceback.format_exc(), level=logging.ERROR)
+        raise  # Re-raise the exception to be handled by the server
     finally:
-        # Only quit driver here if we haven't already quit it after success
-        if 'driver' in locals() and driver:
-            driver.quit()
+        # Final cleanup in case of any errors
+        if driver is not None:
+            logger.log("Performing final driver cleanup...", level=logging.INFO)
+            try:
+                # Try to close the browser window first
+                try:
+                    driver.close()
+                    logger.log("Successfully closed browser window in cleanup", level=logging.INFO)
+                except Exception as e:
+                    logger.log(f"Error closing browser window in cleanup: {e}", level=logging.WARNING)
+                
+                # Then try to quit the driver
+                try:
+                    driver.quit()
+                    logger.log("Successfully quit driver in cleanup", level=logging.INFO)
+                except Exception as e:
+                    logger.log(f"Error quitting driver in cleanup: {e}", level=logging.WARNING)
+                
+                # Force cleanup of any remaining processes
+                try:
+                    import psutil
+                    chrome_processes_killed = 0
+                    for proc in psutil.process_iter(['pid', 'name']):
+                        try:
+                            if 'chrome' in proc.info['name'].lower():
+                                proc.kill()
+                                chrome_processes_killed += 1
+                        except:
+                            pass
+                    if chrome_processes_killed > 0:
+                        logger.log(f"Killed {chrome_processes_killed} remaining Chrome processes in cleanup", level=logging.INFO)
+                except Exception as e:
+                    logger.log(f"Error during process cleanup in cleanup: {e}", level=logging.WARNING)
+            except Exception as e:
+                logger.log(f"Error during final driver cleanup: {e}", level=logging.ERROR)
+            finally:
+                driver = None  # Always clear the driver reference
+        
         # Close job-specific log file if it exists
         if config.get("log_file"):
             for handler in logger.logger.handlers[:]:

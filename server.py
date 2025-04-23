@@ -112,6 +112,7 @@ class ScraperJob:
         self.log_queue = queue.Queue()
         self.status = "pending"
         self.start_time = datetime.now()
+        self.completion_time = None  # Add completion time tracking
         self.output_dir = f"output/{job_id}"
         self.should_stop = False  # Flag to indicate if the scraper should be stopped
         os.makedirs(self.output_dir, exist_ok=True)
@@ -449,6 +450,7 @@ def run_scraper_process(job):
         if return_code == 0:
             # First update the job status
             job.status = "completed"
+            job.completion_time = datetime.now()  # Set completion time
             # Then send the state update
             send_state_update(job.job_id, "completed")
             send_log_to_clients(job.job_id, "Scraper completed successfully")
@@ -1231,8 +1233,9 @@ def start_websocket_server_thread():
             logger.error(f"Error cleaning up WebSocket server: {str(e)}")
 
 def check_and_stop_completed_scrapers():
-    """Periodically check for and stop completed scrapers."""
+    """Periodically check for and stop completed scrapers and delete old files."""
     try:
+        current_time = datetime.now()
         for job_id, job in list(active_jobs.items()):
             # Check if the job is completed but still has a process
             if job.status == "completed" and job.process:
@@ -1244,6 +1247,26 @@ def check_and_stop_completed_scrapers():
                     if job.process:
                         job.process.kill()
                 job.process = None
+                
+                # Set completion time if not already set
+                if not job.completion_time:
+                    job.completion_time = current_time
+            
+            # Check for files older than 5 minutes
+            if job.status == "completed" and job.completion_time:
+                time_diff = (current_time - job.completion_time).total_seconds()
+                if time_diff >= 300:  # 5 minutes in seconds
+                    try:
+                        # Delete the output directory and its contents
+                        if os.path.exists(job.output_dir):
+                            import shutil
+                            shutil.rmtree(job.output_dir)
+                            logger.info(f"Deleted output files for job {job_id} after 5 minutes")
+                            
+                            # Remove the job from active_jobs
+                            del active_jobs[job_id]
+                    except Exception as e:
+                        logger.error(f"Error deleting files for job {job_id}: {str(e)}")
     except Exception as e:
         logger.error(f"Error in check_and_stop_completed_scrapers: {str(e)}")
 
