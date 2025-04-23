@@ -58,7 +58,6 @@ CORS(app, resources={
 socketio = SocketIO(
     app,
     cors_allowed_origins="*",
-    async_mode='gevent',
     ping_timeout=WS_PING_TIMEOUT,
     ping_interval=WS_PING_INTERVAL,
     logger=True,
