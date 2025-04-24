@@ -56,7 +56,7 @@ CORS(app, resources={
     }
 })
 
-# Initialize SocketIO with CORS settings
+# Initialize SocketIO with Azure-specific settings
 socketio = SocketIO(
     app,
     cors_allowed_origins="*",
@@ -65,10 +65,13 @@ socketio = SocketIO(
     logger=True,
     engineio_logger=True,
     transports=['websocket', 'polling'],
-    async_mode='gevent',
+    async_mode='eventlet',
     max_http_buffer_size=1e8,
     async_handlers=True,
-    monitor_clients=True
+    monitor_clients=True,
+    allow_upgrades=True,
+    path='socket.io/',
+    cookie=False
 )
 
 # Store WebSocket clients
@@ -1301,7 +1304,14 @@ def main():
     logger.info(f"Starting Flask server on port {PORT}")
     
     # Start the Flask server with SocketIO
-    socketio.run(app, host='0.0.0.0', port=PORT, debug=DEBUG)
+    socketio.run(
+        app, 
+        host='0.0.0.0', 
+        port=PORT, 
+        debug=DEBUG,
+        use_reloader=False,
+        allow_unsafe_werkzeug=True
+    )
 
 if __name__ == '__main__':
     main()
