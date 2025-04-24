@@ -30,7 +30,21 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
+socketio = SocketIO(
+    app,
+    cors_allowed_origins="*",
+    ping_interval=WS_PING_INTERVAL,
+    ping_timeout=WS_PING_TIMEOUT,
+    logger=True,
+    engineio_logger=True,
+    transports=['websocket', 'polling'],
+    async_mode='eventlet',
+    max_http_buffer_size=1e8,
+    async_handlers=True,
+    monitor_clients=True,
+    allow_upgrades=True,
+    path='/socket.io/'
+)
 
 # Get configuration from environment
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
@@ -55,21 +69,6 @@ CORS(app, resources={
         "max_age": 3600
     }
 })
-
-# Initialize SocketIO with CORS settings
-socketio = SocketIO(
-    app,
-    cors_allowed_origins="*",
-    ping_interval=WS_PING_INTERVAL,
-    ping_timeout=WS_PING_TIMEOUT,
-    logger=True,
-    engineio_logger=True,
-    transports=['websocket', 'polling'],
-    async_mode='gevent',
-    max_http_buffer_size=1e8,
-    async_handlers=True,
-    monitor_clients=True
-)
 
 # Store WebSocket clients
 clients = {}
@@ -1301,7 +1300,14 @@ def main():
     logger.info(f"Starting Flask server on port {PORT}")
     
     # Start the Flask server with SocketIO
-    socketio.run(app, host='0.0.0.0', port=PORT, debug=DEBUG)
+    socketio.run(
+        app, 
+        host='0.0.0.0', 
+        port=PORT, 
+        debug=DEBUG,
+        use_reloader=False,  # Disable reloader in production
+        allow_unsafe_werkzeug=True  # Required for Azure
+    )
 
 if __name__ == '__main__':
     main()
