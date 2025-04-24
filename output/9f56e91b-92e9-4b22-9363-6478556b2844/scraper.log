@@ -1,0 +1,122 @@
+2025-04-24 22:46:51,821 - INFO - [2025-04-24 22:46:51] INFO - Added file handler for log file: output/9f56e91b-92e9-4b22-9363-6478556b2844\scraper.log
+2025-04-24 22:46:51,821 - INFO - [2025-04-24 22:46:51] INFO - Starting scraper with configuration:
+2025-04-24 22:46:51,821 - INFO - [2025-04-24 22:46:51] INFO - base_url: https://www.griclub.org/program/participants/empowered-by-gcc-global-capital-connectors-series_1810
+2025-04-24 22:46:51,822 - INFO - [2025-04-24 22:46:51] INFO - concurrent_settings: {'base_request_delay': 2, 'job_spacing_delay': 3, 'max_concurrent_jobs': 3, 'max_concurrent_requests': 2}
+2025-04-24 22:46:51,822 - INFO - [2025-04-24 22:46:51] INFO - container_selector: div.member-card__body
+2025-04-24 22:46:51,822 - INFO - [2025-04-24 22:46:51] INFO - initial_wait: 3
+2025-04-24 22:46:51,822 - INFO - [2025-04-24 22:46:51] INFO - load_more_selector: 
+2025-04-24 22:46:51,822 - INFO - [2025-04-24 22:46:51] INFO - load_more_wait: 3
+2025-04-24 22:46:51,822 - INFO - [2025-04-24 22:46:51] INFO - max_pages: 1
+2025-04-24 22:46:51,822 - INFO - [2025-04-24 22:46:51] INFO - max_scroll_attempts: 20
+2025-04-24 22:46:51,822 - INFO - [2025-04-24 22:46:51] INFO - next_page_selector: 
+2025-04-24 22:46:51,822 - INFO - [2025-04-24 22:46:51] INFO - output_excel: output/9f56e91b-92e9-4b22-9363-6478556b2844\scraped_data.xlsx
+2025-04-24 22:46:51,822 - INFO - [2025-04-24 22:46:51] INFO - output_json: output/9f56e91b-92e9-4b22-9363-6478556b2844\scraped_data.json
+2025-04-24 22:46:51,823 - INFO - [2025-04-24 22:46:51] INFO - page_wait: 2
+2025-04-24 22:46:51,823 - INFO - [2025-04-24 22:46:51] INFO - paginate: False
+2025-04-24 22:46:51,823 - INFO - [2025-04-24 22:46:51] INFO - scrape_subpages: False
+2025-04-24 22:46:51,823 - INFO - [2025-04-24 22:46:51] INFO - scroll: False
+2025-04-24 22:46:51,823 - INFO - [2025-04-24 22:46:51] INFO - scroll_wait: 3
+2025-04-24 22:46:51,823 - INFO - [2025-04-24 22:46:51] INFO - start_page: 1
+2025-04-24 22:46:51,823 - INFO - [2025-04-24 22:46:51] INFO - subpage_wait: 3
+2025-04-24 22:46:51,823 - INFO - [2025-04-24 22:46:51] INFO - job_id: 9f56e91b-92e9-4b22-9363-6478556b2844
+2025-04-24 22:46:51,823 - INFO - [2025-04-24 22:46:51] INFO - user_id: user_h4hctrxqreu_1745474290425
+2025-04-24 22:46:51,823 - INFO - [2025-04-24 22:46:51] INFO - concurrent: True
+2025-04-24 22:46:51,823 - INFO - [2025-04-24 22:46:51] INFO - output_dir: output/9f56e91b-92e9-4b22-9363-6478556b2844
+2025-04-24 22:46:51,823 - INFO - [2025-04-24 22:46:51] INFO - log_file: output/9f56e91b-92e9-4b22-9363-6478556b2844\scraper.log
+2025-04-24 22:46:51,823 - INFO - [2025-04-24 22:46:51] INFO - request_delay: 4
+2025-04-24 22:46:51,823 - INFO - [2025-04-24 22:46:51] INFO - max_concurrent_requests: 2
+2025-04-24 22:46:51,823 - INFO - [2025-04-24 22:46:51] INFO - job_start_time: 2025-04-24T22:46:47.573749
+2025-04-24 22:46:51,823 - INFO - [2025-04-24 22:46:51] INFO - headless: True
+2025-04-24 22:46:51,824 - INFO - [2025-04-24 22:46:51] INFO - Concurrent scraping settings:
+2025-04-24 22:46:51,824 - INFO - [2025-04-24 22:46:51] INFO - Job ID: 9f56e91b-92e9-4b22-9363-6478556b2844
+2025-04-24 22:46:51,824 - INFO - [2025-04-24 22:46:51] INFO - User ID: user_h4hctrxqreu_1745474290425
+2025-04-24 22:46:51,824 - INFO - [2025-04-24 22:46:51] INFO - Request delay: 4s
+2025-04-24 22:46:51,824 - INFO - [2025-04-24 22:46:51] INFO - Max concurrent requests: 2
+2025-04-24 22:46:51,824 - INFO - [2025-04-24 22:46:51] INFO - Concurrent scraping settings:
+2025-04-24 22:46:51,824 - INFO - [2025-04-24 22:46:51] INFO - Job ID: 9f56e91b-92e9-4b22-9363-6478556b2844
+2025-04-24 22:46:51,824 - INFO - [2025-04-24 22:46:51] INFO - User ID: user_h4hctrxqreu_1745474290425
+2025-04-24 22:46:51,824 - INFO - [2025-04-24 22:46:51] INFO - Request delay: 4s
+2025-04-24 22:46:51,824 - INFO - [2025-04-24 22:46:51] INFO - Max concurrent requests: 2
+2025-04-24 22:46:51,824 - INFO - [2025-04-24 22:46:51] INFO - Starting scraper with configuration:
+2025-04-24 22:46:51,824 - INFO - [2025-04-24 22:46:51] INFO - {
+  "base_url": "https://www.griclub.org/program/participants/empowered-by-gcc-global-capital-connectors-series_1810",
+  "concurrent_settings": {
+    "base_request_delay": 2,
+    "job_spacing_delay": 3,
+    "max_concurrent_jobs": 3,
+    "max_concurrent_requests": 2
+  },
+  "container_selector": "div.member-card__body",
+  "initial_wait": 3,
+  "load_more_selector": "",
+  "load_more_wait": 3,
+  "max_pages": 1,
+  "max_scroll_attempts": 20,
+  "next_page_selector": "",
+  "output_excel": "output/9f56e91b-92e9-4b22-9363-6478556b2844\\scraped_data.xlsx",
+  "output_json": "output/9f56e91b-92e9-4b22-9363-6478556b2844\\scraped_data.json",
+  "page_wait": 2,
+  "paginate": false,
+  "scrape_subpages": false,
+  "scroll": false,
+  "scroll_wait": 3,
+  "start_page": 1,
+  "subpage_wait": 3,
+  "job_id": "9f56e91b-92e9-4b22-9363-6478556b2844",
+  "user_id": "user_h4hctrxqreu_1745474290425",
+  "concurrent": true,
+  "output_dir": "output/9f56e91b-92e9-4b22-9363-6478556b2844",
+  "log_file": "output/9f56e91b-92e9-4b22-9363-6478556b2844\\scraper.log",
+  "request_delay": 4,
+  "max_concurrent_requests": 2,
+  "job_start_time": "2025-04-24T22:46:47.573749",
+  "headless": true
+}
+2025-04-24 22:46:52,286 - INFO - [2025-04-24 22:46:52] INFO - Detected Chrome version: 135.0.7049.114
+2025-04-24 22:46:53,759 - WARNING - [2025-04-24 22:46:53] WARNING - Failed to initialize with exact version match: There is no such driver by url https://chromedriver.storage.googleapis.com/LATEST_RELEASE_135.0.7049
+2025-04-24 22:46:54,867 - WARNING - [2025-04-24 22:46:54] WARNING - Failed to initialize with latest version: There is no such driver by url https://chromedriver.storage.googleapis.com/LATEST_RELEASE_135.0.7049
+2025-04-24 22:46:57,642 - INFO - [2025-04-24 22:46:57] INFO - Successfully initialized Chrome with undetected-chromedriver
+2025-04-24 22:46:57,646 - INFO - [2025-04-24 22:46:57] INFO - Job started for user user_h4hctrxqreu_1745474290425 (Job ID: 9f56e91b-92e9-4b22-9363-6478556b2844)
+2025-04-24 22:46:57,646 - INFO - [2025-04-24 22:46:57] INFO - Phase 1: Collecting main fields and links from all pages...
+2025-04-24 22:47:04,087 - INFO - [2025-04-24 22:47:04] INFO - Navigated to base URL: https://www.griclub.org/program/participants/empowered-by-gcc-global-capital-connectors-series_1810
+2025-04-24 22:47:08,097 - INFO - [2025-04-24 22:47:08] INFO - Scraping main fields from page 1...
+2025-04-24 22:47:08,145 - INFO - [2025-04-24 22:47:08] INFO - Found 30 items on page 1
+2025-04-24 22:47:08,208 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Abdul Wahab Al Halabi
+2025-04-24 22:47:08,244 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Adam Sadiq
+2025-04-24 22:47:08,286 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Adnan Ozair
+2025-04-24 22:47:08,322 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Ahmed El Rabbat
+2025-04-24 22:47:08,343 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Ahmed Nasser Al Nowais
+2025-04-24 22:47:08,361 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Aidan Gallagher
+2025-04-24 22:47:08,386 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Aisha Al Hosani
+2025-04-24 22:47:08,410 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Ajay Rajendran
+2025-04-24 22:47:08,433 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Alberto López Balbas
+2025-04-24 22:47:08,471 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Aleem Siddiqui
+2025-04-24 22:47:08,508 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Alexandre Martin
+2025-04-24 22:47:08,530 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Alexi Antolovich
+2025-04-24 22:47:08,558 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Allen Chilten
+2025-04-24 22:47:08,588 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Amit Goenka
+2025-04-24 22:47:08,619 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Ammar Baroum
+2025-04-24 22:47:08,655 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Anand Lakhotia
+2025-04-24 22:47:08,688 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Anand Mirchandani
+2025-04-24 22:47:08,718 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Anastasia Panina
+2025-04-24 22:47:08,741 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Angad Bedi
+2025-04-24 22:47:08,761 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Angad Bilochpura
+2025-04-24 22:47:08,781 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Anna Shishkareva
+2025-04-24 22:47:08,801 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Anshu Kapoor
+2025-04-24 22:47:08,822 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Anthony Mohr
+2025-04-24 22:47:08,842 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': António Pereira Dias
+2025-04-24 22:47:08,863 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Aparna Verma
+2025-04-24 22:47:08,889 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Arvi Luoma
+2025-04-24 22:47:08,972 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Arvind Ramamurthy
+2025-04-24 22:47:08,995 - INFO - [2025-04-24 22:47:08] INFO - Extracted 'name': Asad Rahman
+2025-04-24 22:47:09,010 - INFO - [2025-04-24 22:47:09] INFO - Extracted 'name': Ashish Khandelia
+2025-04-24 22:47:09,027 - INFO - [2025-04-24 22:47:09] INFO - Extracted 'name': Audrey Klein
+2025-04-24 22:47:09,576 - INFO - [2025-04-24 22:47:09] INFO - 
+[SUCCESS] Scraping complete. 30 items saved.
+2025-04-24 22:47:09,577 - INFO - [2025-04-24 22:47:09] INFO - Results saved to JSON: output/9f56e91b-92e9-4b22-9363-6478556b2844\scraped_data.json
+2025-04-24 22:47:09,577 - INFO - [2025-04-24 22:47:09] INFO - Results saved to Excel: output/9f56e91b-92e9-4b22-9363-6478556b2844\scraped_data.xlsx
+2025-04-24 22:47:09,577 - INFO - [2025-04-24 22:47:09] INFO - Scraper completed successfully
+2025-04-24 22:47:09,577 - INFO - [2025-04-24 22:47:09] INFO - Cleaning up driver after successful scraping...
+2025-04-24 22:47:09,638 - INFO - [2025-04-24 22:47:09] INFO - Successfully closed browser window
+2025-04-24 22:47:09,914 - INFO - [2025-04-24 22:47:09] INFO - Successfully quit driver
+2025-04-24 22:47:10,595 - INFO - [2025-04-24 22:47:10] INFO - Killed 6 remaining Chrome processes

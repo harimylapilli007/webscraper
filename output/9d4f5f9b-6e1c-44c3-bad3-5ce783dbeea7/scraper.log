@@ -1,0 +1,92 @@
+2025-04-24 21:41:11,377 - INFO - [2025-04-24 21:41:11] INFO - Added file handler for log file: output/9d4f5f9b-6e1c-44c3-bad3-5ce783dbeea7\scraper.log
+2025-04-24 21:41:11,377 - INFO - [2025-04-24 21:41:11] INFO - Starting scraper with configuration:
+2025-04-24 21:41:11,377 - INFO - [2025-04-24 21:41:11] INFO - base_url: https://www.griclub.org/program/participants/empowered-by-gcc-global-capital-connectors-series_1810
+2025-04-24 21:41:11,377 - INFO - [2025-04-24 21:41:11] INFO - concurrent_settings: {'base_request_delay': 2, 'job_spacing_delay': 3, 'max_concurrent_jobs': 3, 'max_concurrent_requests': 2}
+2025-04-24 21:41:11,378 - INFO - [2025-04-24 21:41:11] INFO - container_selector: div.c82435a4b8.a178069f51.a6ae3c2b40
+2025-04-24 21:41:11,378 - INFO - [2025-04-24 21:41:11] INFO - initial_wait: 3
+2025-04-24 21:41:11,378 - INFO - [2025-04-24 21:41:11] INFO - load_more_selector: 
+2025-04-24 21:41:11,378 - INFO - [2025-04-24 21:41:11] INFO - load_more_wait: 3
+2025-04-24 21:41:11,378 - INFO - [2025-04-24 21:41:11] INFO - max_pages: 1
+2025-04-24 21:41:11,378 - INFO - [2025-04-24 21:41:11] INFO - max_scroll_attempts: 20
+2025-04-24 21:41:11,378 - INFO - [2025-04-24 21:41:11] INFO - next_page_selector: 
+2025-04-24 21:41:11,378 - INFO - [2025-04-24 21:41:11] INFO - output_excel: output/9d4f5f9b-6e1c-44c3-bad3-5ce783dbeea7\scraped_data.xlsx
+2025-04-24 21:41:11,378 - INFO - [2025-04-24 21:41:11] INFO - output_json: output/9d4f5f9b-6e1c-44c3-bad3-5ce783dbeea7\scraped_data.json
+2025-04-24 21:41:11,378 - INFO - [2025-04-24 21:41:11] INFO - page_wait: 2
+2025-04-24 21:41:11,378 - INFO - [2025-04-24 21:41:11] INFO - paginate: False
+2025-04-24 21:41:11,378 - INFO - [2025-04-24 21:41:11] INFO - scrape_subpages: False
+2025-04-24 21:41:11,378 - INFO - [2025-04-24 21:41:11] INFO - scroll: False
+2025-04-24 21:41:11,378 - INFO - [2025-04-24 21:41:11] INFO - scroll_wait: 3
+2025-04-24 21:41:11,379 - INFO - [2025-04-24 21:41:11] INFO - start_page: 1
+2025-04-24 21:41:11,379 - INFO - [2025-04-24 21:41:11] INFO - subpage_wait: 3
+2025-04-24 21:41:11,379 - INFO - [2025-04-24 21:41:11] INFO - job_id: 9d4f5f9b-6e1c-44c3-bad3-5ce783dbeea7
+2025-04-24 21:41:11,379 - INFO - [2025-04-24 21:41:11] INFO - user_id: user_h4hctrxqreu_1745474290425
+2025-04-24 21:41:11,379 - INFO - [2025-04-24 21:41:11] INFO - concurrent: True
+2025-04-24 21:41:11,379 - INFO - [2025-04-24 21:41:11] INFO - output_dir: output/9d4f5f9b-6e1c-44c3-bad3-5ce783dbeea7
+2025-04-24 21:41:11,379 - INFO - [2025-04-24 21:41:11] INFO - log_file: output/9d4f5f9b-6e1c-44c3-bad3-5ce783dbeea7\scraper.log
+2025-04-24 21:41:11,379 - INFO - [2025-04-24 21:41:11] INFO - request_delay: 4
+2025-04-24 21:41:11,379 - INFO - [2025-04-24 21:41:11] INFO - max_concurrent_requests: 2
+2025-04-24 21:41:11,379 - INFO - [2025-04-24 21:41:11] INFO - job_start_time: 2025-04-24T21:41:07.190757
+2025-04-24 21:41:11,379 - INFO - [2025-04-24 21:41:11] INFO - headless: True
+2025-04-24 21:41:11,379 - INFO - [2025-04-24 21:41:11] INFO - Concurrent scraping settings:
+2025-04-24 21:41:11,379 - INFO - [2025-04-24 21:41:11] INFO - Job ID: 9d4f5f9b-6e1c-44c3-bad3-5ce783dbeea7
+2025-04-24 21:41:11,379 - INFO - [2025-04-24 21:41:11] INFO - User ID: user_h4hctrxqreu_1745474290425
+2025-04-24 21:41:11,379 - INFO - [2025-04-24 21:41:11] INFO - Request delay: 4s
+2025-04-24 21:41:11,380 - INFO - [2025-04-24 21:41:11] INFO - Max concurrent requests: 2
+2025-04-24 21:41:11,380 - INFO - [2025-04-24 21:41:11] INFO - Concurrent scraping settings:
+2025-04-24 21:41:11,380 - INFO - [2025-04-24 21:41:11] INFO - Job ID: 9d4f5f9b-6e1c-44c3-bad3-5ce783dbeea7
+2025-04-24 21:41:11,380 - INFO - [2025-04-24 21:41:11] INFO - User ID: user_h4hctrxqreu_1745474290425
+2025-04-24 21:41:11,380 - INFO - [2025-04-24 21:41:11] INFO - Request delay: 4s
+2025-04-24 21:41:11,380 - INFO - [2025-04-24 21:41:11] INFO - Max concurrent requests: 2
+2025-04-24 21:41:11,380 - INFO - [2025-04-24 21:41:11] INFO - Starting scraper with configuration:
+2025-04-24 21:41:11,380 - INFO - [2025-04-24 21:41:11] INFO - {
+  "base_url": "https://www.griclub.org/program/participants/empowered-by-gcc-global-capital-connectors-series_1810",
+  "concurrent_settings": {
+    "base_request_delay": 2,
+    "job_spacing_delay": 3,
+    "max_concurrent_jobs": 3,
+    "max_concurrent_requests": 2
+  },
+  "container_selector": "div.c82435a4b8.a178069f51.a6ae3c2b40",
+  "initial_wait": 3,
+  "load_more_selector": "",
+  "load_more_wait": 3,
+  "max_pages": 1,
+  "max_scroll_attempts": 20,
+  "next_page_selector": "",
+  "output_excel": "output/9d4f5f9b-6e1c-44c3-bad3-5ce783dbeea7\\scraped_data.xlsx",
+  "output_json": "output/9d4f5f9b-6e1c-44c3-bad3-5ce783dbeea7\\scraped_data.json",
+  "page_wait": 2,
+  "paginate": false,
+  "scrape_subpages": false,
+  "scroll": false,
+  "scroll_wait": 3,
+  "start_page": 1,
+  "subpage_wait": 3,
+  "job_id": "9d4f5f9b-6e1c-44c3-bad3-5ce783dbeea7",
+  "user_id": "user_h4hctrxqreu_1745474290425",
+  "concurrent": true,
+  "output_dir": "output/9d4f5f9b-6e1c-44c3-bad3-5ce783dbeea7",
+  "log_file": "output/9d4f5f9b-6e1c-44c3-bad3-5ce783dbeea7\\scraper.log",
+  "request_delay": 4,
+  "max_concurrent_requests": 2,
+  "job_start_time": "2025-04-24T21:41:07.190757",
+  "headless": true
+}
+2025-04-24 21:41:11,791 - INFO - [2025-04-24 21:41:11] INFO - Detected Chrome version: 135.0.7049.114
+2025-04-24 21:41:13,182 - WARNING - [2025-04-24 21:41:13] WARNING - Failed to initialize with exact version match: There is no such driver by url https://chromedriver.storage.googleapis.com/LATEST_RELEASE_135.0.7049
+2025-04-24 21:41:14,410 - WARNING - [2025-04-24 21:41:14] WARNING - Failed to initialize with latest version: There is no such driver by url https://chromedriver.storage.googleapis.com/LATEST_RELEASE_135.0.7049
+2025-04-24 21:41:17,872 - INFO - [2025-04-24 21:41:17] INFO - Successfully initialized Chrome with undetected-chromedriver
+2025-04-24 21:41:17,876 - INFO - [2025-04-24 21:41:17] INFO - Job started for user user_h4hctrxqreu_1745474290425 (Job ID: 9d4f5f9b-6e1c-44c3-bad3-5ce783dbeea7)
+2025-04-24 21:41:17,876 - INFO - [2025-04-24 21:41:17] INFO - Phase 1: Collecting main fields and links from all pages...
+2025-04-24 21:41:24,002 - INFO - [2025-04-24 21:41:24] INFO - Navigated to base URL: https://www.griclub.org/program/participants/empowered-by-gcc-global-capital-connectors-series_1810
+2025-04-24 21:41:28,011 - INFO - [2025-04-24 21:41:28] INFO - Scraping main fields from page 1...
+2025-04-24 21:41:28,024 - INFO - [2025-04-24 21:41:28] INFO - Found 0 items on page 1
+2025-04-24 21:41:28,024 - INFO - [2025-04-24 21:41:28] INFO - No items found on this page, might be last page
+2025-04-24 21:41:28,584 - INFO - [2025-04-24 21:41:28] INFO - 
+[SUCCESS] Scraping complete. 0 items saved.
+2025-04-24 21:41:28,584 - INFO - [2025-04-24 21:41:28] INFO - Results saved to JSON: output/9d4f5f9b-6e1c-44c3-bad3-5ce783dbeea7\scraped_data.json
+2025-04-24 21:41:28,584 - INFO - [2025-04-24 21:41:28] INFO - Results saved to Excel: output/9d4f5f9b-6e1c-44c3-bad3-5ce783dbeea7\scraped_data.xlsx
+2025-04-24 21:41:28,584 - INFO - [2025-04-24 21:41:28] INFO - Scraper completed successfully
+2025-04-24 21:41:28,584 - INFO - [2025-04-24 21:41:28] INFO - Cleaning up driver after successful scraping...
+2025-04-24 21:41:28,642 - INFO - [2025-04-24 21:41:28] INFO - Successfully closed browser window
+2025-04-24 21:41:28,985 - INFO - [2025-04-24 21:41:28] INFO - Successfully quit driver

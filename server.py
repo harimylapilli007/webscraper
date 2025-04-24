@@ -29,9 +29,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
-
 # Get configuration from environment
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 PORT = int(os.environ.get('PORT', 5000))  # Changed to 8000 to match Azure default
@@ -45,6 +42,25 @@ WS_CLOSE_TIMEOUT = int(os.environ.get('WS_CLOSE_TIMEOUT', 20))
 # Get allowed origins from environment
 ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', '*').split(',')
 
+app = Flask(__name__)
+socketio = SocketIO(
+    app,
+    cors_allowed_origins="*",
+    ping_interval=WS_PING_INTERVAL,
+    ping_timeout=WS_PING_TIMEOUT,
+    logger=True,
+    engineio_logger=True,
+    transports=['websocket', 'polling'],
+    async_mode='gevent',
+    max_http_buffer_size=1e8,
+    async_handlers=True,
+    monitor_clients=True,
+    allow_upgrades=True,
+    cookie=False,  # Disable cookies for better Azure compatibility
+    path='socket.io/',  # Explicit path for Azure
+    ping_interval_grace_period=5000  # Additional grace period for Azure
+)
+
 # Configure CORS with more specific settings
 CORS(app, resources={
     r"/*": {
@@ -55,24 +71,6 @@ CORS(app, resources={
         "max_age": 3600
     }
 })
-
-# Initialize SocketIO with Azure-specific settings
-socketio = SocketIO(
-    app,
-    cors_allowed_origins="*",
-    ping_interval=WS_PING_INTERVAL,
-    ping_timeout=WS_PING_TIMEOUT,
-    logger=True,
-    engineio_logger=True,
-    transports=['websocket', 'polling'],
-    async_mode='eventlet',
-    max_http_buffer_size=1e8,
-    async_handlers=True,
-    monitor_clients=True,
-    allow_upgrades=True,
-    path='socket.io/',
-    cookie=False
-)
 
 # Store WebSocket clients
 clients = {}
@@ -1304,14 +1302,7 @@ def main():
     logger.info(f"Starting Flask server on port {PORT}")
     
     # Start the Flask server with SocketIO
-    socketio.run(
-        app, 
-        host='0.0.0.0', 
-        port=PORT, 
-        debug=DEBUG,
-        use_reloader=False,
-        allow_unsafe_werkzeug=True
-    )
+    socketio.run(app, host='0.0.0.0', port=PORT, debug=DEBUG)
 
 if __name__ == '__main__':
     main()
