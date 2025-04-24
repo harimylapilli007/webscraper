@@ -30,7 +30,13 @@ class Logger:
         self.logger.setLevel(logging.INFO)
         
         # Remove any existing handlers to avoid duplicates
-        self.logger.handlers = []
+        for handler in self.logger.handlers[:]:
+            try:
+                handler.flush()
+                handler.close()
+            except Exception:
+                pass
+            self.logger.removeHandler(handler)
         
         # Create stdout handler with immediate flushing and UTF-8 encoding
         handler = logging.StreamHandler(sys.stdout)
@@ -54,7 +60,10 @@ class Logger:
         # Force immediate flush
         sys.stdout.flush()
         for handler in self.logger.handlers:
-            handler.flush()
+            try:
+                handler.flush()
+            except Exception:
+                pass
     
     def add_file_handler(self, log_file):
         """Add a file handler to the logger"""
@@ -87,14 +96,10 @@ class Logger:
                 message = str(message)
             
             # Add emoji support while keeping safe replacements for logging
-            # Don't replace common emoji used for client connection visibility
             message = (message
                 .replace('\u2705', '[SUCCESS]')  # ✅
                 .replace('\u274c', '[ERROR]')    # ❌
                 .replace('\u27a1', '[NEXT]'))    # ➡️
-                
-            # The following emojis are preserved for client connection visibility
-            # 🔌 (socket), 👥 (people), 📊 (chart)
             
             # Add debug prefix to clearly identify messages
             if level == logging.DEBUG:
@@ -111,16 +116,15 @@ class Logger:
             # Log the message with proper formatting
             self.logger.log(level, formatted_message)
             
-            # Remove the direct print to stdout that's causing duplication
-            # Print directly to stdout as backup
-            # print(formatted_message, file=sys.stdout)
-            
             # Force flush stdout
             sys.stdout.flush()
             
             # Force flush all handlers
             for handler in self.logger.handlers:
-                handler.flush()
+                try:
+                    handler.flush()
+                except Exception:
+                    pass
                 
         except Exception as e:
             # Print error directly to stderr as last resort
@@ -883,10 +887,18 @@ def scrape_data(config):
         
         # Close job-specific log file if it exists
         if config.get("log_file"):
-            for handler in logger.logger.handlers[:]:
-                if isinstance(handler, logging.FileHandler) and handler.baseFilename == config["log_file"]:
-                    handler.close()
-                    logger.logger.removeHandler(handler)
+            try:
+                for handler in logger.logger.handlers[:]:
+                    if isinstance(handler, logging.FileHandler) and handler.baseFilename == config["log_file"]:
+                        try:
+                            handler.flush()  # Ensure all data is written
+                            handler.close()  # Close the handler
+                        except Exception as e:
+                            logger.log(f"Error closing log handler: {e}", level=logging.WARNING)
+                        finally:
+                            logger.logger.removeHandler(handler)  # Remove the handler regardless of close success
+            except Exception as e:
+                logger.log(f"Error during log file cleanup: {e}", level=logging.WARNING)
 
 def main():
     parser = argparse.ArgumentParser(description='Web Scraper')
