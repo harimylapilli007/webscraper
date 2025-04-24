@@ -30,16 +30,17 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
 # Get configuration from environment
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
-PORT = int(os.environ.get('PORT', 5000))
+PORT = int(os.environ.get('PORT', 8000))  # Changed to 8000 to match Azure default
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
 # Get WebSocket configuration from environment
-WS_PING_INTERVAL = int(os.environ.get('WS_PING_INTERVAL', 30))
-WS_PING_TIMEOUT = int(os.environ.get('WS_PING_TIMEOUT', 10))
-WS_CLOSE_TIMEOUT = int(os.environ.get('WS_CLOSE_TIMEOUT', 10))
+WS_PING_INTERVAL = int(os.environ.get('WS_PING_INTERVAL', 25))
+WS_PING_TIMEOUT = int(os.environ.get('WS_PING_TIMEOUT', 20))
+WS_CLOSE_TIMEOUT = int(os.environ.get('WS_CLOSE_TIMEOUT', 20))
 
 # Get allowed origins from environment
 ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', '*').split(',')
@@ -49,8 +50,7 @@ CORS(app, resources={
     r"/*": {
         "origins": ALLOWED_ORIGINS,
         "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization", "X-User-Id"],
-        "supports_credentials": True
+        "allow_headers": ["Content-Type", "Authorization"]
     }
 })
 
@@ -58,11 +58,15 @@ CORS(app, resources={
 socketio = SocketIO(
     app,
     cors_allowed_origins="*",
-    ping_timeout=WS_PING_TIMEOUT,
     ping_interval=WS_PING_INTERVAL,
+    ping_timeout=WS_PING_TIMEOUT,
     logger=True,
     engineio_logger=True,
-    transports=['websocket', 'polling']
+    transports=['websocket', 'polling'],
+    async_mode='gevent',
+    max_http_buffer_size=1e8,
+    async_handlers=True,
+    monitor_clients=True
 )
 
 # Store WebSocket clients

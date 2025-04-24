@@ -1,0 +1,38 @@
+{
+    "base_url": "https://giohis.com/speakers/",
+    "concurrent_settings": {
+        "base_request_delay": 2,
+        "job_spacing_delay": 3,
+        "max_concurrent_jobs": 3,
+        "max_concurrent_requests": 2
+    },
+    "container_selector": "div.attendee_wrap.clearfix",
+    "fields": {
+        "name": "div.attendee_wrap.clearfix p"
+    },
+    "initial_wait": 3,
+    "load_more_selector": "",
+    "load_more_wait": 3,
+    "max_pages": 1,
+    "max_scroll_attempts": 20,
+    "next_page_selector": "",
+    "output_excel": "output/dfcba4f2-bc98-459e-b0c8-636caf6c2afe\\scraped_data.xlsx",
+    "output_json": "output/dfcba4f2-bc98-459e-b0c8-636caf6c2afe\\scraped_data.json",
+    "page_wait": 2,
+    "paginate": false,
+    "scrape_subpages": false,
+    "scroll": false,
+    "scroll_wait": 3,
+    "start_page": 1,
+    "subpage_fields": {},
+    "subpage_wait": 3,
+    "job_id": "dfcba4f2-bc98-459e-b0c8-636caf6c2afe",
+    "user_id": "user_39t1zchvlyy_1745489851698",
+    "concurrent": true,
+    "output_dir": "output/dfcba4f2-bc98-459e-b0c8-636caf6c2afe",
+    "log_file": "output/dfcba4f2-bc98-459e-b0c8-636caf6c2afe\\scraper.log",
+    "request_delay": 6,
+    "max_concurrent_requests": 2,
+    "job_start_time": "2025-04-24T15:54:40.401505",
+    "headless": true
+}
