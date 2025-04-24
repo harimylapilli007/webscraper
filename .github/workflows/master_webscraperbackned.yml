@@ -79,6 +79,7 @@ jobs:
           app-name: 'WebScraperbackned'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CF9448951C194D2781E077F975F43EE6 }}
+          package: .
           configuration-file: |
             {
               "webSocketEnabled": true,
@@ -88,6 +89,15 @@ jobs:
               "ftpsState": "Disabled",
               "cors": {
                 "allowedOrigins": ["*"]
-              }
+              },
+              "pythonVersion": "3.11",
+              "linuxFxVersion": "PYTHON|3.11",
+              "appCommandLine": "gunicorn --bind=0.0.0.0 --timeout 600 server:app",
+              "virtualApplications": [
+                {
+                  "virtualPath": "/",
+                  "physicalPath": "site/wwwroot"
+                }
+              ]
             }
           
