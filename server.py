@@ -19,6 +19,10 @@ from flask_socketio import SocketIO, emit
 # Load environment variables from .env file
 load_dotenv()
 
+# Initialize event loop
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
+
 # Set up logging
 logging.basicConfig(
     level=logging.INFO,
@@ -38,11 +42,48 @@ FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 WS_PING_INTERVAL = int(os.environ.get('WS_PING_INTERVAL', 25))
 WS_PING_TIMEOUT = int(os.environ.get('WS_PING_TIMEOUT', 20))
 WS_CLOSE_TIMEOUT = int(os.environ.get('WS_CLOSE_TIMEOUT', 20))
+WS_HOST = os.environ.get('WS_HOST', '0.0.0.0')
+WS_PORT = int(os.environ.get('WS_PORT', PORT))
 
 # Get allowed origins from environment
 ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', '*').split(',')
 
+async def websocket_handler(websocket):
+    user_id = None
+    client_info = "unknown"
+    try:
+        client_info = f"{websocket.remote_address[0]}:{websocket.remote_address[1]}"
+        logger.info(f"New WebSocket client connected from {client_info}")
+        
+        # Wait for initial message with user ID
+        message = await websocket.recv()
+        data = json.loads(message)
+        
+        if data.get("type") == "init":
+            user_id = data.get("user_id")
+            if user_id:
+                logger.info(f"✅ WEBSOCKET CLIENT REGISTERED - User ID: {user_id}")
+                connected_clients[websocket] = user_id
+                await websocket.send(json.dumps({
+                    "type": "connection",
+                    "status": "connected",
+                    "user_id": user_id,
+                    "message": "Connected successfully"
+                }))
+    except Exception as e:
+        logger.error(f"WebSocket handler error: {e}")
+    finally:
+        if websocket in connected_clients:
+            del connected_clients[websocket]
+
 app = Flask(__name__)
+
+# Initialize SocketIO with CORS settings
+logger.info("Initializing Socket.IO with configuration:")
+logger.info(f"Ping Interval: {WS_PING_INTERVAL}")
+logger.info(f"Ping Timeout: {WS_PING_TIMEOUT}")
+logger.info(f"Close Timeout: {WS_CLOSE_TIMEOUT}")
+
 socketio = SocketIO(
     app,
     cors_allowed_origins="*",
@@ -60,6 +101,8 @@ socketio = SocketIO(
     path='socket.io/',  # Explicit path for Azure
     ping_interval_grace_period=5000  # Additional grace period for Azure
 )
+
+logger.info("Socket.IO initialized successfully")
 
 # Configure CORS with more specific settings
 CORS(app, resources={
@@ -147,6 +190,8 @@ signal.signal(signal.SIGTERM, signal_handler)
 def handle_connect():
     client_id = request.sid
     logger.info(f"Client connected: {client_id}")
+    logger.info(f"Request headers: {dict(request.headers)}")
+    logger.info(f"Request environment: {dict(request.environ)}")
     # Store the client ID without a user ID initially
     connected_clients[client_id] = None
 
@@ -161,6 +206,7 @@ def handle_disconnect():
 def handle_init(data):
     client_id = request.sid
     user_id = data.get('user_id')
+    logger.info(f"Init received from client {client_id} with user_id {user_id}")
     if user_id:
         connected_clients[client_id] = user_id
         if user_id not in clients:
@@ -900,293 +946,6 @@ def should_filter_log_message(message):
             logger.debug(f"Error in should_filter_log_message: {str(e)}")
     return False
 
-async def websocket_handler(websocket):
-    user_id = None
-    client_info = "unknown"
-    
-    # Track seen messages to avoid duplicates
-    seen_messages = set()
-    
-    try:
-        # Get client info for logging
-        client_info = f"{websocket.remote_address[0]}:{websocket.remote_address[1]}"
-        logger.info(f"New WebSocket client connected from {client_info}")
-        
-        # Wait for initial message with user ID
-        message = await websocket.recv()
-        logger.info(f"Received initial message: {message}")
-        
-        try:
-            data = json.loads(message)
-            if data.get("type") == "init":
-                user_id = data.get("user_id")
-                if user_id:
-                    logger.info(f"✅ WEBSOCKET CLIENT REGISTERED - User ID: {user_id} - IP: {client_info}")
-                    # Store the client with the user ID
-                    connected_clients[websocket] = user_id
-                    
-                    # Find any active jobs for this user to use as default job ID
-                    default_job_id = None
-                    jobs_for_user = [job_id for job_id, job in active_jobs.items() if job.user_id == user_id]
-                    if jobs_for_user:
-                        default_job_id = jobs_for_user[0]  # Use the first job as default
-                        logger.info(f"Set default job ID for user {user_id}: {default_job_id}")
-                    
-                    # Send connection confirmation
-                    confirm_message = json.dumps({
-                        "type": "connection",
-                        "status": "connected",
-                        "user_id": user_id,
-                        "client_info": client_info,
-                        "job_id": default_job_id or "system",  # Use default or "system" as fallback
-                        "message": f"WebSocket connection established for user {user_id} from {client_info}",
-                        "timestamp": datetime.now().isoformat()
-                    })
-                    await websocket.send(confirm_message)
-                    
-                    # Count and log connected clients for this user
-                    client_count = sum(1 for client_user in connected_clients.values() if client_user == user_id)
-                    logger.info(f"👥 ACTIVE WEBSOCKET CONNECTIONS: {client_count} for user {user_id}")
-                    
-                    # Log all active connections
-                    active_connections = {}
-                    for ws, uid in connected_clients.items():
-                        if uid in active_connections:
-                            active_connections[uid] += 1
-                        else:
-                            active_connections[uid] = 1
-                    
-                    logger.info(f"📊 ALL ACTIVE CONNECTIONS: {json.dumps(active_connections)}")
-                    
-                    # Send system message with connection information
-                    system_message = json.dumps({
-                        "type": "log",
-                        "job_id": default_job_id or "system",  # Use default or "system" as fallback
-                        "user_id": user_id,
-                        "message": f"WebSocket client connected from {client_info}",
-                        "timestamp": datetime.now().isoformat()
-                    })
-                    await websocket.send(system_message)
-                    
-                    # Send initial state of relevant active jobs
-                    jobs_for_user = [j for j_id, j in active_jobs.items() if j.user_id == user_id]
-                    logger.info(f"Found {len(jobs_for_user)} active jobs for user {user_id}")
-                    
-                    # Process each job for this user
-                    for job_id, job in active_jobs.items():
-                        if job.user_id == user_id:
-                            # Send current job state
-                            initial_state = json.dumps({
-                                "type": "state",
-                                "status": job.status,
-                                "job_id": job_id,
-                                "user_id": job.user_id,
-                                "client_info": client_info,
-                                "message": f"Current job status: {job.status}",
-                                "timestamp": datetime.now().isoformat()
-                            })
-                            await websocket.send(initial_state)
-                            
-                            # Send test log message to verify logging works
-                            test_log = json.dumps({
-                                "type": "log",
-                                "job_id": job_id,  # This will always have a valid job_id
-                                "user_id": job.user_id,
-                                "client_info": client_info,
-                                "message": f"WebSocket connection test message - Client connected from {client_info}",
-                                "timestamp": datetime.now().isoformat()
-                            })
-                            await websocket.send(test_log)
-                            
-                            # Send any existing logs
-                            log_count = job.log_queue.qsize()
-                            if log_count > 0:
-                                logger.info(f"Sending {log_count} queued log messages for job {job_id}")
-                                
-                                # Get all current logs
-                                log_messages = []
-                                while not job.log_queue.empty():
-                                    log_messages.append(job.log_queue.get())
-                                
-                                # Filter out Chrome driver exception messages
-                                filtered_log_messages = [msg for msg in log_messages if not should_filter_log_message(msg)]
-                                
-                                # Put the messages back in the queue for other clients
-                                for msg in filtered_log_messages:
-                                    job.log_queue.put(msg)
-                                
-                                # Send the messages to the client, tracking to prevent duplicates
-                                for log_message in filtered_log_messages:
-                                    try:
-                                        # Filter out Chrome driver exception messages
-                                        if should_filter_log_message(log_message):
-                                            continue
-                                            
-                                        if isinstance(log_message, str):
-                                            try:
-                                                # Try to parse as JSON first
-                                                parsed_message = json.loads(log_message)
-                                                
-                                                # Create message fingerprint for deduplication
-                                                msg_content = parsed_message.get("message", "")
-                                                job_id = parsed_message.get("job_id", job.job_id)
-                                                msg_fingerprint = f"{job_id}:{msg_content}"
-                                                
-                                                # Skip if we've already sent this message
-                                                if msg_fingerprint in seen_messages:
-                                                    continue
-                                                
-                                                # Add to seen messages
-                                                seen_messages.add(msg_fingerprint)
-                                                
-                                                # Ensure job_id is present
-                                                if "job_id" not in parsed_message:
-                                                    parsed_message["job_id"] = job.job_id
-                                                    log_message = json.dumps(parsed_message)
-                                                
-                                                await websocket.send(log_message)
-                                            except json.JSONDecodeError:
-                                                # If not JSON, wrap it
-                                                # Create message fingerprint
-                                                msg_fingerprint = f"{job.job_id}:{log_message}"
-                                                
-                                                # Skip if seen
-                                                if msg_fingerprint in seen_messages:
-                                                    continue
-                                                
-                                                # Add to seen
-                                                seen_messages.add(msg_fingerprint)
-                                                
-                                                message = json.dumps({
-                                                    "type": "log",
-                                                    "job_id": job.job_id,  # This ensures job_id is always present
-                                                    "user_id": job.user_id,
-                                                    "message": log_message,
-                                                    "timestamp": datetime.now().isoformat()
-                                                })
-                                                await websocket.send(message)
-                                    except Exception as e:
-                                        # Log any other errors but continue processing
-                                        logger.error(f"Error processing log message: {str(e)}")
-                                        continue
-                else:
-                    logger.warning("Client connected without user ID, rejecting connection")
-                    await websocket.close(1008, "No user ID provided")
-                    return
-        except json.JSONDecodeError:
-            logger.error("Invalid initial message format")
-            await websocket.close(1008, "Invalid message format")
-            return
-
-        # Find default job ID to use when no job_id is provided
-        default_job_id = None
-        jobs_for_user = [job_id for job_id, job in active_jobs.items() if job.user_id == user_id]
-        if jobs_for_user:
-            default_job_id = jobs_for_user[0]
-
-        # Keep connection alive and handle new messages
-        while True:
-            try:
-                # Small delay to prevent CPU overuse
-                await asyncio.sleep(0.1)
-                
-                # Check for new messages from all relevant jobs
-                user_jobs = [job for job in active_jobs.values() if job.user_id == user_id]
-                for job in user_jobs:
-                    if not job.log_queue.empty():
-                        log_count = job.log_queue.qsize()
-                        # Only log when there are multiple messages to process
-                        if log_count > 1:
-                            logger.info(f"Processing {log_count} new log messages for job {job.job_id}")
-                        
-                        # Limit the size of seen_messages to prevent memory issues
-                        if len(seen_messages) > 5000:
-                            seen_messages = set(list(seen_messages)[-5000:])
-                        
-                        while not job.log_queue.empty():
-                            try:
-                                log_message = job.log_queue.get()
-                                
-                                # Filter out Chrome driver exception messages
-                                if should_filter_log_message(log_message):
-                                    continue
-                                    
-                                if isinstance(log_message, str):
-                                    try:
-                                        # Try to parse as JSON first
-                                        parsed_message = json.loads(log_message)
-                                        
-                                        # Create message fingerprint for deduplication
-                                        msg_content = parsed_message.get("message", "")
-                                        job_id = parsed_message.get("job_id", job.job_id)
-                                        msg_fingerprint = f"{job_id}:{msg_content}"
-                                        
-                                        # Skip if we've already sent this message
-                                        if msg_fingerprint in seen_messages:
-                                            continue
-                                        
-                                        # Add to seen messages
-                                        seen_messages.add(msg_fingerprint)
-                                        
-                                        # Ensure job_id is present
-                                        if "job_id" not in parsed_message:
-                                            parsed_message["job_id"] = job.job_id
-                                            log_message = json.dumps(parsed_message)
-                                        
-                                        await websocket.send(log_message)
-                                    except json.JSONDecodeError:
-                                        # If not JSON, wrap it
-                                        # Create message fingerprint
-                                        msg_fingerprint = f"{job.job_id}:{log_message}"
-                                        
-                                        # Skip if seen
-                                        if msg_fingerprint in seen_messages:
-                                            continue
-                                        
-                                        # Add to seen
-                                        seen_messages.add(msg_fingerprint)
-                                        
-                                        message = json.dumps({
-                                            "type": "log",
-                                            "job_id": job.job_id,  # This ensures job_id is always present
-                                            "user_id": job.user_id,
-                                            "message": log_message,
-                                            "timestamp": datetime.now().isoformat()
-                                        })
-                                        await websocket.send(message)
-                                    except Exception as e:
-                                        # Log any other errors but continue processing
-                                        logger.error(f"Error processing log message: {str(e)}")
-                                        continue
-                            except Exception as e:
-                                logger.error(f"Error in websocket message loop: {e}")
-                                continue
-            except Exception as e:
-                logger.error(f"Error in websocket message loop: {e}")
-                break
-                
-    except websockets.exceptions.ConnectionClosed:
-        logger.info(f"🔌 WEBSOCKET CLIENT DISCONNECTED - User ID: {user_id} - IP: {client_info if 'client_info' in locals() else 'unknown'}")
-    except Exception as e:
-        logger.error(f"Websocket handler error: {e}")
-    finally:
-        if websocket in connected_clients:
-            del connected_clients[websocket]
-            
-            # Count remaining connections for this user
-            remaining = sum(1 for client_user in connected_clients.values() if client_user == user_id)
-            logger.info(f"👥 REMAINING CONNECTIONS for user {user_id}: {remaining}")
-            
-            # Log updated active connections
-            active_connections = {}
-            for ws, uid in connected_clients.items():
-                if uid in active_connections:
-                    active_connections[uid] += 1
-                else:
-                    active_connections[uid] = 1
-            
-            logger.info(f"📊 UPDATED ACTIVE CONNECTIONS: {json.dumps(active_connections)}")
-
 async def start_websocket_server():
     try:
         # Log WebSocket server startup
@@ -1214,9 +973,6 @@ async def start_websocket_server():
 
 def start_websocket_server_thread():
     try:
-        # Set the event loop for this thread
-        asyncio.set_event_loop(loop)
-        
         # Start the WebSocket server with better error handling
         try:
             loop.run_until_complete(start_websocket_server())
