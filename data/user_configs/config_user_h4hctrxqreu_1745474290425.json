@@ -1,12 +1,12 @@
 {
-    "base_url": "",
+    "base_url": "https://www.booking.com/searchresults.html?label=gog235jc-1DCAEoggI46AdIM1gDaGyIAQGYATG4AQfIAQzYAQPoAQH4AQKIAgGoAgO4As_0h8AGwAIB0gIkMzJhOGRkNTItN2Y0NS00OGIyLWI0NDMtOGRjODk1MjQxNDlh2AIE4AIB&aid=397594&ss=Goa%2C%20India&efdco=1&lang=en-us&src=index&dest_id=4127&dest_type=region&group_adults=2&no_rooms=1&group_children=0&nflt=ht_id%3D206%3Bhotelfacility%3D54",
     "concurrent_settings": {
         "base_request_delay": 2,
         "job_spacing_delay": 3,
         "max_concurrent_jobs": 3,
         "max_concurrent_requests": 2
     },
-    "container_selector": "",
+    "container_selector": "div.c82435a4b8.a178069f51.a6ae3c2b40",
     "fields": {},
     "initial_wait": 3,
     "load_more_selector": "",

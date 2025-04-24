@@ -13,4 +13,4 @@ mkdir -p output
 mkdir -p logs
 
 # Start the Flask application with gunicorn
-gunicorn --bind=0.0.0.0:8000 --worker-class=eventlet -w 1 server:app 
+gunicorn --bind=0.0.0.0:5000 --worker-class=eventlet -w 1 server:app 

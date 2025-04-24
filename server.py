@@ -34,7 +34,7 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
 # Get configuration from environment
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
-PORT = int(os.environ.get('PORT', 8000))  # Changed to 8000 to match Azure default
+PORT = int(os.environ.get('PORT', 5000))  # Changed to 8000 to match Azure default
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
 # Get WebSocket configuration from environment
@@ -50,7 +50,9 @@ CORS(app, resources={
     r"/*": {
         "origins": ALLOWED_ORIGINS,
         "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization"]
+        "allow_headers": ["Content-Type", "X-User-Id"],
+        "supports_credentials": True,
+        "max_age": 3600
     }
 })
 
@@ -1294,6 +1296,9 @@ start_cleanup_thread()
 def main():
     init_data_directories()
     logger.info("Initialized data directories")
+    
+    # Log the port before starting the Flask server with SocketIO
+    logger.info(f"Starting Flask server on port {PORT}")
     
     # Start the Flask server with SocketIO
     socketio.run(app, host='0.0.0.0', port=PORT, debug=DEBUG)
