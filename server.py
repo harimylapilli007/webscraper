@@ -87,19 +87,24 @@ logger.info(f"Close Timeout: {WS_CLOSE_TIMEOUT}")
 socketio = SocketIO(
     app,
     cors_allowed_origins="*",
-    ping_interval=WS_PING_INTERVAL,
-    ping_timeout=WS_PING_TIMEOUT,
+    ping_interval=10000,  # Reduced from 25000
+    ping_timeout=5000,    # Reduced from 20000
     logger=True,
     engineio_logger=True,
-    transports=['websocket', 'polling'],
+    transports=['websocket'],  # Only use websocket, no polling
     async_mode='gevent',
     max_http_buffer_size=1e8,
     async_handlers=True,
     monitor_clients=True,
     allow_upgrades=True,
-    cookie=False,  # Disable cookies for better Azure compatibility
-    path='socket.io/',  # Explicit path for Azure
-    ping_interval_grace_period=5000  # Additional grace period for Azure
+    cookie=False,
+    path='socket.io/',
+    ping_interval_grace_period=3000,  # Reduced from 5000
+    max_retries=5,  # Add max retries
+    reconnection=True,
+    reconnection_attempts=5,
+    reconnection_delay=1000,
+    reconnection_delay_max=5000
 )
 
 logger.info("Socket.IO initialized successfully")
