@@ -14,7 +14,7 @@ from datetime import datetime
 import time
 import logging
 from dotenv import load_dotenv
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room, leave_room
 
 # Load environment variables from .env file
 load_dotenv()
@@ -123,6 +123,7 @@ CORS(app, resources={
 # Store WebSocket clients with user-specific rooms
 connected_clients = {}  # Maps client_id to user_id
 user_rooms = {}  # Maps user_id to set of client_ids
+active_connections = {}  # Maps user_id to active WebSocket connections
 
 # Add request logging middleware
 @app.before_request
@@ -195,92 +196,143 @@ signal.signal(signal.SIGTERM, signal_handler)
 def handle_connect():
     client_id = request.sid
     user_id = request.headers.get('X-User-Id')
-    logger.info(f"Client connected: {client_id}")
-    logger.info(f"User ID from headers: {user_id}")
+    logger.info(f"⚡ New client connection attempt - SID: {client_id}")
     
-    # Store the client ID with user ID if available
-    connected_clients[client_id] = user_id
+    if not user_id:
+        logger.warning(f"❌ No user ID provided for client {client_id}")
+        return False  # Reject connection without user ID
     
-    # If user ID is available, add to user-specific room
-    if user_id:
+    try:
+        # Store the client ID with user ID
+        connected_clients[client_id] = user_id
+        
+        # Initialize or update user room
         if user_id not in user_rooms:
             user_rooms[user_id] = set()
         user_rooms[user_id].add(client_id)
-        logger.info(f"Added client {client_id} to user room {user_id}")
+        
+        # Add to active connections
+        active_connections[user_id] = request.namespace
+        
+        logger.info(f"✅ Client connected successfully - User: {user_id} - SID: {client_id}")
+        
+        # Join user-specific room
+        join_room(f"user_{user_id}")
+        
+        # Send connection confirmation
+        emit('connection', {
+            'type': 'connection',
+            'status': 'connected',
+            'message': 'Connected successfully',
+            'user_id': user_id,
+            'timestamp': datetime.now().isoformat()
+        }, room=client_id)
+        
+        return True
+    except Exception as e:
+        logger.error(f"❌ Error in connection handler: {str(e)}")
+        return False
 
 @socketio.on('disconnect')
 def handle_disconnect():
     client_id = request.sid
     user_id = connected_clients.get(client_id)
-    logger.info(f"Client disconnected: {client_id}")
     
-    # Remove from user room if exists
-    if user_id and user_id in user_rooms:
-        user_rooms[user_id].discard(client_id)
-        if not user_rooms[user_id]:  # If room is empty, remove it
-            del user_rooms[user_id]
-    
-    # Remove from connected clients
-    if client_id in connected_clients:
-        del connected_clients[client_id]
+    try:
+        if user_id:
+            # Remove from user room
+            if user_id in user_rooms:
+                user_rooms[user_id].discard(client_id)
+                if not user_rooms[user_id]:
+                    del user_rooms[user_id]
+                    # Remove from active connections if no more clients
+                    active_connections.pop(user_id, None)
+            
+            # Leave user-specific room
+            leave_room(f"user_{user_id}")
+            
+            logger.info(f"👋 Client disconnected - User: {user_id} - SID: {client_id}")
+        
+        # Remove from connected clients
+        connected_clients.pop(client_id, None)
+    except Exception as e:
+        logger.error(f"❌ Error in disconnect handler: {str(e)}")
 
 @socketio.on('init')
 def handle_init(data):
     client_id = request.sid
     user_id = data.get('user_id')
-    logger.info(f"Init received from client {client_id} with user_id {user_id}")
     
-    if user_id:
+    if not user_id:
+        logger.warning(f"❌ No user ID provided in init message from {client_id}")
+        return
+    
+    try:
         # Update connected clients mapping
         connected_clients[client_id] = user_id
         
-        # Add to user-specific room
+        # Initialize or update user room
         if user_id not in user_rooms:
             user_rooms[user_id] = set()
         user_rooms[user_id].add(client_id)
         
-        logger.info(f"✅ WEBSOCKET CLIENT REGISTERED - User ID: {user_id} - SID: {client_id}")
+        # Add to active connections
+        active_connections[user_id] = request.namespace
         
-        # Send confirmation only to this specific client
-        socketio.emit('connection', {
+        # Join user-specific room
+        join_room(f"user_{user_id}")
+        
+        logger.info(f"✅ Client initialized - User: {user_id} - SID: {client_id}")
+        
+        # Send confirmation to specific client
+        emit('connection', {
             'type': 'connection',
-            'message': 'Connected successfully',
+            'status': 'initialized',
+            'message': 'Connection initialized successfully',
             'user_id': user_id,
             'timestamp': datetime.now().isoformat()
         }, room=client_id)
+    except Exception as e:
+        logger.error(f"❌ Error in init handler: {str(e)}")
 
 def send_log_to_clients(job_id: str, message: str):
-    """Send a log message to all clients associated with the job."""
+    """Send log message to all connected clients for a specific job"""
     try:
-        job = active_jobs.get(job_id)
-        if not job:
-            logger.warning(f"No job found with ID {job_id}")
-            return
-            
-        user_id = job.user_id
+        # Get user ID for this job
+        user_id = None
+        for job in active_jobs.values():
+            if job.job_id == job_id:
+                user_id = job.user_id
+                break
+        
         if not user_id:
-            logger.warning(f"No user ID found for job {job_id}")
+            logger.warning(f"⚠️ No user ID found for job {job_id}")
             return
-
-        data = {
+        
+        # Ensure message is properly encoded
+        if isinstance(message, bytes):
+            message = message.decode('utf-8', errors='replace')
+        elif not isinstance(message, str):
+            message = str(message)
+        
+        # Create message object
+        message_obj = {
             'type': 'log',
             'job_id': job_id,
             'user_id': user_id,
             'message': message,
             'timestamp': datetime.now().isoformat()
         }
-
-        # Send only to clients in the user's room
-        if user_id in user_rooms:
-            for client_id in user_rooms[user_id]:
-                try:
-                    socketio.emit('log', data, room=client_id)
-                    logger.debug(f"Log sent to client {client_id}")
-                except Exception as e:
-                    logger.error(f"Error sending log to client {client_id}: {e}")
-
+        
+        # Send to user-specific room
+        room_name = f"user_{user_id}"
+        if user_id in user_rooms and user_rooms[user_id]:
+            socketio.emit('log', message_obj, room=room_name)
+            logger.info(f"📨 Sent log to user {user_id} for job {job_id}")
+        else:
+            logger.warning(f"⚠️ No active clients for user {user_id}")
     except Exception as e:
-        logger.error(f"Error in send_log_to_clients: {e}")
+        logger.error(f"❌ Error sending log message: {str(e)}")
 
 def send_state_update(job_id, status):
     """Send a state update to all connected clients for the specific user."""

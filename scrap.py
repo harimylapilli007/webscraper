@@ -47,6 +47,10 @@ class Logger:
         if hasattr(handler.stream, 'reconfigure'):
             handler.stream.reconfigure(encoding='utf-8')
         
+        # Set the default encoding for stdout
+        if hasattr(sys.stdout, 'reconfigure'):
+            sys.stdout.reconfigure(encoding='utf-8')
+        
         self.logger.addHandler(handler)
         
         # Send initial test messages to verify logging is working
@@ -94,6 +98,9 @@ class Logger:
                 message = message.decode('utf-8', errors='replace')
             elif not isinstance(message, str):
                 message = str(message)
+            
+            # Normalize Unicode characters
+            message = message.encode('utf-8', errors='replace').decode('utf-8')
             
             # Add emoji support while keeping safe replacements for logging
             message = (message
