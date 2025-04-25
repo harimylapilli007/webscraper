@@ -120,8 +120,9 @@ CORS(app, resources={
     }
 })
 
-# Store WebSocket clients
-clients = {}
+# Store WebSocket clients with user-specific rooms
+connected_clients = {}  # Maps client_id to user_id
+user_rooms = {}  # Maps user_id to set of client_ids
 
 # Add request logging middleware
 @app.before_request
@@ -174,7 +175,6 @@ class ScraperJob:
 
 # Store active scraping jobs and connected clients with their user IDs
 active_jobs = {}
-connected_clients = {}  # Changed to dict to store user_id for each client
 
 def signal_handler(sig, frame):
     print("Shutting down gracefully...")
@@ -194,16 +194,33 @@ signal.signal(signal.SIGTERM, signal_handler)
 @socketio.on('connect')
 def handle_connect():
     client_id = request.sid
+    user_id = request.headers.get('X-User-Id')
     logger.info(f"Client connected: {client_id}")
-    logger.info(f"Request headers: {dict(request.headers)}")
-    logger.info(f"Request environment: {dict(request.environ)}")
-    # Store the client ID without a user ID initially
-    connected_clients[client_id] = None
+    logger.info(f"User ID from headers: {user_id}")
+    
+    # Store the client ID with user ID if available
+    connected_clients[client_id] = user_id
+    
+    # If user ID is available, add to user-specific room
+    if user_id:
+        if user_id not in user_rooms:
+            user_rooms[user_id] = set()
+        user_rooms[user_id].add(client_id)
+        logger.info(f"Added client {client_id} to user room {user_id}")
 
 @socketio.on('disconnect')
 def handle_disconnect():
     client_id = request.sid
+    user_id = connected_clients.get(client_id)
     logger.info(f"Client disconnected: {client_id}")
+    
+    # Remove from user room if exists
+    if user_id and user_id in user_rooms:
+        user_rooms[user_id].discard(client_id)
+        if not user_rooms[user_id]:  # If room is empty, remove it
+            del user_rooms[user_id]
+    
+    # Remove from connected clients
     if client_id in connected_clients:
         del connected_clients[client_id]
 
@@ -212,13 +229,19 @@ def handle_init(data):
     client_id = request.sid
     user_id = data.get('user_id')
     logger.info(f"Init received from client {client_id} with user_id {user_id}")
+    
     if user_id:
+        # Update connected clients mapping
         connected_clients[client_id] = user_id
-        if user_id not in clients:
-            clients[user_id] = set()
-        clients[user_id].add(client_id)
+        
+        # Add to user-specific room
+        if user_id not in user_rooms:
+            user_rooms[user_id] = set()
+        user_rooms[user_id].add(client_id)
+        
         logger.info(f"✅ WEBSOCKET CLIENT REGISTERED - User ID: {user_id} - SID: {client_id}")
-        # Send a confirmation message back to the client
+        
+        # Send confirmation only to this specific client
         socketio.emit('connection', {
             'type': 'connection',
             'message': 'Connected successfully',
@@ -229,51 +252,39 @@ def handle_init(data):
 def send_log_to_clients(job_id: str, message: str):
     """Send a log message to all clients associated with the job."""
     try:
-        # Get the job object
         job = active_jobs.get(job_id)
         if not job:
             logger.warning(f"No job found with ID {job_id}")
             return
             
-        # Get the user ID from the job object
         user_id = job.user_id
         if not user_id:
             logger.warning(f"No user ID found for job {job_id}")
             return
 
-        # Construct the message data in the exact format the frontend expects
         data = {
-            'type': 'log',  # Explicitly set type to 'log'
+            'type': 'log',
             'job_id': job_id,
             'user_id': user_id,
             'message': message,
-            'timestamp': datetime.now().isoformat()  # Add ISO format timestamp
+            'timestamp': datetime.now().isoformat()
         }
 
-        # Log what we're about to send (truncated for readability)
-        logger.debug(f"Sending log to clients: {message[:100]}...")
-
-        # Get all clients for this user
-        user_clients = clients.get(user_id, set())
-        if not user_clients:
-            logger.warning(f"No clients found for user {user_id}")
-            return
-
-        # Send to all clients for this user
-        for client in user_clients:
-            try:
-                socketio.emit('log', data, room=client)
-                logger.debug(f"Log sent to client {client}")
-            except Exception as e:
-                logger.error(f"Error sending log to client {client}: {e}")
+        # Send only to clients in the user's room
+        if user_id in user_rooms:
+            for client_id in user_rooms[user_id]:
+                try:
+                    socketio.emit('log', data, room=client_id)
+                    logger.debug(f"Log sent to client {client_id}")
+                except Exception as e:
+                    logger.error(f"Error sending log to client {client_id}: {e}")
 
     except Exception as e:
         logger.error(f"Error in send_log_to_clients: {e}")
 
 def send_state_update(job_id, status):
-    """Send a state update to all connected clients."""
+    """Send a state update to all connected clients for the specific user."""
     try:
-        # Get the user ID from the job
         user_id = None
         for job in active_jobs.values():
             if job.job_id == job_id:
@@ -292,9 +303,9 @@ def send_state_update(job_id, status):
             'timestamp': datetime.now().isoformat()
         }
         
-        # Send to all clients for this user
-        if user_id in clients:
-            for client_id in clients[user_id]:
+        # Send only to clients in the user's room
+        if user_id in user_rooms:
+            for client_id in user_rooms[user_id]:
                 socketio.emit('state', data, room=client_id)
     except Exception as e:
         logger.error(f"Error sending state update to clients: {str(e)}")
