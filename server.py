@@ -38,12 +38,36 @@ DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 PORT = int(os.environ.get('PORT', 5000))  # Changed to 8000 to match Azure default
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
+# Function to check if a port is in use
+def is_port_in_use(port):
+    import socket
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(('localhost', port)) == 0
+
+# Find an available port if the specified port is in use
+def find_available_port(start_port, max_attempts=10):
+    port = start_port
+    for _ in range(max_attempts):
+        if not is_port_in_use(port):
+            return port
+        port += 1
+    logger.warning(f"Could not find an available port after {max_attempts} attempts")
+    return start_port  # Return original port and hope for the best
+
+# Ensure we use an available port
+PORT = find_available_port(PORT)
+logger.info(f"Using port: {PORT}")
+
 # Get WebSocket configuration from environment
 WS_PING_INTERVAL = int(os.environ.get('WS_PING_INTERVAL', 25))
 WS_PING_TIMEOUT = int(os.environ.get('WS_PING_TIMEOUT', 20))
 WS_CLOSE_TIMEOUT = int(os.environ.get('WS_CLOSE_TIMEOUT', 20))
 WS_HOST = os.environ.get('WS_HOST', '0.0.0.0')
 WS_PORT = int(os.environ.get('WS_PORT', PORT))
+
+# Ensure WebSocket port is available too
+WS_PORT = find_available_port(WS_PORT) if WS_PORT == PORT else find_available_port(WS_PORT)
+logger.info(f"Using WebSocket port: {WS_PORT}")
 
 # Get allowed origins from environment
 ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', '*').split(',')
@@ -87,11 +111,11 @@ logger.info(f"Close Timeout: {WS_CLOSE_TIMEOUT}")
 socketio = SocketIO(
     app,
     cors_allowed_origins="*",
-    ping_interval=10000,  # Reduced from 25000
-    ping_timeout=5000,    # Reduced from 20000
+    ping_interval=WS_PING_INTERVAL,
+    ping_timeout=WS_PING_TIMEOUT,
     logger=True,
     engineio_logger=True,
-    transports=['websocket'],  # Only use websocket, no polling
+    transports=['websocket', 'polling'],  # Support both transport methods
     async_mode='gevent',
     max_http_buffer_size=1e8,
     async_handlers=True,
@@ -99,22 +123,22 @@ socketio = SocketIO(
     allow_upgrades=True,
     cookie=False,
     path='socket.io/',
-    ping_interval_grace_period=3000,  # Reduced from 5000
-    max_retries=5,  # Add max retries
+    ping_interval_grace_period=2000,
+    max_retries=10,
     reconnection=True,
-    reconnection_attempts=5,
+    reconnection_attempts=10,
     reconnection_delay=1000,
     reconnection_delay_max=5000
 )
 
 logger.info("Socket.IO initialized successfully")
 
-# Configure CORS with more specific settings
+# Configure CORS with more permissive settings
 CORS(app, resources={
     r"/*": {
-        "origins": ALLOWED_ORIGINS,
+        "origins": ["*", "http://localhost:3000", "http://127.0.0.1:3000"],
         "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type", "X-User-Id"],
+        "allow_headers": ["Content-Type", "X-User-Id", "Authorization"],
         "supports_credentials": True,
         "max_age": 3600
     }
@@ -134,9 +158,29 @@ def log_request_info():
     for header, value in request.headers:
         logger.info(f"  {header}: {value}")
     
-    # Log user ID specifically
+    # Debug headers more extensively
+    logger.info("DEBUG - Raw Headers Dict:")
+    for name, value in request.headers.items():
+        logger.info(f"  Raw Header [{name}]: {value}")
+    
+    # Get and log user ID with more debugging
     user_id = request.headers.get('X-User-Id', 'anonymous')
     logger.info(f"User ID from header: {user_id}")
+    
+    # Debug additional details
+    if user_id == 'anonymous':
+        logger.warning("X-User-Id header is missing or anonymous - checking alternate sources")
+        # Try other common header naming variations
+        alt_header_names = ['x-user-id', 'X-USER-ID', 'x_user_id', 'HTTP_X_USER_ID']
+        for header_name in alt_header_names:
+            if header_name in request.headers:
+                logger.info(f"Found user ID in alternate header {header_name}: {request.headers[header_name]}")
+                
+        # Check if it might be in request args or form
+        if 'userId' in request.args:
+            logger.info(f"Found userId in query params: {request.args.get('userId')}")
+        if request.is_json and 'user_id' in request.json:
+            logger.info(f"Found user_id in JSON body: {request.json.get('user_id')}")
 
 # Add response logging middleware
 @app.after_request
@@ -195,7 +239,23 @@ signal.signal(signal.SIGTERM, signal_handler)
 @socketio.on('connect')
 def handle_connect():
     client_id = request.sid
+    
+    # Try getting the user ID from various sources
+    user_id = None
+    
+    # Try header first
     user_id = request.headers.get('X-User-Id')
+    
+    # If not in header, try query params
+    if not user_id and 'userId' in request.args:
+        user_id = request.args.get('userId')
+        logger.info(f"Got user ID from query parameter: {user_id}")
+    
+    # If still not found, try auth parameter (used by socket.io)
+    if not user_id and hasattr(request, 'auth') and request.auth and 'X-User-Id' in request.auth:
+        user_id = request.auth['X-User-Id']
+        logger.info(f"Got user ID from auth parameter: {user_id}")
+        
     logger.info(f"⚡ New client connection attempt - SID: {client_id}")
     
     if not user_id:
@@ -435,6 +495,26 @@ def create_default_config(user_id):
         json.dump(default_config, f, indent=4)
     
     return default_config
+
+@app.route('/ping', methods=['GET'])
+def ping():
+    """Simple endpoint to test if the server is running"""
+    logger.info("Ping request received")
+    
+    # Get user ID from header or query parameter
+    user_id = request.headers.get('X-User-Id', 'anonymous')
+    
+    # If header doesn't contain user_id, try query parameter as fallback
+    if user_id == 'anonymous' and 'userId' in request.args:
+        user_id = request.args.get('userId')
+        logger.info(f"Using userId from query parameter: {user_id}")
+    
+    return jsonify({
+        "status": "success",
+        "message": "Pong! Server is running.",
+        "timestamp": datetime.now().isoformat(),
+        "user_id": user_id
+    })
 
 @app.route('/', methods=['GET'])
 def welcome():
@@ -1019,20 +1099,43 @@ async def start_websocket_server():
         # Log WebSocket server startup
         logger.info(f"🚀 WEBSOCKET SERVER STARTING on ws://{WS_HOST}:{WS_PORT}")
         
-        # Start WebSocket server with configuration from environment
-        server = await websockets.serve(
-            websocket_handler, 
-            WS_HOST,
-            WS_PORT,
-            ping_interval=WS_PING_INTERVAL,
-            ping_timeout=WS_PING_TIMEOUT,
-            close_timeout=WS_CLOSE_TIMEOUT
-        )
-        
-        logger.info(f"✅ WEBSOCKET SERVER RUNNING on ws://{WS_HOST}:{WS_PORT}")
-        
-        # Keep server running forever
-        await asyncio.Future()
+        try:
+            # Start WebSocket server with configuration from environment
+            server = await websockets.serve(
+                websocket_handler, 
+                WS_HOST,
+                WS_PORT,
+                ping_interval=WS_PING_INTERVAL,
+                ping_timeout=WS_PING_TIMEOUT,
+                close_timeout=WS_CLOSE_TIMEOUT
+            )
+            
+            logger.info(f"✅ WEBSOCKET SERVER RUNNING on ws://{WS_HOST}:{WS_PORT}")
+            
+            # Keep server running forever
+            await asyncio.Future()
+        except OSError as e:
+            if "address already in use" in str(e).lower():
+                alt_port = find_available_port(WS_PORT + 1)
+                logger.warning(f"WebSocket port {WS_PORT} is in use. Trying alternative port {alt_port}")
+                
+                # Try with alternative port
+                server = await websockets.serve(
+                    websocket_handler, 
+                    WS_HOST,
+                    alt_port,
+                    ping_interval=WS_PING_INTERVAL,
+                    ping_timeout=WS_PING_TIMEOUT,
+                    close_timeout=WS_CLOSE_TIMEOUT
+                )
+                
+                logger.info(f"✅ WEBSOCKET SERVER RUNNING on ws://{WS_HOST}:{alt_port}")
+                
+                # Keep server running forever
+                await asyncio.Future()
+            else:
+                raise
+                
     except Exception as e:
         logger.error(f"WebSocket server error: {str(e)}", exc_info=True)
         # Try to restart
@@ -1125,8 +1228,24 @@ def main():
     # Log the port before starting the Flask server with SocketIO
     logger.info(f"Starting Flask server on port {PORT}")
     
-    # Start the Flask server with SocketIO
-    socketio.run(app, host='0.0.0.0', port=PORT, debug=DEBUG)
+    try:
+        # Start the Flask server with SocketIO
+        socketio.run(app, host='0.0.0.0', port=PORT, debug=DEBUG)
+    except OSError as e:
+        if "Only one usage of each socket address" in str(e):
+            alt_port = find_available_port(PORT + 1)
+            logger.warning(f"Port {PORT} is in use. Trying alternative port {alt_port}")
+            try:
+                socketio.run(app, host='0.0.0.0', port=alt_port, debug=DEBUG)
+            except Exception as e2:
+                logger.error(f"Failed to start server on alternative port: {str(e2)}")
+                sys.exit(1)
+        else:
+            logger.error(f"Failed to start server: {str(e)}")
+            sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error starting server: {str(e)}")
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()
