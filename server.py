@@ -115,7 +115,7 @@ socketio = SocketIO(
     ping_timeout=WS_PING_TIMEOUT,
     logger=True,
     engineio_logger=True,
-    transports=['websocket', 'polling'],  # Support both transport methods
+    transports=['polling', 'websocket'],  # Prefer polling first to establish connection, then upgrade
     async_mode='gevent',
     max_http_buffer_size=1e8,
     async_handlers=True,
@@ -123,13 +123,24 @@ socketio = SocketIO(
     allow_upgrades=True,
     cookie=False,
     path='socket.io/',
-    ping_interval_grace_period=2000,
-    max_retries=10,
+    ping_interval_grace_period=1000,  # Reduced grace period
+    max_retries=5,  # Reduced to limit retries
     reconnection=True,
-    reconnection_attempts=10,
+    reconnection_attempts=5,
     reconnection_delay=1000,
-    reconnection_delay_max=5000
+    reconnection_delay_max=5000,
+    websocket_ping_interval=WS_PING_INTERVAL,  # Explicit setting
+    websocket_ping_timeout=WS_PING_TIMEOUT    # Explicit setting
 )
+
+# Add error handlers for SocketIO
+@socketio.on_error()
+def error_handler(e):
+    logger.error(f"SocketIO error: {e}")
+    
+@socketio.on_error_default
+def default_error_handler(e):
+    logger.error(f"SocketIO default error: {e}")
 
 logger.info("Socket.IO initialized successfully")
 
@@ -223,14 +234,29 @@ active_jobs = {}
 
 def signal_handler(sig, frame):
     print("Shutting down gracefully...")
+    # Force stop all active jobs immediately
     for job in active_jobs.values():
         if job.process:
             try:
-                job.process.terminate()
-                job.process.wait(timeout=5)
+                job.process.kill()  # Use kill instead of terminate for immediate stop
+                job.process.wait(timeout=0.5)  # Very short timeout
             except:
-                job.process.kill()
-    sys.exit(0)
+                pass
+            job.process = None
+            job.status = "stopped"
+    
+    # Force cleanup of all output directories
+    for job_id, job in list(active_jobs.items()):
+        try:
+            if os.path.exists(job.output_dir):
+                import shutil
+                shutil.rmtree(job.output_dir, ignore_errors=True)
+        except:
+            pass
+        del active_jobs[job_id]
+    
+    # Force exit
+    os._exit(0)  # Use os._exit to force immediate termination
 
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
@@ -296,27 +322,37 @@ def handle_connect():
 @socketio.on('disconnect')
 def handle_disconnect():
     client_id = request.sid
-    user_id = connected_clients.get(client_id)
-    
     try:
-        if user_id:
-            # Remove from user room
-            if user_id in user_rooms:
-                user_rooms[user_id].discard(client_id)
-                if not user_rooms[user_id]:
-                    del user_rooms[user_id]
-                    # Remove from active connections if no more clients
-                    active_connections.pop(user_id, None)
+        # Get user ID associated with this client
+        user_id = connected_clients.get(client_id)
+        
+        # Remove this client from connected clients
+        if client_id in connected_clients:
+            del connected_clients[client_id]
+        
+        # Remove from user's room if applicable
+        if user_id and user_id in user_rooms:
+            if client_id in user_rooms[user_id]:
+                user_rooms[user_id].remove(client_id)
             
-            # Leave user-specific room
+            # If user has no more connected clients, clean up user room
+            if not user_rooms[user_id]:
+                del user_rooms[user_id]
+                if user_id in active_connections:
+                    del active_connections[user_id]
+        
+        logger.info(f"Client disconnected - SID: {client_id}, User: {user_id or 'unknown'}")
+        
+        # Leave user room
+        if user_id:
             leave_room(f"user_{user_id}")
             
-            logger.info(f"👋 Client disconnected - User: {user_id} - SID: {client_id}")
-        
-        # Remove from connected clients
-        connected_clients.pop(client_id, None)
     except Exception as e:
-        logger.error(f"❌ Error in disconnect handler: {str(e)}")
+        logger.error(f"Error in disconnect handler: {str(e)}")
+        # Continue even if there's an error to ensure cleanup
+    
+    # Return True to acknowledge successful disconnection
+    return True
 
 @socketio.on('init')
 def handle_init(data):
@@ -356,43 +392,48 @@ def handle_init(data):
         logger.error(f"❌ Error in init handler: {str(e)}")
 
 def send_log_to_clients(job_id: str, message: str):
-    """Send log message to all connected clients for a specific job"""
+    """Send a log message to all connected clients for a specific job"""
+    if not job_id:
+        logger.warning("Attempt to send log with no job_id")
+        return
+        
     try:
-        # Get user ID for this job
-        user_id = None
-        for job in active_jobs.values():
-            if job.job_id == job_id:
-                user_id = job.user_id
-                break
-        
-        if not user_id:
-            logger.warning(f"⚠️ No user ID found for job {job_id}")
+        job = active_jobs.get(job_id)
+        if not job:
+            logger.warning(f"Cannot send log for unknown job {job_id}")
             return
-        
-        # Ensure message is properly encoded
-        if isinstance(message, bytes):
-            message = message.decode('utf-8', errors='replace')
-        elif not isinstance(message, str):
-            message = str(message)
-        
-        # Create message object
-        message_obj = {
+            
+        user_id = job.user_id
+        if not user_id:
+            logger.warning(f"Job {job_id} has no associated user_id")
+            return
+            
+        # Check if user has active connections
+        if user_id not in user_rooms or not user_rooms[user_id]:
+            logger.info(f"No active clients for user {user_id}, skipping log message")
+            return
+            
+        log_msg = {
             'type': 'log',
             'job_id': job_id,
-            'user_id': user_id,
             'message': message,
             'timestamp': datetime.now().isoformat()
         }
         
-        # Send to user-specific room
-        room_name = f"user_{user_id}"
-        if user_id in user_rooms and user_rooms[user_id]:
-            socketio.emit('log', message_obj, room=room_name)
-            logger.info(f"📨 Sent log to user {user_id} for job {job_id}")
-        else:
-            logger.warning(f"⚠️ No active clients for user {user_id}")
+        # Filter log messages if needed
+        if should_filter_log_message(message):
+            return
+            
+        # Send to room instead of individual clients to avoid connection issues
+        try:
+            room_name = f"user_{user_id}"
+            socketio.emit('log', log_msg, room=room_name, namespace='/')
+            logger.debug(f"Log sent to room {room_name}: {message[:50]}...")
+        except Exception as e:
+            # Just log the error but don't crash
+            logger.error(f"Failed to send log to room {room_name}: {str(e)}")
     except Exception as e:
-        logger.error(f"❌ Error sending log message: {str(e)}")
+        logger.error(f"Error sending log message: {str(e)}")
 
 def send_state_update(job_id, status):
     """Send a state update to all connected clients for the specific user."""
@@ -566,15 +607,10 @@ def run_scraper():
         
         # Generate job ID
         job_id = str(uuid.uuid4())
-        print(f"Creating new job {job_id} for user {user_id}")
         
         # Create new job
         job = ScraperJob(job_id, user_id)
         active_jobs[job_id] = job
-        
-        # Add small delay between job starts to prevent resource contention
-        job_spacing_delay = user_config.get("concurrent_settings", {}).get("job_spacing_delay", 2)
-        time.sleep(job_spacing_delay)
         
         # Start scraper in separate thread
         threading.Thread(target=run_scraper_process, args=(job,)).start()
@@ -629,12 +665,10 @@ def run_scraper_process(job):
                     # Strip whitespace and send log message using Socket.IO
                     stripped_output = output.strip()
                     if stripped_output:
-                        logger.info(f"Scraper output: {stripped_output}")
                         send_log_to_clients(job.job_id, stripped_output)
                         
                         # Check if this is a completion message
                         if "Scraper completed successfully" in stripped_output:
-                            # Set the flag to indicate we should stop the scraper
                             job.should_stop = True
                             logger.info(f"Setting should_stop flag for job {job.job_id}")
             except UnicodeDecodeError as e:
@@ -675,21 +709,21 @@ def run_scraper_process(job):
             send_state_update(job.job_id, "failed")
             send_log_to_clients(job.job_id, f"Scraper failed with return code {return_code}")
             job.status = "failed"
-        
     except Exception as e:
         logger.error(f"Error in scraper process: {str(e)}")
-        send_state_update(job.job_id, "failed")
-        send_log_to_clients(job.job_id, f"Error: {str(e)}")
-        job.status = "failed"
+        send_state_update(job.job_id, "error")
+        send_log_to_clients(job.job_id, f"Error in scraper process: {str(e)}")
+        job.status = "error"
     finally:
-        # Clean up
-        if hasattr(job, 'process') and job.process:
+        # Clean up the process if it's still running
+        if job.process and job.process.poll() is None:
             try:
                 job.process.terminate()
                 job.process.wait(timeout=5)
             except:
-                job.process.kill()
-        job.process = None
+                if job.process:
+                    job.process.kill()
+            job.process = None
 
 @app.route('/get-config', methods=['GET'])
 def get_config():
@@ -820,84 +854,51 @@ def create_job_config(job):
 
 @app.route('/stop-scraper', methods=['POST'])
 def stop_scraper():
-    print("Request data:", {
-        "json": request.get_json(silent=True),
-        "form": request.form.to_dict(),
-        "args": request.args.to_dict(),
-        "data": request.data.decode('utf-8', errors='ignore') if request.data else None
-    })
-
-    # Try to get job_id from different request formats
-    job_id = None
     try:
-        if request.is_json:
-            data = request.get_json()
-            job_id = data.get('job_id') if data else None
+        # Get job_id from request
+        job_id = request.json.get('job_id')
         if not job_id:
-            job_id = request.form.get('job_id')
-        if not job_id:
-            job_id = request.args.get('job_id')
-        if not job_id and request.data:
-            # Try parsing raw data as JSON
-            try:
-                data = json.loads(request.data.decode('utf-8'))
-                job_id = data.get('job_id')
-            except:
-                pass
-
-    except Exception as e:
-        print(f"Error parsing request: {str(e)}")
-
-    print(f"Extracted job_id: {job_id}")
-    print(f"Active jobs: {list(active_jobs.keys())}")
-
-    if not job_id:
-        return jsonify({
-            "status": "error", 
-            "message": "No job ID provided",
-            "help": "Please provide job_id in the request body or as a query parameter"
-        }), 400
+            return jsonify({
+                "status": "error", 
+                "message": "No job ID provided"
+            }), 400
+            
+        if job_id not in active_jobs:
+            return jsonify({
+                "status": "error", 
+                "message": f"Invalid job ID: {job_id}"
+            }), 404
         
-    if job_id not in active_jobs:
-        return jsonify({
-            "status": "error", 
-            "message": f"Invalid job ID: {job_id}",
-            "available_jobs": list(active_jobs.keys())
-        }), 404
-    
-    job = active_jobs[job_id]
-    try:
-        if job.process:
-            # Notify about stopping
-            state_message = json.dumps({
-                "type": "state",
-                "status": "stopping",
-                "job_id": job_id
-            })
-            job.log_queue.put(state_message)
-            job.log_queue.put("Stopping scraper...")
-            
-            # Close stdout and terminate
-            if job.process.stdout:
-                job.process.stdout.close()
-            
-            job.process.terminate()
+        job = active_jobs[job_id]
+        
+        # Set the should_stop flag to signal the scraper to stop gracefully
+        job.should_stop = True
+        
+        # Send stopping state update
+        send_state_update(job_id, "stopping")
+        send_log_to_clients(job_id, "Stopping scraper...")
+        
+        # Wait for a short time to allow graceful shutdown
+        time.sleep(2)
+        
+        # If process is still running, force terminate it
+        if job.process and job.process.poll() is None:
             try:
+                job.process.terminate()
                 job.process.wait(timeout=5)
             except subprocess.TimeoutExpired:
                 job.process.kill()
-                job.log_queue.put("Force killed scraper process")
+                send_log_to_clients(job_id, "Force killed scraper process")
             
             job.process = None
-            job.status = "stopped"
-            
-            # Final state update
-            state_message = json.dumps({
-                "type": "state",
-                "status": "stopped",
-                "job_id": job_id
-            })
-            job.log_queue.put(state_message)
+        
+        # Update job status
+        job.status = "stopped"
+        job.completion_time = datetime.now()
+        
+        # Send final state update
+        send_state_update(job_id, "stopped")
+        send_log_to_clients(job_id, "Scraper stopped by user")
         
         return jsonify({
             "status": "success",
@@ -905,18 +906,11 @@ def stop_scraper():
         })
         
     except Exception as e:
-        error_msg = f"Error stopping scraper: {str(e)}"
-        job.status = "error"
-        state_message = json.dumps({
-            "type": "state",
+        logger.error(f"Error stopping scraper: {str(e)}")
+        return jsonify({
             "status": "error",
-            "message": error_msg,
-            "job_id": job_id
-        })
-        job.log_queue.put(state_message)
-        job.log_queue.put(error_msg)
-        
-        return jsonify({"status": "error", "message": error_msg}), 500
+            "message": f"Failed to stop scraper: {str(e)}"
+        }), 500
 
 @app.route('/job-status', methods=['GET'])
 def get_job_status():
@@ -1172,10 +1166,10 @@ def check_and_stop_completed_scrapers():
         for job_id, job in list(active_jobs.items()):
             # Check if the job is completed but still has a process
             if job.status == "completed" and job.process:
-                logger.info(f"Stopping completed scraper {job_id} that was missed by automatic stopping")
+                logger.info(f"Stopping completed scraper {job_id} immediately")
                 try:
                     job.process.terminate()
-                    job.process.wait(timeout=5)
+                    job.process.wait(timeout=1)  # Reduced timeout to 1 second
                 except:
                     if job.process:
                         job.process.kill()
@@ -1185,21 +1179,19 @@ def check_and_stop_completed_scrapers():
                 if not job.completion_time:
                     job.completion_time = current_time
             
-            # Check for files older than 5 minutes
+            # Clean up files immediately for completed jobs
             if job.status == "completed" and job.completion_time:
-                time_diff = (current_time - job.completion_time).total_seconds()
-                if time_diff >= 300:  # 5 minutes in seconds
-                    try:
-                        # Delete the output directory and its contents
-                        if os.path.exists(job.output_dir):
-                            import shutil
-                            shutil.rmtree(job.output_dir)
-                            logger.info(f"Deleted output files for job {job_id} after 5 minutes")
-                            
-                            # Remove the job from active_jobs
-                            del active_jobs[job_id]
-                    except Exception as e:
-                        logger.error(f"Error deleting files for job {job_id}: {str(e)}")
+                try:
+                    # Delete the output directory and its contents
+                    if os.path.exists(job.output_dir):
+                        import shutil
+                        shutil.rmtree(job.output_dir)
+                        logger.info(f"Deleted output files for job {job_id} immediately")
+                        
+                        # Remove the job from active_jobs
+                        del active_jobs[job_id]
+                except Exception as e:
+                    logger.error(f"Error deleting files for job {job_id}: {str(e)}")
     except Exception as e:
         logger.error(f"Error in check_and_stop_completed_scrapers: {str(e)}")
 
@@ -1220,6 +1212,37 @@ def start_cleanup_thread():
 
 # Start the cleanup thread when the server starts
 start_cleanup_thread()
+
+# Add a new route for force shutdown
+@app.route('/force-shutdown', methods=['POST'])
+def force_shutdown():
+    """Force shutdown the server immediately"""
+    try:
+        # Force stop all active jobs
+        for job in active_jobs.values():
+            if job.process:
+                try:
+                    job.process.kill()
+                except:
+                    pass
+                job.process = None
+                job.status = "stopped"
+        
+        # Force cleanup
+        for job_id, job in list(active_jobs.items()):
+            try:
+                if os.path.exists(job.output_dir):
+                    import shutil
+                    shutil.rmtree(job.output_dir, ignore_errors=True)
+            except:
+                pass
+            del active_jobs[job_id]
+        
+        # Force exit
+        os._exit(0)
+    except Exception as e:
+        print(f"Error during force shutdown: {e}")
+        os._exit(1)
 
 def main():
     init_data_directories()

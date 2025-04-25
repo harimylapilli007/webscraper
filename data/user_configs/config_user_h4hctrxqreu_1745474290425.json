@@ -10,7 +10,7 @@
     "fields": {
         "name": "a.member-card__name"
     },
-    "initial_wait": 3,
+    "initial_wait": 10,
     "load_more_selector": "",
     "load_more_wait": 3,
     "max_pages": 1,
