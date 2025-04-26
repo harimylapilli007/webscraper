@@ -110,7 +110,7 @@ logger.info(f"Close Timeout: {WS_CLOSE_TIMEOUT}")
 
 socketio = SocketIO(
     app,
-    cors_allowed_origins="*",
+    cors_allowed_origins=ALLOWED_ORIGINS,
     ping_interval=WS_PING_INTERVAL,
     ping_timeout=WS_PING_TIMEOUT,
     logger=True,
@@ -146,14 +146,13 @@ logger.info("Socket.IO initialized successfully")
 
 # Configure CORS with more permissive settings
 CORS(app, resources={
-    r"/*": {
-        "origins": ["*", "http://localhost:3000", "http://127.0.0.1:3000"],
-        "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type", "X-User-Id", "Authorization"],
-        "supports_credentials": True,
-        "max_age": 3600
-    }
-})
+       r"/*": {
+           "origins": ALLOWED_ORIGINS,
+           "methods": ["GET", "POST", "OPTIONS"],
+           "allow_headers": ["Content-Type", "X-User-Id"],
+           "supports_credentials": True
+       }
+   })
 
 # Store WebSocket clients with user-specific rooms
 connected_clients = {}  # Maps client_id to user_id
@@ -1244,6 +1243,13 @@ def force_shutdown():
         print(f"Error during force shutdown: {e}")
         os._exit(1)
 
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.now().isoformat()
+    })
+
 def main():
     init_data_directories()
     logger.info("Initialized data directories")
@@ -1253,7 +1259,7 @@ def main():
     
     try:
         # Start the Flask server with SocketIO
-        socketio.run(app, host='0.0.0.0', port=PORT, debug=DEBUG)
+        socketio.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=DEBUG)
     except OSError as e:
         if "Only one usage of each socket address" in str(e):
             alt_port = find_available_port(PORT + 1)
