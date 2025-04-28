@@ -35,42 +35,31 @@ logger = logging.getLogger(__name__)
 
 # Get configuration from environment
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
-PORT = int(os.environ.get('PORT', 5000))  # Changed to 8000 to match Azure default
+PORT = int(os.environ.get('PORT', 8000))  # Changed to 8000 to match Azure default
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
-# Function to check if a port is in use
-def is_port_in_use(port):
-    import socket
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        return s.connect_ex(('localhost', port)) == 0
+# Azure-specific configurations
+AZURE_WEBSITE_HOSTNAME = os.environ.get('WEBSITE_HOSTNAME', '')
+AZURE_WEBSITE_SITE_NAME = os.environ.get('WEBSITE_SITE_NAME', '')
+IS_AZURE = bool(AZURE_WEBSITE_HOSTNAME)
 
-# Find an available port if the specified port is in use
-def find_available_port(start_port, max_attempts=10):
-    port = start_port
-    for _ in range(max_attempts):
-        if not is_port_in_use(port):
-            return port
-        port += 1
-    logger.warning(f"Could not find an available port after {max_attempts} attempts")
-    return start_port  # Return original port and hope for the best
-
-# Ensure we use an available port
-PORT = find_available_port(PORT)
-logger.info(f"Using port: {PORT}")
-
-# Get WebSocket configuration from environment
+# Adjust WebSocket configuration for Azure
 WS_PING_INTERVAL = int(os.environ.get('WS_PING_INTERVAL', 25))
 WS_PING_TIMEOUT = int(os.environ.get('WS_PING_TIMEOUT', 20))
 WS_CLOSE_TIMEOUT = int(os.environ.get('WS_CLOSE_TIMEOUT', 20))
 WS_HOST = os.environ.get('WS_HOST', '0.0.0.0')
 WS_PORT = int(os.environ.get('WS_PORT', PORT))
 
-# Ensure WebSocket port is available too
-WS_PORT = find_available_port(WS_PORT) if WS_PORT == PORT else find_available_port(WS_PORT)
-logger.info(f"Using WebSocket port: {WS_PORT}")
-
-# Get allowed origins from environment
-ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', '*').split(',')
+# Adjust allowed origins for Azure
+if IS_AZURE:
+    ALLOWED_ORIGINS = [
+        f'https://{AZURE_WEBSITE_HOSTNAME}',
+        f'http://{AZURE_WEBSITE_HOSTNAME}',
+        'http://localhost:3000',
+        'http://localhost:8000'
+    ]
+else:
+    ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', '*').split(',')
 
 async def websocket_handler(websocket):
     user_id = None
@@ -102,7 +91,7 @@ async def websocket_handler(websocket):
 
 app = Flask(__name__)
 
-# Initialize SocketIO with CORS settings
+# Initialize SocketIO with Azure-specific settings
 logger.info("Initializing Socket.IO with configuration:")
 logger.info(f"Ping Interval: {WS_PING_INTERVAL}")
 logger.info(f"Ping Timeout: {WS_PING_TIMEOUT}")
@@ -115,7 +104,7 @@ socketio = SocketIO(
     ping_timeout=WS_PING_TIMEOUT,
     logger=True,
     engineio_logger=True,
-    transports=['polling', 'websocket'],  # Prefer polling first to establish connection, then upgrade
+    transports=['polling', 'websocket'],
     async_mode='gevent',
     max_http_buffer_size=1e8,
     async_handlers=True,
@@ -123,14 +112,14 @@ socketio = SocketIO(
     allow_upgrades=True,
     cookie=False,
     path='socket.io/',
-    ping_interval_grace_period=1000,  # Reduced grace period
-    max_retries=5,  # Reduced to limit retries
+    ping_interval_grace_period=1000,
+    max_retries=5,
     reconnection=True,
     reconnection_attempts=5,
     reconnection_delay=1000,
     reconnection_delay_max=5000,
-    websocket_ping_interval=WS_PING_INTERVAL,  # Explicit setting
-    websocket_ping_timeout=WS_PING_TIMEOUT    # Explicit setting
+    websocket_ping_interval=WS_PING_INTERVAL,
+    websocket_ping_timeout=WS_PING_TIMEOUT
 )
 
 # Add error handlers for SocketIO
@@ -144,15 +133,16 @@ def default_error_handler(e):
 
 logger.info("Socket.IO initialized successfully")
 
-# Configure CORS with more permissive settings
+# Configure CORS with Azure-specific settings
 CORS(app, resources={
-       r"/*": {
-           "origins": ALLOWED_ORIGINS,
-           "methods": ["GET", "POST", "OPTIONS"],
-           "allow_headers": ["Content-Type", "X-User-Id"],
-           "supports_credentials": True
-       }
-   })
+    r"/*": {
+        "origins": ALLOWED_ORIGINS,
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "X-User-Id"],
+        "supports_credentials": True,
+        "max_age": 3600
+    }
+})
 
 # Store WebSocket clients with user-specific rooms
 connected_clients = {}  # Maps client_id to user_id
