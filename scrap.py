@@ -692,6 +692,7 @@ def scrape_data(config):
             # Extract main data from containers
             for c in containers:
                 item = {}
+                scraping_successful = True
                 
                 # Extract main page data
                 for key, selector in config["fields"].items():
@@ -709,9 +710,15 @@ def scrape_data(config):
                             logger.log(f"Extracted '{key}': {item[key]}", level=logging.INFO)
                     except Exception as e:
                         item[key] = None
+                        scraping_successful = False
                         logger.log(f"Couldn't extract '{key}': {e}", level=logging.WARNING)
                 
-                results.append(item)
+                # Only add to results if scraping was successful
+                if scraping_successful:
+                    results.append(item)
+                    logger.log("Successfully added item to results", level=logging.INFO)
+                else:
+                    logger.log("Skipping item due to failed field extraction", level=logging.WARNING)
             
             # Check if we should continue to next page
             if not config.get("paginate", False):

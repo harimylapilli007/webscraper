@@ -56,7 +56,8 @@ if IS_AZURE:
         f'https://{AZURE_WEBSITE_HOSTNAME}',
         f'http://{AZURE_WEBSITE_HOSTNAME}',
         'http://localhost:3000',
-        'http://localhost:8000'
+        'http://localhost:8000',
+        'https://gentle-pebble-05941481e.6.azurestaticapps.net'
     ]
 else:
     ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', '*').split(',')
@@ -137,8 +138,8 @@ logger.info("Socket.IO initialized successfully")
 CORS(app, resources={
     r"/*": {
         "origins": ALLOWED_ORIGINS,
-        "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type", "X-User-Id"],
+        "methods": ["GET", "POST", "OPTIONS", "PUT", "DELETE"],
+        "allow_headers": ["Content-Type", "X-User-Id", "Authorization"],
         "supports_credentials": True,
         "max_age": 3600
     }
