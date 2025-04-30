@@ -56,7 +56,6 @@ if IS_AZURE:
         f'https://{AZURE_WEBSITE_HOSTNAME}',
         f'http://{AZURE_WEBSITE_HOSTNAME}',
         'http://localhost:3000',
-        'http://localhost:8000',
         'https://gentle-pebble-05941481e.6.azurestaticapps.net'
     ]
 else:
