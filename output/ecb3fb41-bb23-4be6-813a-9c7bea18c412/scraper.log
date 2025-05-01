@@ -1,0 +1,83 @@
+2025-05-01 10:01:06,758 - INFO - [2025-05-01 10:01:06] INFO - Added file handler for log file: output/ecb3fb41-bb23-4be6-813a-9c7bea18c412/scraper.log
+2025-05-01 10:01:06,759 - INFO - [2025-05-01 10:01:06] INFO - Starting scraper with configuration:
+2025-05-01 10:01:06,760 - INFO - [2025-05-01 10:01:06] INFO - base_url: https://giohis.com/speakers/
+2025-05-01 10:01:06,761 - INFO - [2025-05-01 10:01:06] INFO - concurrent_settings: {'base_request_delay': 2, 'job_spacing_delay': 3, 'max_concurrent_jobs': 3, 'max_concurrent_requests': 2}
+2025-05-01 10:01:06,762 - INFO - [2025-05-01 10:01:06] INFO - container_selector: div.attendee_wrap.clearfix
+2025-05-01 10:01:06,932 - INFO - [2025-05-01 10:01:06] INFO - initial_wait: 3
+2025-05-01 10:01:06,932 - INFO - [2025-05-01 10:01:06] INFO - load_more_selector: 
+2025-05-01 10:01:06,933 - INFO - [2025-05-01 10:01:06] INFO - load_more_wait: 3
+2025-05-01 10:01:06,933 - INFO - [2025-05-01 10:01:06] INFO - max_pages: 1
+2025-05-01 10:01:06,934 - INFO - [2025-05-01 10:01:06] INFO - max_scroll_attempts: 20
+2025-05-01 10:01:06,934 - INFO - [2025-05-01 10:01:06] INFO - next_page_selector: 
+2025-05-01 10:01:06,934 - INFO - [2025-05-01 10:01:06] INFO - output_excel: output/ecb3fb41-bb23-4be6-813a-9c7bea18c412/scraped_data.xlsx
+2025-05-01 10:01:06,935 - INFO - [2025-05-01 10:01:06] INFO - output_json: output/ecb3fb41-bb23-4be6-813a-9c7bea18c412/scraped_data.json
+2025-05-01 10:01:06,935 - INFO - [2025-05-01 10:01:06] INFO - page_wait: 2
+2025-05-01 10:01:06,936 - INFO - [2025-05-01 10:01:06] INFO - paginate: False
+2025-05-01 10:01:06,937 - INFO - [2025-05-01 10:01:06] INFO - scrape_subpages: False
+2025-05-01 10:01:06,938 - INFO - [2025-05-01 10:01:06] INFO - scroll: True
+2025-05-01 10:01:06,938 - INFO - [2025-05-01 10:01:06] INFO - scroll_wait: 3
+2025-05-01 10:01:06,940 - INFO - [2025-05-01 10:01:06] INFO - start_page: 1
+2025-05-01 10:01:06,941 - INFO - [2025-05-01 10:01:06] INFO - subpage_wait: 3
+2025-05-01 10:01:06,941 - INFO - [2025-05-01 10:01:06] INFO - job_id: ecb3fb41-bb23-4be6-813a-9c7bea18c412
+2025-05-01 10:01:06,942 - INFO - [2025-05-01 10:01:06] INFO - user_id: user_h4hctrxqreu_1745474290425
+2025-05-01 10:01:06,942 - INFO - [2025-05-01 10:01:06] INFO - concurrent: True
+2025-05-01 10:01:06,943 - INFO - [2025-05-01 10:01:06] INFO - output_dir: output/ecb3fb41-bb23-4be6-813a-9c7bea18c412
+2025-05-01 10:01:06,944 - INFO - [2025-05-01 10:01:06] INFO - log_file: output/ecb3fb41-bb23-4be6-813a-9c7bea18c412/scraper.log
+2025-05-01 10:01:06,944 - INFO - [2025-05-01 10:01:06] INFO - request_delay: 4
+2025-05-01 10:01:06,945 - INFO - [2025-05-01 10:01:06] INFO - max_concurrent_requests: 2
+2025-05-01 10:01:06,946 - INFO - [2025-05-01 10:01:06] INFO - job_start_time: 2025-05-01T10:01:03.907732
+2025-05-01 10:01:06,946 - INFO - [2025-05-01 10:01:06] INFO - headless: True
+2025-05-01 10:01:06,947 - INFO - [2025-05-01 10:01:06] INFO - Concurrent scraping settings:
+2025-05-01 10:01:06,947 - INFO - [2025-05-01 10:01:06] INFO - Job ID: ecb3fb41-bb23-4be6-813a-9c7bea18c412
+2025-05-01 10:01:06,948 - INFO - [2025-05-01 10:01:06] INFO - User ID: user_h4hctrxqreu_1745474290425
+2025-05-01 10:01:06,949 - INFO - [2025-05-01 10:01:06] INFO - Request delay: 4s
+2025-05-01 10:01:06,949 - INFO - [2025-05-01 10:01:06] INFO - Max concurrent requests: 2
+2025-05-01 10:01:06,950 - INFO - [2025-05-01 10:01:06] INFO - Concurrent scraping settings:
+2025-05-01 10:01:06,950 - INFO - [2025-05-01 10:01:06] INFO - Job ID: ecb3fb41-bb23-4be6-813a-9c7bea18c412
+2025-05-01 10:01:06,950 - INFO - [2025-05-01 10:01:06] INFO - User ID: user_h4hctrxqreu_1745474290425
+2025-05-01 10:01:06,951 - INFO - [2025-05-01 10:01:06] INFO - Request delay: 4s
+2025-05-01 10:01:06,952 - INFO - [2025-05-01 10:01:06] INFO - Max concurrent requests: 2
+2025-05-01 10:01:06,952 - INFO - [2025-05-01 10:01:06] INFO - Starting scraper with configuration:
+2025-05-01 10:01:06,953 - INFO - [2025-05-01 10:01:06] INFO - {
+  "base_url": "https://giohis.com/speakers/",
+  "concurrent_settings": {
+    "base_request_delay": 2,
+    "job_spacing_delay": 3,
+    "max_concurrent_jobs": 3,
+    "max_concurrent_requests": 2
+  },
+  "container_selector": "div.attendee_wrap.clearfix",
+  "initial_wait": 3,
+  "load_more_selector": "",
+  "load_more_wait": 3,
+  "max_pages": 1,
+  "max_scroll_attempts": 20,
+  "next_page_selector": "",
+  "output_excel": "output/ecb3fb41-bb23-4be6-813a-9c7bea18c412/scraped_data.xlsx",
+  "output_json": "output/ecb3fb41-bb23-4be6-813a-9c7bea18c412/scraped_data.json",
+  "page_wait": 2,
+  "paginate": false,
+  "scrape_subpages": false,
+  "scroll": true,
+  "scroll_wait": 3,
+  "start_page": 1,
+  "subpage_wait": 3,
+  "job_id": "ecb3fb41-bb23-4be6-813a-9c7bea18c412",
+  "user_id": "user_h4hctrxqreu_1745474290425",
+  "concurrent": true,
+  "output_dir": "output/ecb3fb41-bb23-4be6-813a-9c7bea18c412",
+  "log_file": "output/ecb3fb41-bb23-4be6-813a-9c7bea18c412/scraper.log",
+  "request_delay": 4,
+  "max_concurrent_requests": 2,
+  "job_start_time": "2025-05-01T10:01:03.907732",
+  "headless": true
+}
+2025-05-01 10:01:06,954 - WARNING - [2025-05-01 10:01:06] WARNING - Chrome version detection not implemented for this OS
+2025-05-01 10:01:06,954 - INFO - [2025-05-01 10:01:06] INFO - Using default ChromeDriver version 122.0.6261.94
+2025-05-01 10:01:06,955 - INFO - [2025-05-01 10:01:06] INFO - Attempting to download ChromeDriver 122.0.6261.94 manually...
+2025-05-01 10:01:06,956 - INFO - [2025-05-01 10:01:06] INFO - Downloading from: https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/122.0.6261.94/linux64/chromedriver-linux64.zip
+2025-05-01 10:01:11,249 - ERROR - [2025-05-01 10:01:11] ERROR - Failed to download ChromeDriver manually: [Errno 2] No such file or directory: '/app/drivers/chromedriver'
+2025-05-01 10:01:11,253 - INFO - [2025-05-01 10:01:11] INFO - Using ChromeDriverManager as fallback
+2025-05-01 10:01:11,803 - ERROR - [2025-05-01 10:01:11] ERROR - Error setting up Chrome WebDriver: There is no such driver by url https://chromedriver.storage.googleapis.com/LATEST_RELEASE_136.0.7103
+2025-05-01 10:01:11,805 - ERROR - [2025-05-01 10:01:11] ERROR - Error during scraping: There is no such driver by url https://chromedriver.storage.googleapis.com/LATEST_RELEASE_136.0.7103
+2025-05-01 10:01:11,809 - ERROR - [2025-05-01 10:01:11] ERROR - Scraper failed with return code 1

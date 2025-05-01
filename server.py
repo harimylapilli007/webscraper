@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 # Get configuration from environment
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
-PORT = int(os.environ.get('PORT', 8000))  # Changed to 8000 to match Azure default
+PORT = int(os.environ.get('PORT', 5000))  # Changed to 8000 to match Azure default
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
 # Azure-specific configurations

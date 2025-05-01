@@ -16,8 +16,8 @@
     "max_pages": 1,
     "max_scroll_attempts": 20,
     "next_page_selector": "",
-    "output_excel": "",
-    "output_json": "",
+    "output_excel": "output/f411a6a5-df23-4dc9-b9ca-4f08b3316018/scraped_data.xlsx",
+    "output_json": "output/f411a6a5-df23-4dc9-b9ca-4f08b3316018/scraped_data.json",
     "page_wait": 2,
     "paginate": false,
     "scrape_subpages": false,
@@ -25,5 +25,14 @@
     "scroll_wait": 3,
     "start_page": 1,
     "subpage_fields": {},
-    "subpage_wait": 3
+    "subpage_wait": 3,
+    "job_id": "f411a6a5-df23-4dc9-b9ca-4f08b3316018",
+    "user_id": "user_h4hctrxqreu_1745474290425",
+    "concurrent": true,
+    "output_dir": "output/f411a6a5-df23-4dc9-b9ca-4f08b3316018",
+    "log_file": "output/f411a6a5-df23-4dc9-b9ca-4f08b3316018/scraper.log",
+    "request_delay": 4,
+    "max_concurrent_requests": 2,
+    "job_start_time": "2025-05-01T08:06:52.427814",
+    "headless": true
 }

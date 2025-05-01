@@ -20,6 +20,7 @@ import io
 import platform
 import re
 from dotenv import load_dotenv
+import subprocess
 
 # Load environment variables from .env file
 load_dotenv()
@@ -157,14 +158,19 @@ def download_chromedriver(version=None):
         driver_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "drivers")
         os.makedirs(driver_dir, exist_ok=True)
         
-        # Download URL
-        download_url = f"https://chromedriver.storage.googleapis.com/{version}/chromedriver_{platform_name}.zip"
+        # New download URL format
+        download_url = f"https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/{version}/{platform_name}/chromedriver-{platform_name}.zip"
         logger.log(f"Downloading from: {download_url}", level=logging.INFO)
         
         # Download the zip file
         response = requests.get(download_url)
         if response.status_code != 200:
-            raise Exception(f"Failed to download ChromeDriver. Status code: {response.status_code}")
+            # Try alternative URL if the first one fails
+            alt_url = f"https://storage.googleapis.com/chrome-for-testing-public/{version}/{platform_name}/chromedriver-{platform_name}.zip"
+            logger.log(f"First URL failed, trying alternative URL: {alt_url}", level=logging.INFO)
+            response = requests.get(alt_url)
+            if response.status_code != 200:
+                raise Exception(f"Failed to download ChromeDriver. Status code: {response.status_code}")
         
         # Extract the zip file
         with zipfile.ZipFile(io.BytesIO(response.content)) as zip_file:
@@ -188,16 +194,15 @@ def download_chromedriver(version=None):
 def get_chrome_version():
     """Get the installed Chrome version."""
     try:
-        if platform.system() == "Windows":
-            # Use PowerShell to get Chrome version on Windows
-            import subprocess
-            cmd = r'(Get-Item "C:\Program Files\Google\Chrome\Application\chrome.exe").VersionInfo.ProductVersion'
-            chrome_version = subprocess.check_output(["powershell", "-command", cmd]).decode("utf-8").strip()
-            logger.log(f"Detected Chrome version: {chrome_version}", level=logging.INFO)
-            return chrome_version
+        # Try to get Chrome version from the binary
+        chrome_bin = os.environ.get('CHROME_BIN', '/usr/bin/google-chrome')
+        if os.path.exists(chrome_bin):
+            version = subprocess.check_output([chrome_bin, '--version']).decode('utf-8')
+            version = version.split()[2]  # Get the version number
+            logger.log(f"Detected Chrome version: {version}", level=logging.INFO)
+            return version
         else:
-            # This is a simplified version, more robust version detection might be needed
-            logger.log("Chrome version detection not implemented for this OS", level=logging.WARNING)
+            logger.log(f"Chrome binary not found at {chrome_bin}", level=logging.WARNING)
             return None
     except Exception as e:
         logger.log(f"Error detecting Chrome version: {str(e)}", level=logging.WARNING)
@@ -212,48 +217,39 @@ def get_compatible_chromedriver_version(chrome_version):
         # Map of compatible ChromeDriver versions for various Chrome versions
         # Based on https://chromedriver.chromium.org/downloads
         version_map = {
-            "135": "122.0.6261.94",  # Updated for Chrome 135
-            "134": "122.0.6261.94",
-            "133": "122.0.6261.94",
-            "132": "122.0.6261.94",
-            "131": "122.0.6261.94",
-            "130": "122.0.6261.94",
-            "129": "122.0.6261.94",
-            "128": "122.0.6261.94",
-            "127": "122.0.6261.94",
-            "126": "122.0.6261.94",
-            "125": "122.0.6261.94",
-            "124": "122.0.6261.94",
-            "123": "122.0.6261.94",
-            "122": "122.0.6261.94",
-            "121": "121.0.6167.85",
-            "120": "120.0.6099.109",
-            "119": "119.0.6045.105",
-            "118": "118.0.5993.70",
-            "117": "117.0.5938.149",
-            "116": "116.0.5845.96",
-            "115": "115.0.5790.102",
-            "114": "114.0.5735.90"
+            "135": "135.0.0.0",
+            "134": "134.0.0.0",
+            "133": "133.0.0.0",
+            "132": "132.0.0.0",
+            "131": "131.0.0.0",
+            "130": "130.0.0.0",
+            "129": "129.0.0.0",
+            "128": "128.0.0.0",
+            "127": "127.0.0.0",
+            "126": "126.0.0.0",
+            "125": "125.0.0.0",
+            "124": "124.0.0.0",
+            "123": "123.0.0.0",
+            "122": "122.0.0.0",
+            "121": "121.0.0.0",
+            "120": "120.0.0.0",
+            "119": "119.0.0.0",
+            "118": "118.0.0.0",
+            "117": "117.0.0.0",
+            "116": "116.0.0.0",
+            "115": "115.0.0.0",
+            "114": "114.0.0.0"
         }
         if chrome_major in version_map:
             return version_map[chrome_major]
         else:
             # Default to a version that often works
-            return "122.0.6261.94"  # Updated default version
-    return "122.0.6261.94"  # Updated default fallback
+            return "122.0.0.0"  # Updated default version
+    return "122.0.0.0"  # Updated default fallback
 
 def setup_driver(headless=True):
     """Initialize and return a Chrome WebDriver instance."""
     try:
-        # Get Chrome version and compatible ChromeDriver version
-        chrome_version = get_chrome_version()
-        if chrome_version:
-            driver_version = get_compatible_chromedriver_version(chrome_version)
-            logger.log(f"Using Chrome version {chrome_version} with ChromeDriver {driver_version}", level=logging.INFO)
-        else:
-            driver_version = "122.0.6261.94"  # Default to a known working version
-            logger.log(f"Using default ChromeDriver version {driver_version}", level=logging.INFO)
-
         # Set up Chrome options
         chrome_options = Options()
         if headless:
@@ -272,7 +268,7 @@ def setup_driver(headless=True):
             chrome_options.add_argument('--ignore-certificate-errors')
             chrome_options.add_argument('--disable-blink-features=AutomationControlled')
             chrome_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36')
-        
+
         # Add additional options for Docker environment
         chrome_options.add_argument('--disable-dev-shm-usage')
         chrome_options.add_argument('--no-sandbox')
@@ -293,14 +289,30 @@ def setup_driver(headless=True):
         chrome_options.add_argument('--disable-blink-features=AutomationControlled')
         chrome_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36')
 
-        # Try to download and use ChromeDriver
-        driver_path = download_chromedriver(driver_version)
-        if driver_path and os.path.exists(driver_path):
-            logger.log(f"Using ChromeDriver at: {driver_path}", level=logging.INFO)
-            service = Service(executable_path=driver_path)
+        # Use ChromeDriver from environment variable
+        chromedriver_path = os.environ.get('CHROMEDRIVER_PATH')
+        if chromedriver_path and os.path.exists(chromedriver_path):
+            logger.log(f"Using ChromeDriver at: {chromedriver_path}", level=logging.INFO)
+            service = Service(executable_path=chromedriver_path)
         else:
-            logger.log("Using ChromeDriverManager as fallback", level=logging.INFO)
-            service = ChromeService(ChromeDriverManager().install())
+            try:
+                # Try to get Chrome version
+                chrome_version = get_chrome_version()
+                if chrome_version:
+                    major_version = chrome_version.split('.')[0]
+                    logger.log(f"Using Chrome version {chrome_version} with ChromeDriverManager", level=logging.INFO)
+                    service = ChromeService(ChromeDriverManager(version=major_version).install())
+                else:
+                    logger.log("Using ChromeDriverManager with default version", level=logging.INFO)
+                    service = ChromeService(ChromeDriverManager().install())
+            except Exception as e:
+                logger.log(f"Error using ChromeDriverManager: {str(e)}", level=logging.ERROR)
+                # Fallback to manual download
+                driver_path = download_chromedriver()
+                if driver_path:
+                    service = Service(executable_path=driver_path)
+                else:
+                    raise Exception("Failed to set up ChromeDriver")
 
         # Initialize the driver with retry logic
         max_retries = 3

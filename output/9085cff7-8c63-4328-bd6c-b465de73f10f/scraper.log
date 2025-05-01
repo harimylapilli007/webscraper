@@ -1,0 +1,193 @@
+2025-05-01 09:36:14,559 - INFO - [2025-05-01 09:36:14] INFO - Added file handler for log file: output/9085cff7-8c63-4328-bd6c-b465de73f10f/scraper.log
+2025-05-01 09:36:14,560 - INFO - [2025-05-01 09:36:14] INFO - Starting scraper with configuration:
+2025-05-01 09:36:14,560 - INFO - [2025-05-01 09:36:14] INFO - base_url: https://giohis.com/speakers/
+2025-05-01 09:36:14,561 - INFO - [2025-05-01 09:36:14] INFO - concurrent_settings: {'base_request_delay': 2, 'job_spacing_delay': 3, 'max_concurrent_jobs': 3, 'max_concurrent_requests': 2}
+2025-05-01 09:36:14,563 - INFO - [2025-05-01 09:36:14] INFO - container_selector: div.attendee_wrap.clearfix
+2025-05-01 09:36:14,565 - INFO - [2025-05-01 09:36:14] INFO - initial_wait: 3
+2025-05-01 09:36:14,565 - INFO - [2025-05-01 09:36:14] INFO - load_more_selector: 
+2025-05-01 09:36:14,566 - INFO - [2025-05-01 09:36:14] INFO - load_more_wait: 3
+2025-05-01 09:36:14,566 - INFO - [2025-05-01 09:36:14] INFO - max_pages: 1
+2025-05-01 09:36:14,569 - INFO - [2025-05-01 09:36:14] INFO - max_scroll_attempts: 20
+2025-05-01 09:36:14,570 - INFO - [2025-05-01 09:36:14] INFO - next_page_selector: 
+2025-05-01 09:36:14,571 - INFO - [2025-05-01 09:36:14] INFO - output_excel: output/9085cff7-8c63-4328-bd6c-b465de73f10f/scraped_data.xlsx
+2025-05-01 09:36:14,572 - INFO - [2025-05-01 09:36:14] INFO - output_json: output/9085cff7-8c63-4328-bd6c-b465de73f10f/scraped_data.json
+2025-05-01 09:36:14,572 - INFO - [2025-05-01 09:36:14] INFO - page_wait: 2
+2025-05-01 09:36:14,574 - INFO - [2025-05-01 09:36:14] INFO - paginate: False
+2025-05-01 09:36:14,574 - INFO - [2025-05-01 09:36:14] INFO - scrape_subpages: False
+2025-05-01 09:36:14,575 - INFO - [2025-05-01 09:36:14] INFO - scroll: True
+2025-05-01 09:36:14,576 - INFO - [2025-05-01 09:36:14] INFO - scroll_wait: 3
+2025-05-01 09:36:14,576 - INFO - [2025-05-01 09:36:14] INFO - start_page: 1
+2025-05-01 09:36:14,577 - INFO - [2025-05-01 09:36:14] INFO - subpage_wait: 3
+2025-05-01 09:36:14,577 - INFO - [2025-05-01 09:36:14] INFO - job_id: 9085cff7-8c63-4328-bd6c-b465de73f10f
+2025-05-01 09:36:14,578 - INFO - [2025-05-01 09:36:14] INFO - user_id: user_h4hctrxqreu_1745474290425
+2025-05-01 09:36:14,578 - INFO - [2025-05-01 09:36:14] INFO - concurrent: True
+2025-05-01 09:36:14,579 - INFO - [2025-05-01 09:36:14] INFO - output_dir: output/9085cff7-8c63-4328-bd6c-b465de73f10f
+2025-05-01 09:36:14,579 - INFO - [2025-05-01 09:36:14] INFO - log_file: output/9085cff7-8c63-4328-bd6c-b465de73f10f/scraper.log
+2025-05-01 09:36:14,580 - INFO - [2025-05-01 09:36:14] INFO - request_delay: 4
+2025-05-01 09:36:14,580 - INFO - [2025-05-01 09:36:14] INFO - max_concurrent_requests: 2
+2025-05-01 09:36:14,580 - INFO - [2025-05-01 09:36:14] INFO - job_start_time: 2025-05-01T09:36:13.736092
+2025-05-01 09:36:14,581 - INFO - [2025-05-01 09:36:14] INFO - headless: True
+2025-05-01 09:36:14,581 - INFO - [2025-05-01 09:36:14] INFO - Concurrent scraping settings:
+2025-05-01 09:36:14,582 - INFO - [2025-05-01 09:36:14] INFO - Job ID: 9085cff7-8c63-4328-bd6c-b465de73f10f
+2025-05-01 09:36:14,582 - INFO - [2025-05-01 09:36:14] INFO - User ID: user_h4hctrxqreu_1745474290425
+2025-05-01 09:36:14,583 - INFO - [2025-05-01 09:36:14] INFO - Request delay: 4s
+2025-05-01 09:36:14,584 - INFO - [2025-05-01 09:36:14] INFO - Max concurrent requests: 2
+2025-05-01 09:36:14,586 - INFO - [2025-05-01 09:36:14] INFO - Concurrent scraping settings:
+2025-05-01 09:36:14,592 - INFO - [2025-05-01 09:36:14] INFO - Job ID: 9085cff7-8c63-4328-bd6c-b465de73f10f
+2025-05-01 09:36:14,595 - INFO - [2025-05-01 09:36:14] INFO - User ID: user_h4hctrxqreu_1745474290425
+2025-05-01 09:36:14,595 - INFO - [2025-05-01 09:36:14] INFO - Request delay: 4s
+2025-05-01 09:36:14,596 - INFO - [2025-05-01 09:36:14] INFO - Max concurrent requests: 2
+2025-05-01 09:36:14,596 - INFO - [2025-05-01 09:36:14] INFO - Starting scraper with configuration:
+2025-05-01 09:36:14,597 - INFO - [2025-05-01 09:36:14] INFO - {
+  "base_url": "https://giohis.com/speakers/",
+  "concurrent_settings": {
+    "base_request_delay": 2,
+    "job_spacing_delay": 3,
+    "max_concurrent_jobs": 3,
+    "max_concurrent_requests": 2
+  },
+  "container_selector": "div.attendee_wrap.clearfix",
+  "initial_wait": 3,
+  "load_more_selector": "",
+  "load_more_wait": 3,
+  "max_pages": 1,
+  "max_scroll_attempts": 20,
+  "next_page_selector": "",
+  "output_excel": "output/9085cff7-8c63-4328-bd6c-b465de73f10f/scraped_data.xlsx",
+  "output_json": "output/9085cff7-8c63-4328-bd6c-b465de73f10f/scraped_data.json",
+  "page_wait": 2,
+  "paginate": false,
+  "scrape_subpages": false,
+  "scroll": true,
+  "scroll_wait": 3,
+  "start_page": 1,
+  "subpage_wait": 3,
+  "job_id": "9085cff7-8c63-4328-bd6c-b465de73f10f",
+  "user_id": "user_h4hctrxqreu_1745474290425",
+  "concurrent": true,
+  "output_dir": "output/9085cff7-8c63-4328-bd6c-b465de73f10f",
+  "log_file": "output/9085cff7-8c63-4328-bd6c-b465de73f10f/scraper.log",
+  "request_delay": 4,
+  "max_concurrent_requests": 2,
+  "job_start_time": "2025-05-01T09:36:13.736092",
+  "headless": true
+}
+2025-05-01 09:36:14,597 - WARNING - [2025-05-01 09:36:14] WARNING - Chrome version detection not implemented for this OS
+2025-05-01 09:36:14,598 - INFO - [2025-05-01 09:36:14] INFO - Using default ChromeDriver version 122.0.0.0
+2025-05-01 09:36:14,598 - INFO - [2025-05-01 09:36:14] INFO - Using system ChromeDriver at: /usr/local/bin/chromedriver
+2025-05-01 09:36:16,350 - ERROR - [2025-05-01 09:36:16] ERROR - Failed to initialize Chrome WebDriver (attempt 1/3): Message: session not created: This version of ChromeDriver only supports Chrome version 122
+Current browser version is 136.0.7103.59 with binary path /opt/google/chrome/chrome
+Stacktrace:
+#0 0x55b483a5be93 <unknown>
+#1 0x55b483753ce6 <unknown>
+#2 0x55b48378e62b <unknown>
+#3 0x55b48378d7f5 <unknown>
+#4 0x55b483788a05 <unknown>
+#5 0x55b4837846ed <unknown>
+#6 0x55b4837cd71c <unknown>
+#7 0x55b4837c0c53 <unknown>
+#8 0x55b483791db3 <unknown>
+#9 0x55b48379277e <unknown>
+#10 0x55b483a217cb <unknown>
+#11 0x55b483a257e5 <unknown>
+#12 0x55b483a0f0e1 <unknown>
+#13 0x55b483a26372 <unknown>
+#14 0x55b4839f31bf <unknown>
+#15 0x55b483a4a488 <unknown>
+#16 0x55b483a4a683 <unknown>
+#17 0x55b483a5b044 <unknown>
+#18 0x7fce1c36d1f5 <unknown>
+
+2025-05-01 09:36:19,349 - ERROR - [2025-05-01 09:36:19] ERROR - Failed to initialize Chrome WebDriver (attempt 2/3): Message: session not created: This version of ChromeDriver only supports Chrome version 122
+Current browser version is 136.0.7103.59 with binary path /opt/google/chrome/chrome
+Stacktrace:
+#0 0x563bf66d0e93 <unknown>
+#1 0x563bf63c8ce6 <unknown>
+#2 0x563bf640362b <unknown>
+#3 0x563bf64027f5 <unknown>
+#4 0x563bf63fda05 <unknown>
+#5 0x563bf63f96ed <unknown>
+#6 0x563bf644271c <unknown>
+#7 0x563bf6435c53 <unknown>
+#8 0x563bf6406db3 <unknown>
+#9 0x563bf640777e <unknown>
+#10 0x563bf66967cb <unknown>
+#11 0x563bf669a7e5 <unknown>
+#12 0x563bf66840e1 <unknown>
+#13 0x563bf669b372 <unknown>
+#14 0x563bf66681bf <unknown>
+#15 0x563bf66bf488 <unknown>
+#16 0x563bf66bf683 <unknown>
+#17 0x563bf66d0044 <unknown>
+#18 0x7fc774e141f5 <unknown>
+
+2025-05-01 09:36:22,777 - ERROR - [2025-05-01 09:36:22] ERROR - Failed to initialize Chrome WebDriver (attempt 3/3): Message: session not created: This version of ChromeDriver only supports Chrome version 122
+Current browser version is 136.0.7103.59 with binary path /opt/google/chrome/chrome
+Stacktrace:
+#0 0x55cc239dae93 <unknown>
+#1 0x55cc236d2ce6 <unknown>
+#2 0x55cc2370d62b <unknown>
+#3 0x55cc2370c7f5 <unknown>
+#4 0x55cc23707a05 <unknown>
+#5 0x55cc237036ed <unknown>
+#6 0x55cc2374c71c <unknown>
+#7 0x55cc2373fc53 <unknown>
+#8 0x55cc23710db3 <unknown>
+#9 0x55cc2371177e <unknown>
+#10 0x55cc239a07cb <unknown>
+#11 0x55cc239a47e5 <unknown>
+#12 0x55cc2398e0e1 <unknown>
+#13 0x55cc239a5372 <unknown>
+#14 0x55cc239721bf <unknown>
+#15 0x55cc239c9488 <unknown>
+#16 0x55cc239c9683 <unknown>
+#17 0x55cc239da044 <unknown>
+#18 0x7f77c84871f5 <unknown>
+
+2025-05-01 09:36:22,777 - ERROR - [2025-05-01 09:36:22] ERROR - Error setting up Chrome WebDriver: Message: session not created: This version of ChromeDriver only supports Chrome version 122
+Current browser version is 136.0.7103.59 with binary path /opt/google/chrome/chrome
+Stacktrace:
+#0 0x55cc239dae93 <unknown>
+#1 0x55cc236d2ce6 <unknown>
+#2 0x55cc2370d62b <unknown>
+#3 0x55cc2370c7f5 <unknown>
+#4 0x55cc23707a05 <unknown>
+#5 0x55cc237036ed <unknown>
+#6 0x55cc2374c71c <unknown>
+#7 0x55cc2373fc53 <unknown>
+#8 0x55cc23710db3 <unknown>
+#9 0x55cc2371177e <unknown>
+#10 0x55cc239a07cb <unknown>
+#11 0x55cc239a47e5 <unknown>
+#12 0x55cc2398e0e1 <unknown>
+#13 0x55cc239a5372 <unknown>
+#14 0x55cc239721bf <unknown>
+#15 0x55cc239c9488 <unknown>
+#16 0x55cc239c9683 <unknown>
+#17 0x55cc239da044 <unknown>
+#18 0x7f77c84871f5 <unknown>
+
+2025-05-01 09:36:22,778 - ERROR - [2025-05-01 09:36:22] ERROR - Error during scraping: Message: session not created: This version of ChromeDriver only supports Chrome version 122
+Current browser version is 136.0.7103.59 with binary path /opt/google/chrome/chrome
+Stacktrace:
+#0 0x55cc239dae93 <unknown>
+#1 0x55cc236d2ce6 <unknown>
+#2 0x55cc2370d62b <unknown>
+#3 0x55cc2370c7f5 <unknown>
+#4 0x55cc23707a05 <unknown>
+#5 0x55cc237036ed <unknown>
+#6 0x55cc2374c71c <unknown>
+#7 0x55cc2373fc53 <unknown>
+#8 0x55cc23710db3 <unknown>
+#9 0x55cc2371177e <unknown>
+#10 0x55cc239a07cb <unknown>
+#11 0x55cc239a47e5 <unknown>
+#12 0x55cc2398e0e1 <unknown>
+#13 0x55cc239a5372 <unknown>
+#14 0x55cc239721bf <unknown>
+#15 0x55cc239c9488 <unknown>
+#16 0x55cc239c9683 <unknown>
+#17 0x55cc239da044 <unknown>
+#18 0x7f77c84871f5 <unknown>
+
+2025-05-01 09:36:22,779 - ERROR - [2025-05-01 09:36:22] ERROR - Scraper failed with return code 1
