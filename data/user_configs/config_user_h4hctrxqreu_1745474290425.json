@@ -10,7 +10,7 @@
     "fields": {
         "name": "div.attendee_wrap.clearfix p"
     },
-    "initial_wait": 10,
+    "initial_wait": 3,
     "load_more_selector": "",
     "load_more_wait": 3,
     "max_pages": 1,
@@ -21,7 +21,7 @@
     "page_wait": 2,
     "paginate": false,
     "scrape_subpages": false,
-    "scroll": true,
+    "scroll": false,
     "scroll_wait": 3,
     "start_page": 1,
     "subpage_fields": {},

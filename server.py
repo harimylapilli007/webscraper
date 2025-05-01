@@ -15,6 +15,7 @@ import time
 import logging
 from dotenv import load_dotenv
 from flask_socketio import SocketIO, emit, join_room, leave_room
+import socket
 
 # Load environment variables from .env file
 load_dotenv()
@@ -44,11 +45,16 @@ AZURE_WEBSITE_SITE_NAME = os.environ.get('WEBSITE_SITE_NAME', '')
 IS_AZURE = bool(AZURE_WEBSITE_HOSTNAME)
 
 # Adjust WebSocket configuration for Azure
-WS_PING_INTERVAL = int(os.environ.get('WS_PING_INTERVAL', 25))
-WS_PING_TIMEOUT = int(os.environ.get('WS_PING_TIMEOUT', 20))
-WS_CLOSE_TIMEOUT = int(os.environ.get('WS_CLOSE_TIMEOUT', 20))
+WS_PING_INTERVAL = int(os.environ.get('WS_PING_INTERVAL', 30))  # Increased from 25
+WS_PING_TIMEOUT = int(os.environ.get('WS_PING_TIMEOUT', 25))   # Increased from 20
+WS_CLOSE_TIMEOUT = int(os.environ.get('WS_CLOSE_TIMEOUT', 25)) # Increased from 20
 WS_HOST = os.environ.get('WS_HOST', '0.0.0.0')
 WS_PORT = int(os.environ.get('WS_PORT', PORT))
+
+# Add WebSocket connection retry settings
+WS_RECONNECT_ATTEMPTS = 10
+WS_RECONNECT_DELAY = 2
+WS_RECONNECT_DELAY_MAX = 30
 
 # Adjust allowed origins for Azure
 if IS_AZURE:
@@ -60,6 +66,17 @@ if IS_AZURE:
     ]
 else:
     ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', '*').split(',')
+
+def find_available_port(start_port):
+    port = start_port
+    while True:
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.bind(('', port))
+            sock.close()
+            return port
+        except OSError:
+            port += 1
 
 async def websocket_handler(websocket):
     user_id = None
@@ -105,21 +122,24 @@ socketio = SocketIO(
     logger=True,
     engineio_logger=True,
     transports=['polling', 'websocket'],
-    async_mode='gevent',
+    async_mode='threading',
     max_http_buffer_size=1e8,
     async_handlers=True,
     monitor_clients=True,
     allow_upgrades=True,
     cookie=False,
     path='socket.io/',
-    ping_interval_grace_period=1000,
-    max_retries=5,
+    ping_interval_grace_period=2000,
+    max_retries=WS_RECONNECT_ATTEMPTS,
     reconnection=True,
-    reconnection_attempts=5,
-    reconnection_delay=1000,
-    reconnection_delay_max=5000,
+    reconnection_attempts=WS_RECONNECT_ATTEMPTS,
+    reconnection_delay=WS_RECONNECT_DELAY * 1000,
+    reconnection_delay_max=WS_RECONNECT_DELAY_MAX * 1000,
     websocket_ping_interval=WS_PING_INTERVAL,
-    websocket_ping_timeout=WS_PING_TIMEOUT
+    websocket_ping_timeout=WS_PING_TIMEOUT,
+    websocket_max_message_size=10485760,
+    websocket_compression=True,
+    websocket_per_message_deflate=True
 )
 
 # Add error handlers for SocketIO

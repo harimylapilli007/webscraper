@@ -244,106 +244,84 @@ def get_compatible_chromedriver_version(chrome_version):
 
 def setup_driver(headless=True):
     """Initialize and return a Chrome WebDriver instance."""
-    # Suppress stderr to hide Chrome driver exit exception messages
-    import os
-    import sys
-    import io
-    
-    # Redirect stderr to suppress undetected_chromedriver exceptions
-    original_stderr = sys.stderr
-    sys.stderr = io.StringIO()
-    
     try:
-        # Get Chrome version for compatible driver
+        # Get Chrome version and compatible ChromeDriver version
         chrome_version = get_chrome_version()
-        if not chrome_version:
-            raise Exception("Could not detect Chrome version")
-            
-        # Extract major version number
-        match = re.match(r'^(\d+)\.', chrome_version)
-        if not match:
-            raise Exception(f"Invalid Chrome version format: {chrome_version}")
-            
-        chrome_major = match.group(1)
-        
-        # Use ChromeDriverManager with specific version
-        from selenium.webdriver.chrome.service import Service
-        from webdriver_manager.chrome import ChromeDriverManager
-        
-        # Configure Chrome options
+        if chrome_version:
+            driver_version = get_compatible_chromedriver_version(chrome_version)
+            logger.log(f"Using Chrome version {chrome_version} with ChromeDriver {driver_version}", level=logging.INFO)
+        else:
+            driver_version = "122.0.6261.94"  # Default to a known working version
+            logger.log(f"Using default ChromeDriver version {driver_version}", level=logging.INFO)
+
+        # Set up Chrome options
         chrome_options = Options()
-        # if headless:
-        #     chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--disable-gpu')
-        chrome_options.add_argument('--no-sandbox')
+        if headless:
+            chrome_options.add_argument('--headless')
+            chrome_options.add_argument('--no-sandbox')
+            chrome_options.add_argument('--disable-dev-shm-usage')
+            chrome_options.add_argument('--disable-gpu')
+            chrome_options.add_argument('--window-size=1920,1080')
+            chrome_options.add_argument('--disable-extensions')
+            chrome_options.add_argument('--disable-software-rasterizer')
+            chrome_options.add_argument('--disable-features=VizDisplayCompositor')
+            chrome_options.add_argument('--disable-features=IsolateOrigins,site-per-process')
+            chrome_options.add_argument('--disable-site-isolation-trials')
+            chrome_options.add_argument('--disable-web-security')
+            chrome_options.add_argument('--allow-running-insecure-content')
+            chrome_options.add_argument('--ignore-certificate-errors')
+            chrome_options.add_argument('--disable-blink-features=AutomationControlled')
+            chrome_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36')
+        
+        # Add additional options for Docker environment
         chrome_options.add_argument('--disable-dev-shm-usage')
-        chrome_options.add_argument('--disable-extensions')
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-setuid-sandbox')
+        chrome_options.add_argument('--disable-accelerated-2d-canvas')
+        chrome_options.add_argument('--disable-accelerated-jpeg-decoding')
+        chrome_options.add_argument('--disable-accelerated-mjpeg-decode')
+        chrome_options.add_argument('--disable-accelerated-video-decode')
+        chrome_options.add_argument('--disable-accelerated-video-encode')
+        chrome_options.add_argument('--disable-gpu-sandbox')
         chrome_options.add_argument('--disable-software-rasterizer')
-        
-        # Add unique user agent and window size for concurrent jobs
-        if 'job_id' in config:
-            chrome_options.add_argument(f'--user-agent=WebScraper-Job-{config["job_id"]}')
-            chrome_options.add_argument(f'--window-position={hash(config["job_id"]) % 1000},0')
-        
-        # Set Chrome binary location explicitly
-        chrome_options.binary_location = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
-        
-        # Try to use ChromeDriverManager with version matching
-        try:
-            # First try with exact version match
-            driver_version = f"{chrome_major}.0.0"
-            service = Service(ChromeDriverManager().install())
-            driver = webdriver.Chrome(service=service, options=chrome_options)
-            logger.log(f"Successfully initialized Chrome driver with version {driver_version}", level=logging.INFO)
-            return driver
-        except Exception as e1:
-            logger.log(f"Failed to initialize with exact version match: {str(e1)}", level=logging.WARNING)
-            
+        chrome_options.add_argument('--disable-features=VizDisplayCompositor')
+        chrome_options.add_argument('--disable-features=IsolateOrigins,site-per-process')
+        chrome_options.add_argument('--disable-site-isolation-trials')
+        chrome_options.add_argument('--disable-web-security')
+        chrome_options.add_argument('--allow-running-insecure-content')
+        chrome_options.add_argument('--ignore-certificate-errors')
+        chrome_options.add_argument('--disable-blink-features=AutomationControlled')
+        chrome_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36')
+
+        # Try to download and use ChromeDriver
+        driver_path = download_chromedriver(driver_version)
+        if driver_path and os.path.exists(driver_path):
+            logger.log(f"Using ChromeDriver at: {driver_path}", level=logging.INFO)
+            service = Service(executable_path=driver_path)
+        else:
+            logger.log("Using ChromeDriverManager as fallback", level=logging.INFO)
+            service = ChromeService(ChromeDriverManager().install())
+
+        # Initialize the driver with retry logic
+        max_retries = 3
+        retry_count = 0
+        while retry_count < max_retries:
             try:
-                # Try with latest compatible version
-                service = Service(ChromeDriverManager().install())
                 driver = webdriver.Chrome(service=service, options=chrome_options)
-                logger.log("Successfully initialized Chrome driver with latest compatible version", level=logging.INFO)
+                driver.set_page_load_timeout(30)
+                driver.implicitly_wait(10)
+                logger.log("Chrome WebDriver initialized successfully", level=logging.INFO)
                 return driver
-            except Exception as e2:
-                logger.log(f"Failed to initialize with latest version: {str(e2)}", level=logging.WARNING)
-                
-                # Try undetected-chromedriver as last resort
-                try:
-                    import undetected_chromedriver as uc
-                    options = uc.ChromeOptions()
-                    # if headless:
-                    #     options.add_argument('--headless')
-                    options.add_argument('--disable-gpu')
-                    options.add_argument('--no-sandbox')
-                    options.add_argument('--disable-dev-shm-usage')
-                    
-                    if 'job_id' in config:
-                        options.add_argument(f'--user-agent=WebScraper-Job-{config["job_id"]}')
-                        options.add_argument(f'--window-position={hash(config["job_id"]) % 1000},0')
-                    
-                    driver = uc.Chrome(options=options)
-                    logger.log("Successfully initialized Chrome with undetected-chromedriver", level=logging.INFO)
-                    return driver
-                except Exception as e3:
-                    logger.log(f"All Chrome driver initialization methods failed", level=logging.ERROR)
-                    logger.log(f"Error 1: {str(e1)}", level=logging.ERROR)
-                    logger.log(f"Error 2: {str(e2)}", level=logging.ERROR)
-                    logger.log(f"Error 3: {str(e3)}", level=logging.ERROR)
-                    
-                    error_message = """
-Chrome driver initialization failed. Please try one of the following solutions:
-1. Update Chrome to the latest version
-2. Manually download ChromeDriver matching your Chrome version from: https://chromedriver.chromium.org/downloads
-3. Add chromedriver.exe to your PATH
-4. Try running without headless mode
-"""
-                    logger.log(error_message, level=logging.ERROR)
-                    raise Exception("Unable to initialize Chrome driver. See logs for troubleshooting steps.")
-                    
-    finally:
-        # Restore stderr
-        sys.stderr = original_stderr
+            except Exception as e:
+                retry_count += 1
+                logger.log(f"Failed to initialize Chrome WebDriver (attempt {retry_count}/{max_retries}): {str(e)}", level=logging.ERROR)
+                if retry_count == max_retries:
+                    raise
+                time.sleep(2)  # Wait before retrying
+
+    except Exception as e:
+        logger.log(f"Error setting up Chrome WebDriver: {str(e)}", level=logging.ERROR)
+        raise
 
 def validate_config(config):
     required_keys = ["base_url", "container_selector", "fields"]
@@ -603,14 +581,33 @@ def handle_load_more_button(driver, config):
 def scrape_data(config):
     if not validate_config(config):
         logger.log("Invalid configuration. Exiting.", level=logging.ERROR)
-        return
+        return 1  # Return error code for invalid config
 
     logger.log("Starting scraper with configuration:", level=logging.INFO)
     logger.log(json.dumps({k: v for k, v in config.items() if k not in ['fields', 'subpage_fields']}, indent=2), level=logging.INFO)
 
     driver = None
     try:
+        # Validate base URL
+        if not config["base_url"].startswith(("http://", "https://")):
+            logger.log(f"Invalid base URL: {config['base_url']}. Must start with http:// or https://", level=logging.ERROR)
+            return 1
+
+        # Validate container selector
+        if not config["container_selector"]:
+            logger.log("Container selector is empty", level=logging.ERROR)
+            return 1
+
+        # Validate fields
+        if not config["fields"]:
+            logger.log("No fields defined in configuration", level=logging.ERROR)
+            return 1
+
         driver = setup_driver(config.get("headless", True))
+        if not driver:
+            logger.log("Failed to initialize Chrome driver", level=logging.ERROR)
+            return 1
+
         results = []
         page_num = config.get("start_page", 1)
         max_pages = config.get("max_pages", 10)
@@ -621,8 +618,12 @@ def scrape_data(config):
         
         # Phase 1: Collect all main fields and links
         logger.log("Phase 1: Collecting main fields and links from all pages...", level=logging.INFO)
-        driver.get(config["base_url"])
-        logger.log(f"Navigated to base URL: {config['base_url']}", level=logging.INFO)
+        try:
+            driver.get(config["base_url"])
+            logger.log(f"Navigated to base URL: {config['base_url']}", level=logging.INFO)
+        except Exception as e:
+            logger.log(f"Failed to navigate to base URL: {str(e)}", level=logging.ERROR)
+            return 1
         
         # Add delay for concurrent scraping
         if config.get("concurrent"):
@@ -630,6 +631,18 @@ def scrape_data(config):
         else:
             time.sleep(config.get("initial_wait", 5))
         
+        # Verify page loaded successfully
+        try:
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, config["container_selector"]))
+            )
+        except TimeoutException:
+            logger.log(f"Timeout waiting for container selector '{config['container_selector']}' to appear", level=logging.ERROR)
+            return 1
+        except Exception as e:
+            logger.log(f"Error waiting for container selector: {str(e)}", level=logging.ERROR)
+            return 1
+
         # Get total pages if possible
         if config.get("paginate", False):
             total_pages = get_total_pages(driver, config)
@@ -655,40 +668,22 @@ def scrape_data(config):
                 max_scroll_attempts = config.get("max_scroll_attempts", 20)  # Prevent infinite scrolling
                 
                 while scroll_attempts < max_scroll_attempts:
-                    # Scroll down
                     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                    time.sleep(config.get("scroll_wait", 2))
-                    
-                    # Try to find and click load more button
-                    if handle_load_more_button(driver, config):
-                        scroll_attempts = 0  # Reset counter if we successfully loaded more content
-                        logger.log("Found and clicked 'Load More' button, continuing to scroll...", level=logging.INFO)
-                        continue
-                    
-                    # Check if we've reached the bottom
+                    time.sleep(config.get("scroll_wait", 3))
                     new_height = driver.execute_script("return document.body.scrollHeight")
                     if new_height == last_height:
-                        scroll_attempts += 1
-                        if scroll_attempts >= 3:  # If height hasn't changed after 3 attempts, we're done
-                            logger.log("Reached the bottom of the page - no more content to load", level=logging.INFO)
-                            break
-                    else:
-                        scroll_attempts = 0  # Reset counter if height changed
-                        logger.log("Scrolling further down to load more content...", level=logging.INFO)
-                        
+                        break
                     last_height = new_height
-                
-                if scroll_attempts >= max_scroll_attempts:
-                    logger.log(f"Reached maximum scroll attempts ({max_scroll_attempts}) - stopping scroll", level=logging.WARNING)
-
-            # Get elements
+                    scroll_attempts += 1
+            
+            # Find all containers
             containers = driver.find_elements(By.CSS_SELECTOR, config["container_selector"])
-            logger.log(f"Found {len(containers)} items on page {page_num}", level=logging.INFO)
-
             if not containers:
-                logger.log("No items found on this page, might be last page", level=logging.INFO)
+                logger.log("No containers found on page. Stopping.", level=logging.WARNING)
                 break
-
+            
+            logger.log(f"Found {len(containers)} containers on page {page_num}", level=logging.INFO)
+            
             # Extract main data from containers
             for c in containers:
                 item = {}
@@ -768,170 +763,96 @@ def scrape_data(config):
             if config.get("scrape_subpages", False):
                 time.sleep(request_delay)
                 
-        # Save results to output files
-        # Set default output directory and filenames if not provided or empty
-        output_dir = config.get("output_dir", "backend/output/default")
-        if not output_dir:
-            output_dir = "backend/output/default"
+        # Only save results if scraping was successful and we have data
+        if results:
+            # Set default output directory and filenames if not provided or empty
+            output_dir = config.get("output_dir", "backend/output/default")
+            if not output_dir:
+                output_dir = "backend/output/default"
+                
+            # Ensure output directory exists
+            os.makedirs(output_dir, exist_ok=True)
             
-        # Ensure output directory exists
-        os.makedirs(output_dir, exist_ok=True)
-        
-        # Generate default output filenames if not provided or empty
-        output_json = config.get("output_json", "")
-        if not output_json:
-            timestamp = time.strftime("%Y%m%d_%H%M%S")
-            output_json = os.path.join(output_dir, f"results_{timestamp}.json")
-        elif not os.path.isabs(output_json) and not os.path.dirname(output_json):
-            # If only filename is provided without directory
-            output_json = os.path.join(output_dir, output_json)
+            # Generate default output filenames if not provided or empty
+            output_json = config.get("output_json", "")
+            if not output_json:
+                timestamp = time.strftime("%Y%m%d_%H%M%S")
+                output_json = os.path.join(output_dir, f"results_{timestamp}.json")
+            elif not os.path.isabs(output_json) and not os.path.dirname(output_json):
+                # If only filename is provided without directory
+                output_json = os.path.join(output_dir, output_json)
+                
+            output_excel = config.get("output_excel", "")
+            if not output_excel:
+                timestamp = time.strftime("%Y%m%d_%H%M%S") 
+                output_excel = os.path.join(output_dir, f"results_{timestamp}.xlsx")
+            elif not os.path.isabs(output_excel) and not os.path.dirname(output_excel):
+                # If only filename is provided without directory
+                output_excel = os.path.join(output_dir, output_excel)
             
-        output_excel = config.get("output_excel", "")
-        if not output_excel:
-            timestamp = time.strftime("%Y%m%d_%H%M%S") 
-            output_excel = os.path.join(output_dir, f"results_{timestamp}.xlsx")
-        elif not os.path.isabs(output_excel) and not os.path.dirname(output_excel):
-            # If only filename is provided without directory
-            output_excel = os.path.join(output_dir, output_excel)
+            # Ensure output file directories exist
+            os.makedirs(os.path.dirname(output_json), exist_ok=True)
+            os.makedirs(os.path.dirname(output_excel), exist_ok=True)
             
-        # Ensure output file directories exist
-        os.makedirs(os.path.dirname(output_json), exist_ok=True)
-        os.makedirs(os.path.dirname(output_excel), exist_ok=True)
-        
-        # Save the data
-        with open(output_json, "w", encoding="utf-8") as f:
-            json.dump(results, f, ensure_ascii=False, indent=4)
-        pd.DataFrame(results).to_excel(output_excel, index=False)
-
-        logger.log(f"\n[SUCCESS] Scraping complete. {len(results)} items saved.", level=logging.INFO)
-        logger.log(f"Results saved to JSON: {output_json}", level=logging.INFO)
-        logger.log(f"Results saved to Excel: {output_excel}", level=logging.INFO)
-        logger.log("Scraper completed successfully", level=logging.INFO)
-
-        # Cleanup driver after successful completion
-        if driver is not None:
-            logger.log("Cleaning up driver after successful scraping...", level=logging.INFO)
+            # Save the data
             try:
-                # Try to close the browser window first
-                try:
-                    driver.close()
-                    logger.log("Successfully closed browser window", level=logging.INFO)
-                except Exception as e:
-                    logger.log(f"Error closing browser window: {e}", level=logging.WARNING)
-                
-                # Then try to quit the driver
-                try:
-                    driver.quit()
-                    logger.log("Successfully quit driver", level=logging.INFO)
-                except Exception as e:
-                    logger.log(f"Error quitting driver: {e}", level=logging.WARNING)
-                
-                # Force cleanup of any remaining processes
-                try:
-                    import psutil
-                    chrome_processes_killed = 0
-                    for proc in psutil.process_iter(['pid', 'name']):
-                        try:
-                            if 'chrome' in proc.info['name'].lower():
-                                proc.kill()
-                                chrome_processes_killed += 1
-                        except:
-                            pass
-                    if chrome_processes_killed > 0:
-                        logger.log(f"Killed {chrome_processes_killed} remaining Chrome processes", level=logging.INFO)
-                except Exception as e:
-                    logger.log(f"Error during process cleanup: {e}", level=logging.WARNING)
-                
-                driver = None  # Clear the driver reference
+                with open(output_json, "w", encoding="utf-8") as f:
+                    json.dump(results, f, ensure_ascii=False, indent=4)
+                pd.DataFrame(results).to_excel(output_excel, index=False)
+
+                logger.log(f"\n[SUCCESS] Scraping complete. {len(results)} items saved.", level=logging.INFO)
+                logger.log(f"Results saved to JSON: {output_json}", level=logging.INFO)
+                logger.log(f"Results saved to Excel: {output_excel}", level=logging.INFO)
+                logger.log("Scraper completed successfully", level=logging.INFO)
+                return 0  # Success
             except Exception as e:
-                logger.log(f"Error during driver cleanup: {e}", level=logging.ERROR)
-                
-        return
+                logger.log(f"Error saving results: {str(e)}", level=logging.ERROR)
+                return 1
+        else:
+            logger.log("\n[ERROR] No data was scraped successfully. No output files were created.", level=logging.ERROR)
+            return 1
 
     except Exception as e:
-        logger.log(f"[ERROR] Scraping failed: {e}", level=logging.ERROR)
-        import traceback
-        logger.log(traceback.format_exc(), level=logging.ERROR)
-        raise  # Re-raise the exception to be handled by the server
+        logger.log(f"Error during scraping: {str(e)}", level=logging.ERROR)
+        if driver:
+            driver.quit()
+        return 1
     finally:
-        # Final cleanup in case of any errors
-        if driver is not None:
-            logger.log("Performing final driver cleanup...", level=logging.INFO)
-            try:
-                # Try to close the browser window first
-                try:
-                    driver.close()
-                    logger.log("Successfully closed browser window in cleanup", level=logging.INFO)
-                except Exception as e:
-                    logger.log(f"Error closing browser window in cleanup: {e}", level=logging.WARNING)
-                
-                # Then try to quit the driver
-                try:
-                    driver.quit()
-                    logger.log("Successfully quit driver in cleanup", level=logging.INFO)
-                except Exception as e:
-                    logger.log(f"Error quitting driver in cleanup: {e}", level=logging.WARNING)
-                
-                # Force cleanup of any remaining processes
-                try:
-                    import psutil
-                    chrome_processes_killed = 0
-                    for proc in psutil.process_iter(['pid', 'name']):
-                        try:
-                            if 'chrome' in proc.info['name'].lower():
-                                proc.kill()
-                                chrome_processes_killed += 1
-                        except:
-                            pass
-                    if chrome_processes_killed > 0:
-                        logger.log(f"Killed {chrome_processes_killed} remaining Chrome processes in cleanup", level=logging.INFO)
-                except Exception as e:
-                    logger.log(f"Error during process cleanup in cleanup: {e}", level=logging.WARNING)
-            except Exception as e:
-                logger.log(f"Error during final driver cleanup: {e}", level=logging.ERROR)
-            finally:
-                driver = None  # Always clear the driver reference
-        
-        # Close job-specific log file if it exists
-        if config.get("log_file"):
-            try:
-                for handler in logger.logger.handlers[:]:
-                    if isinstance(handler, logging.FileHandler) and handler.baseFilename == config["log_file"]:
-                        try:
-                            handler.flush()  # Ensure all data is written
-                            handler.close()  # Close the handler
-                        except Exception as e:
-                            logger.log(f"Error closing log handler: {e}", level=logging.WARNING)
-                        finally:
-                            logger.logger.removeHandler(handler)  # Remove the handler regardless of close success
-            except Exception as e:
-                logger.log(f"Error during log file cleanup: {e}", level=logging.WARNING)
+        if driver:
+            driver.quit()
 
 def main():
     parser = argparse.ArgumentParser(description='Web Scraper')
     parser.add_argument('--config', required=True, help='Path to config file')
     args = parser.parse_args()
     
-    # Load configuration
-    with open(args.config, 'r', encoding='utf-8') as f:
-        global config
-        config = json.load(f)
-    
-    # Add file handler if log file is specified
-    if config.get('log_file'):
-        logger.add_file_handler(config['log_file'])
-    
-    # Log start message
-    logger.log(f"Starting scraper with configuration:")
-    for key, value in config.items():
-        if key not in ['fields', 'subpage_fields']:
-            logger.log(f"{key}: {value}")
-    
-    # Run scraper
-    if validate_config(config):
-        scrape_data(config)
-    else:
-        logger.log("Invalid configuration", level=logging.ERROR)
+    try:
+        # Load configuration
+        with open(args.config, 'r', encoding='utf-8') as f:
+            global config
+            config = json.load(f)
+        
+        # Add file handler if log file is specified
+        if config.get('log_file'):
+            logger.add_file_handler(config['log_file'])
+        
+        # Log start message
+        logger.log(f"Starting scraper with configuration:")
+        for key, value in config.items():
+            if key not in ['fields', 'subpage_fields']:
+                logger.log(f"{key}: {value}")
+        
+        # Run scraper
+        if validate_config(config):
+            return_code = scrape_data(config)
+            if return_code != 0:
+                logger.log(f"Scraper failed with return code {return_code}", level=logging.ERROR)
+            sys.exit(return_code)
+        else:
+            logger.log("Invalid configuration", level=logging.ERROR)
+            sys.exit(1)
+    except Exception as e:
+        logger.log(f"Fatal error in main: {str(e)}", level=logging.ERROR)
         sys.exit(1)
 
 if __name__ == '__main__':

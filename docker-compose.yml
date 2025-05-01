@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - BUILD_ENV=production
+    container_name: webscraper_backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./output:/app/output
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./temp:/app/temp
+      - /dev/shm:/dev/shm
+    environment:
+      - FLASK_APP=server.py
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+      - TZ=UTC
+      - GUNICORN_CMD_ARGS=--access-logfile=- --error-logfile=- --log-level=debug --capture-output --enable-stdio-inheritance
+      - CHROME_BIN=/usr/bin/google-chrome
+      - CHROME_PATH=/usr/lib/chromium-browser/
+      - CHROMEDRIVER_PATH=/usr/local/bin/chromedriver
+      - DISPLAY=:99
+      - NO_SANDBOX=1
+      - DISABLE_DEV_SHM_USAGE=1
+      - CHROME_OPTIONS=--no-sandbox,--disable-dev-shm-usage,--disable-gpu,--disable-extensions,--disable-software-rasterizer,--disable-setuid-sandbox,--disable-web-security,--disable-features=VizDisplayCompositor
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '2'
+          memory: 4G
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 5
+        window: 300s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+        mode: "non-blocking"
+        max-buffer-size: "8m"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    networks:
+      - webscraper_network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    sysctls:
+      net.core.somaxconn: 65535
+      net.ipv4.tcp_max_syn_backlog: 65535
+      net.ipv4.tcp_keepalive_time: 60
+      net.ipv4.tcp_keepalive_probes: 5
+      net.ipv4.tcp_keepalive_intvl: 10
+
+networks:
+  webscraper_network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1 
