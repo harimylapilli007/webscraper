@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 # Get configuration from environment
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 PORT = int(os.environ.get('PORT', 5000))  # Changed to 8000 to match Azure default
-FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://webscraper-frontend-b3gmeeckhue2b3fz.canadacentral-01.azurewebsites.net')
 
 # Azure-specific configurations
 AZURE_WEBSITE_HOSTNAME = os.environ.get('WEBSITE_HOSTNAME', '')
@@ -62,7 +62,7 @@ if IS_AZURE:
         f'https://{AZURE_WEBSITE_HOSTNAME}',
         f'http://{AZURE_WEBSITE_HOSTNAME}',
         'http://localhost:3000',
-        'https://gentle-pebble-05941481e.6.azurestaticapps.net'
+        'https://webscraper-frontend-b3gmeeckhue2b3fz.canadacentral-01.azurewebsites.net'
     ]
 else:
     ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', '*').split(',')
@@ -158,11 +158,19 @@ CORS(app, resources={
     r"/*": {
         "origins": ALLOWED_ORIGINS,
         "methods": ["GET", "POST", "OPTIONS", "PUT", "DELETE"],
-        "allow_headers": ["Content-Type", "X-User-Id", "Authorization"],
+        "allow_headers": ["Content-Type", "X-User-Id", "Authorization", "Access-Control-Allow-Origin", "Access-Control-Allow-Headers", "Access-Control-Allow-Methods"],
         "supports_credentials": True,
-        "max_age": 3600
+        "max_age": 3600,
+        "expose_headers": ["Content-Type", "X-User-Id", "Authorization", "Access-Control-Allow-Origin"],
+        "send_wildcard": False,
+        "automatic_options": True
     }
 })
+
+# Add CORS headers to all responses
+@app.after_request
+def after_request(response):
+    return response
 
 # Store WebSocket clients with user-specific rooms
 connected_clients = {}  # Maps client_id to user_id
@@ -201,15 +209,6 @@ def log_request_info():
             logger.info(f"Found userId in query params: {request.args.get('userId')}")
         if request.is_json and 'user_id' in request.json:
             logger.info(f"Found user_id in JSON body: {request.json.get('user_id')}")
-
-# Add response logging middleware
-@app.after_request
-def after_request(response):
-    logger.info(f"Response Status: {response.status}")
-    logger.info("Response Headers:")
-    for header, value in response.headers:
-        logger.info(f"  {header}: {value}")
-    return response
 
 # Initialize data directories and default config
 def init_data_directories():
@@ -568,7 +567,7 @@ def ping():
 
 @app.route('/', methods=['GET'])
 def welcome():
-    return jsonify({"message": "Welcome to the Web Scraper API!"})
+    return jsonify({"message": "Welcome to the Web Scraper API! hari"})
 
 @app.route('/ws')
 def handle_websocket():
@@ -1169,7 +1168,7 @@ def start_websocket_server_thread():
             logger.error(f"Error cleaning up WebSocket server: {str(e)}")
 
 def check_and_stop_completed_scrapers():
-    """Periodically check for and stop completed scrapers and delete old files."""
+    """Periodically check for and stop completed scrapers."""
     try:
         current_time = datetime.now()
         for job_id, job in list(active_jobs.items()):
@@ -1188,19 +1187,14 @@ def check_and_stop_completed_scrapers():
                 if not job.completion_time:
                     job.completion_time = current_time
             
-            # Clean up files immediately for completed jobs
+            # Remove completed jobs from active_jobs but keep their files
             if job.status == "completed" and job.completion_time:
                 try:
-                    # Delete the output directory and its contents
-                    if os.path.exists(job.output_dir):
-                        import shutil
-                        shutil.rmtree(job.output_dir)
-                        logger.info(f"Deleted output files for job {job_id} immediately")
-                        
-                        # Remove the job from active_jobs
-                        del active_jobs[job_id]
+                    # Remove the job from active_jobs but keep the output directory
+                    del active_jobs[job_id]
+                    logger.info(f"Removed completed job {job_id} from active jobs")
                 except Exception as e:
-                    logger.error(f"Error deleting files for job {job_id}: {str(e)}")
+                    logger.error(f"Error removing job {job_id}: {str(e)}")
     except Exception as e:
         logger.error(f"Error in check_and_stop_completed_scrapers: {str(e)}")
 

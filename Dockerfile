@@ -4,7 +4,7 @@ FROM python:3.9-slim
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies including X11
 RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
@@ -12,12 +12,18 @@ RUN apt-get update && apt-get install -y \
     curl \
     gawk \
     xvfb \
+    x11vnc \
+    xterm \
+    fluxbox \
     libgconf-2-4 \
     libnss3 \
     libfontconfig1 \
     libxss1 \
     libasound2 \
     libxtst6 \
+    libxi6 \
+    default-jdk \
+    novnc \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Chrome
@@ -59,10 +65,15 @@ ENV CHROMEDRIVER_PATH=/usr/local/bin/chromedriver
 ENV DISPLAY=:99
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
+ENV FRONTEND_URL=https://webscraper-frontend-b3gmeeckhue2b3fz.canadacentral-01.azurewebsites.net
+ENV ALLOWED_ORIGINS=https://webscraper-frontend-b3gmeeckhue2b3fz.canadacentral-01.azurewebsites.net
+ENV DOCKER_CONTAINER=true
 
 # Expose the port the app runs on
 EXPOSE 5000
 
 # Start Xvfb and run the application
 CMD Xvfb :99 -screen 0 1920x1080x24 > /dev/null 2>&1 & \
+    fluxbox & \
+    x11vnc -display :99 -forever -nopw -quiet & \
     gunicorn --bind 0.0.0.0:5000 --worker-class eventlet --workers 1 server:app 

@@ -21,6 +21,7 @@ import platform
 import re
 from dotenv import load_dotenv
 import subprocess
+from selenium.webdriver.common.action_chains import ActionChains
 
 # Load environment variables from .env file
 load_dotenv()
@@ -139,8 +140,15 @@ logger = Logger()
 def download_chromedriver(version=None):
     """Download ChromeDriver manually and return the path to the executable."""
     try:
-        # Use default Chrome driver version
-        version = version or "114.0.5735.90"
+        # Get Chrome version if not provided
+        if not version:
+            chrome_version = get_chrome_version()
+            if chrome_version:
+                version = get_compatible_chromedriver_version(chrome_version)
+            else:
+                # Use latest stable version as fallback
+                version = "136.0.7103.93"  # Updated to match your Chrome version
+        
         logger.log(f"Attempting to download ChromeDriver {version} manually...", level=logging.INFO)
         
         # Determine the platform-specific download URL
@@ -158,34 +166,49 @@ def download_chromedriver(version=None):
         driver_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "drivers")
         os.makedirs(driver_dir, exist_ok=True)
         
-        # New download URL format
-        download_url = f"https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/{version}/{platform_name}/chromedriver-{platform_name}.zip"
-        logger.log(f"Downloading from: {download_url}", level=logging.INFO)
+        # List of possible download URLs to try
+        download_urls = [
+            f"https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/{version}/{platform_name}/chromedriver-{platform_name}.zip",
+            f"https://storage.googleapis.com/chrome-for-testing-public/{version}/{platform_name}/chromedriver-{platform_name}.zip",
+            f"https://chromedriver.storage.googleapis.com/{version}/chromedriver_{platform_name}.zip"
+        ]
         
-        # Download the zip file
-        response = requests.get(download_url)
-        if response.status_code != 200:
-            # Try alternative URL if the first one fails
-            alt_url = f"https://storage.googleapis.com/chrome-for-testing-public/{version}/{platform_name}/chromedriver-{platform_name}.zip"
-            logger.log(f"First URL failed, trying alternative URL: {alt_url}", level=logging.INFO)
-            response = requests.get(alt_url)
-            if response.status_code != 200:
-                raise Exception(f"Failed to download ChromeDriver. Status code: {response.status_code}")
+        # Try each URL until one works
+        for url in download_urls:
+            try:
+                logger.log(f"Trying to download from: {url}", level=logging.INFO)
+                response = requests.get(url, timeout=30)
+                if response.status_code == 200:
+                    # Extract the zip file
+                    with zipfile.ZipFile(io.BytesIO(response.content)) as zip_file:
+                        zip_file.extractall(driver_dir)
+                    
+                    # Set the driver path
+                    if system == "Windows":
+                        driver_path = os.path.join(driver_dir, "chromedriver.exe")
+                    else:
+                        driver_path = os.path.join(driver_dir, "chromedriver")
+                        # Make the driver executable on Unix systems
+                        os.chmod(driver_path, 0o755)
+                    
+                    logger.log(f"Successfully downloaded ChromeDriver to: {driver_path}", level=logging.INFO)
+                    return driver_path
+                else:
+                    logger.log(f"Failed to download from {url}, status code: {response.status_code}", level=logging.WARNING)
+            except Exception as e:
+                logger.log(f"Error downloading from {url}: {str(e)}", level=logging.WARNING)
+                continue
         
-        # Extract the zip file
-        with zipfile.ZipFile(io.BytesIO(response.content)) as zip_file:
-            zip_file.extractall(driver_dir)
-        
-        # Set the driver path
-        if system == "Windows":
-            driver_path = os.path.join(driver_dir, "chromedriver.exe")
-        else:
-            driver_path = os.path.join(driver_dir, "chromedriver")
-            # Make the driver executable on Unix systems
-            os.chmod(driver_path, 0o755)
-        
-        logger.log(f"Successfully downloaded ChromeDriver to: {driver_path}", level=logging.INFO)
-        return driver_path
+        # If all URLs fail, try to get the latest version
+        logger.log("All download attempts failed, trying to get latest version...", level=logging.WARNING)
+        try:
+            from webdriver_manager.chrome import ChromeDriverManager
+            driver_path = ChromeDriverManager().install()
+            logger.log(f"Successfully installed latest ChromeDriver using webdriver_manager: {driver_path}", level=logging.INFO)
+            return driver_path
+        except Exception as e:
+            logger.log(f"Failed to install latest version: {str(e)}", level=logging.ERROR)
+            raise Exception("Failed to download ChromeDriver from all sources")
     
     except Exception as e:
         logger.log(f"Failed to download ChromeDriver manually: {str(e)}", level=logging.ERROR)
@@ -194,142 +217,174 @@ def download_chromedriver(version=None):
 def get_chrome_version():
     """Get the installed Chrome version."""
     try:
-        # Try to get Chrome version from the binary
-        chrome_bin = os.environ.get('CHROME_BIN', '/usr/bin/google-chrome')
-        if os.path.exists(chrome_bin):
-            version = subprocess.check_output([chrome_bin, '--version']).decode('utf-8')
-            version = version.split()[2]  # Get the version number
-            logger.log(f"Detected Chrome version: {version}", level=logging.INFO)
-            return version
+        # Try different methods to get Chrome version
+        if platform.system() == "Windows":
+            # Method 1: Try registry
+            try:
+                import winreg
+                key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Google\Chrome\BLBeacon")
+                version, _ = winreg.QueryValueEx(key, "version")
+                logger.log(f"Detected Chrome version from registry: {version}", level=logging.INFO)
+                return version
+            except:
+                pass
+
+            # Method 2: Try program files
+            chrome_paths = [
+                r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+                r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+                os.path.expanduser(r"~\AppData\Local\Google\Chrome\Application\chrome.exe")
+            ]
+            
+            for path in chrome_paths:
+                if os.path.exists(path):
+                    try:
+                        version = subprocess.check_output([path, '--version']).decode('utf-8')
+                        version = version.split()[2]  # Get the version number
+                        logger.log(f"Detected Chrome version from binary: {version}", level=logging.INFO)
+                        return version
+                    except:
+                        continue
         else:
-            logger.log(f"Chrome binary not found at {chrome_bin}", level=logging.WARNING)
-            return None
+            # For Linux/Mac
+            chrome_bin = os.environ.get('CHROME_BIN', '/usr/bin/google-chrome')
+            if os.path.exists(chrome_bin):
+                version = subprocess.check_output([chrome_bin, '--version']).decode('utf-8')
+                version = version.split()[2]  # Get the version number
+                logger.log(f"Detected Chrome version: {version}", level=logging.INFO)
+                return version
+
+        logger.log("Could not detect Chrome version automatically", level=logging.WARNING)
+        return None
     except Exception as e:
         logger.log(f"Error detecting Chrome version: {str(e)}", level=logging.WARNING)
         return None
 
 def get_compatible_chromedriver_version(chrome_version):
     """Return a compatible ChromeDriver version based on Chrome version."""
-    # Extract major version number
-    match = re.match(r'^(\d+)\.', chrome_version)
-    if match:
-        chrome_major = match.group(1)
-        # Map of compatible ChromeDriver versions for various Chrome versions
-        # Based on https://chromedriver.chromium.org/downloads
-        version_map = {
-            "135": "135.0.0.0",
-            "134": "134.0.0.0",
-            "133": "133.0.0.0",
-            "132": "132.0.0.0",
-            "131": "131.0.0.0",
-            "130": "130.0.0.0",
-            "129": "129.0.0.0",
-            "128": "128.0.0.0",
-            "127": "127.0.0.0",
-            "126": "126.0.0.0",
-            "125": "125.0.0.0",
-            "124": "124.0.0.0",
-            "123": "123.0.0.0",
-            "122": "122.0.0.0",
-            "121": "121.0.0.0",
-            "120": "120.0.0.0",
-            "119": "119.0.0.0",
-            "118": "118.0.0.0",
-            "117": "117.0.0.0",
-            "116": "116.0.0.0",
-            "115": "115.0.0.0",
-            "114": "114.0.0.0"
-        }
-        if chrome_major in version_map:
-            return version_map[chrome_major]
-        else:
-            # Default to a version that often works
-            return "122.0.0.0"  # Updated default version
-    return "122.0.0.0"  # Updated default fallback
+    try:
+        # Extract major version number
+        match = re.match(r'^(\d+)\.', chrome_version)
+        if match:
+            chrome_major = match.group(1)
+            logger.log(f"Chrome major version: {chrome_major}", level=logging.INFO)
+            
+            # For Chrome 115 and above, use the same version
+            if int(chrome_major) >= 115:
+                return chrome_version
+            
+            # For older versions, use the version mapping
+            version_map = {
+                "114": "114.0.5735.90",
+                "113": "113.0.5672.63",
+                "112": "112.0.5615.49",
+                "111": "111.0.5563.64",
+                "110": "110.0.5481.77",
+                "109": "109.0.5414.74",
+                "108": "108.0.5359.71",
+                "107": "107.0.5304.62",
+                "106": "106.0.5249.61",
+                "105": "105.0.5195.52",
+                "104": "104.0.5112.79",
+                "103": "103.0.5060.53",
+                "102": "102.0.5005.61",
+                "101": "101.0.4951.41",
+                "100": "100.0.4896.60",
+                "99": "99.0.4844.51",
+                "98": "98.0.4758.102",
+                "97": "97.0.4692.71",
+                "96": "96.0.4664.45",
+                "95": "95.0.4638.69",
+                "94": "94.0.4606.61",
+                "93": "93.0.4577.63",
+                "92": "92.0.4515.107",
+                "91": "91.0.4472.124"
+            }
+            
+            if chrome_major in version_map:
+                return version_map[chrome_major]
+            
+        # If no match found, return the same version as Chrome
+        logger.log(f"No specific mapping found, using Chrome version: {chrome_version}", level=logging.INFO)
+        return chrome_version
+    except Exception as e:
+        logger.log(f"Error getting compatible ChromeDriver version: {str(e)}", level=logging.WARNING)
+        return chrome_version
 
 def setup_driver(headless=True):
     """Initialize and return a Chrome WebDriver instance."""
     try:
         # Set up Chrome options
         chrome_options = Options()
-        if headless:
-            chrome_options.add_argument('--headless')
+        
+        # Check if running in Docker or Azure (no display server)
+        is_containerized = os.environ.get('DOCKER_CONTAINER') == 'true' or os.environ.get('AZURE_WEBSITE_INSTANCE_ID') is not None
+        
+        # If in containerized environment, use Xvfb display
+        if is_containerized:
+            display = os.environ.get('DISPLAY', ':99')
+            logger.log(f"Running in containerized environment with display {display}", level=logging.INFO)
+            # Add container-specific options
             chrome_options.add_argument('--no-sandbox')
             chrome_options.add_argument('--disable-dev-shm-usage')
             chrome_options.add_argument('--disable-gpu')
             chrome_options.add_argument('--window-size=1920,1080')
-            chrome_options.add_argument('--disable-extensions')
-            chrome_options.add_argument('--disable-software-rasterizer')
-            chrome_options.add_argument('--disable-features=VizDisplayCompositor')
-            chrome_options.add_argument('--disable-features=IsolateOrigins,site-per-process')
-            chrome_options.add_argument('--disable-site-isolation-trials')
-            chrome_options.add_argument('--disable-web-security')
-            chrome_options.add_argument('--allow-running-insecure-content')
-            chrome_options.add_argument('--ignore-certificate-errors')
-            chrome_options.add_argument('--disable-blink-features=AutomationControlled')
-            chrome_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36')
-
-        # Add additional options for Docker environment
-        chrome_options.add_argument('--disable-dev-shm-usage')
-        chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--disable-setuid-sandbox')
-        chrome_options.add_argument('--disable-accelerated-2d-canvas')
-        chrome_options.add_argument('--disable-accelerated-jpeg-decoding')
-        chrome_options.add_argument('--disable-accelerated-mjpeg-decode')
-        chrome_options.add_argument('--disable-accelerated-video-decode')
-        chrome_options.add_argument('--disable-accelerated-video-encode')
-        chrome_options.add_argument('--disable-gpu-sandbox')
+            chrome_options.add_argument('--start-maximized')
+        
+        # Common Chrome options
+        chrome_options.add_argument('--disable-extensions')
         chrome_options.add_argument('--disable-software-rasterizer')
-        chrome_options.add_argument('--disable-features=VizDisplayCompositor')
-        chrome_options.add_argument('--disable-features=IsolateOrigins,site-per-process')
-        chrome_options.add_argument('--disable-site-isolation-trials')
-        chrome_options.add_argument('--disable-web-security')
-        chrome_options.add_argument('--allow-running-insecure-content')
-        chrome_options.add_argument('--ignore-certificate-errors')
-        chrome_options.add_argument('--disable-blink-features=AutomationControlled')
-        chrome_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36')
+        
+        # Add user agent
+        chrome_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.7103.93 Safari/537.36')
 
-        # Use ChromeDriver from environment variable
-        chromedriver_path = os.environ.get('CHROMEDRIVER_PATH')
-        if chromedriver_path and os.path.exists(chromedriver_path):
-            logger.log(f"Using ChromeDriver at: {chromedriver_path}", level=logging.INFO)
-            service = Service(executable_path=chromedriver_path)
-        else:
-            try:
-                # Try to get Chrome version
-                chrome_version = get_chrome_version()
-                if chrome_version:
-                    major_version = chrome_version.split('.')[0]
-                    logger.log(f"Using Chrome version {chrome_version} with ChromeDriverManager", level=logging.INFO)
-                    service = ChromeService(ChromeDriverManager(version=major_version).install())
-                else:
-                    logger.log("Using ChromeDriverManager with default version", level=logging.INFO)
-                    service = ChromeService(ChromeDriverManager().install())
-            except Exception as e:
-                logger.log(f"Error using ChromeDriverManager: {str(e)}", level=logging.ERROR)
-                # Fallback to manual download
-                driver_path = download_chromedriver()
-                if driver_path:
-                    service = Service(executable_path=driver_path)
-                else:
-                    raise Exception("Failed to set up ChromeDriver")
+        # Get Chrome version
+        chrome_version = get_chrome_version()
+        if not chrome_version:
+            raise Exception("Could not detect Chrome version")
 
-        # Initialize the driver with retry logic
-        max_retries = 3
-        retry_count = 0
-        while retry_count < max_retries:
-            try:
-                driver = webdriver.Chrome(service=service, options=chrome_options)
-                driver.set_page_load_timeout(30)
-                driver.implicitly_wait(10)
-                logger.log("Chrome WebDriver initialized successfully", level=logging.INFO)
-                return driver
-            except Exception as e:
-                retry_count += 1
-                logger.log(f"Failed to initialize Chrome WebDriver (attempt {retry_count}/{max_retries}): {str(e)}", level=logging.ERROR)
-                if retry_count == max_retries:
-                    raise
-                time.sleep(2)  # Wait before retrying
+        logger.log(f"Detected Chrome version: {chrome_version}", level=logging.INFO)
+
+        try:
+            # Try using webdriver_manager with latest version
+            from webdriver_manager.chrome import ChromeDriverManager
+            from selenium.webdriver.chrome.service import Service as ChromeService
+            
+            # Install ChromeDriver using webdriver_manager
+            driver_path = ChromeDriverManager().install()
+            logger.log(f"Installed ChromeDriver at: {driver_path}", level=logging.INFO)
+            
+            # Create service with the installed driver
+            service = ChromeService(executable_path=driver_path)
+            
+            # Initialize the driver with retry logic
+            max_retries = 3
+            retry_count = 0
+            while retry_count < max_retries:
+                try:
+                    driver = webdriver.Chrome(service=service, options=chrome_options)
+                    driver.set_page_load_timeout(30)
+                    driver.implicitly_wait(10)
+                    
+                    # Verify ChromeDriver version matches Chrome version
+                    driver_version = driver.capabilities['chrome']['chromedriverVersion'].split()[0]
+                    logger.log(f"ChromeDriver version: {driver_version}", level=logging.INFO)
+                    
+                    if not driver_version.startswith(chrome_version.split('.')[0]):
+                        raise Exception(f"ChromeDriver version {driver_version} does not match Chrome version {chrome_version}")
+                    
+                    logger.log("Chrome WebDriver initialized successfully", level=logging.INFO)
+                    return driver
+                except Exception as e:
+                    retry_count += 1
+                    logger.log(f"Failed to initialize Chrome WebDriver (attempt {retry_count}/{max_retries}): {str(e)}", level=logging.ERROR)
+                    if retry_count == max_retries:
+                        raise
+                    time.sleep(2)  # Wait before retrying
+                    
+        except Exception as e:
+            logger.log(f"Error using webdriver_manager: {str(e)}", level=logging.ERROR)
+            raise Exception("Failed to set up Chrome WebDriver")
 
     except Exception as e:
         logger.log(f"Error setting up Chrome WebDriver: {str(e)}", level=logging.ERROR)
@@ -349,6 +404,18 @@ def validate_config(config):
         logger.log(f"User ID: {config.get('user_id')}", level=logging.INFO)
         logger.log(f"Request delay: {config.get('request_delay')}s", level=logging.INFO)
         logger.log(f"Max concurrent requests: {config.get('max_concurrent_requests')}", level=logging.INFO)
+    
+    # Validate skip_pages if provided
+    if "skip_pages" in config:
+        try:
+            skip_pages = int(config["skip_pages"])
+            if skip_pages < 0:
+                logger.log("skip_pages must be a non-negative integer", level=logging.ERROR)
+                return False
+            logger.log(f"Will skip {skip_pages} pages before starting to scrape", level=logging.INFO)
+        except ValueError:
+            logger.log("skip_pages must be a valid integer", level=logging.ERROR)
+            return False
     
     return True
 
@@ -447,37 +514,140 @@ def handle_click_based_pagination(driver, next_page_selector, current_page):
         bool: True if successfully moved to next page, False otherwise
     """
     try:
-        # Find next page button
-        next_page = driver.find_element(By.CSS_SELECTOR, next_page_selector)
+        # Store initial content for comparison
+        initial_content = driver.find_elements(By.CSS_SELECTOR, "tr.grid-row")
+        initial_content_count = len(initial_content)
+        initial_first_item_text = initial_content[0].text if initial_content else ""
         
-        # Check if next page button is enabled and visible
-        if next_page.is_displayed() and next_page.is_enabled():
-            # Store current URL to verify page change
-            old_url = driver.current_url
-            
-            # Scroll button into view
-            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", next_page)
-            time.sleep(2)
-            
-            # Try clicking
+        # Try multiple times to find and click the next page button
+        max_attempts = 3
+        for attempt in range(max_attempts):
             try:
-                driver.execute_script("arguments[0].click();", next_page)
-                logger.log(f"➡️ Moving to page {current_page + 1} using JavaScript click", level=logging.INFO)
-            except Exception:
-                try:
-                    next_page.click()
-                    logger.log(f"➡️ Moving to page {current_page + 1} using regular click", level=logging.INFO)
-                except Exception as click_error:
-                    logger.log(f"Failed to click next page button: {str(click_error)}", level=logging.ERROR)
+                # Wait for next page button to be present and clickable
+                next_page = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, next_page_selector))
+                )
+                
+                # Check if next page button is enabled and visible
+                if next_page.is_displayed() and next_page.is_enabled():
+                    # Store current URL to verify page change
+                    old_url = driver.current_url
+                    
+                    # Scroll button into view with smooth scrolling
+                    driver.execute_script("""
+                        arguments[0].scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                    """, next_page)
+                    time.sleep(2)
+                    
+                    # Try multiple click methods
+                    click_success = False
+                    click_methods = [
+                        lambda: driver.execute_script("arguments[0].click();", next_page),
+                        lambda: next_page.click(),
+                        lambda: ActionChains(driver).move_to_element(next_page).click().perform()
+                    ]
+                    
+                    for click_method in click_methods:
+                        try:
+                            click_method()
+                            click_success = True
+                            logger.log(f"Successfully clicked next page button using method {click_methods.index(click_method) + 1}", level=logging.INFO)
+                            break
+                        except Exception as click_error:
+                            continue
+                    
+                    if not click_success:
+                        logger.log("All click methods failed", level=logging.WARNING)
+                        continue
+                    
+                    # Wait for page to load and content to change
+                    try:
+                        # Wait for any of these conditions to be true
+                        def page_changed(driver):
+                            try:
+                                # Check if URL changed
+                                if driver.current_url != old_url:
+                                    return True
+                                
+                                # Check if content count changed
+                                new_content = driver.find_elements(By.CSS_SELECTOR, "tr.grid-row")
+                                if len(new_content) != initial_content_count:
+                                    return True
+                                
+                                # Check if first item text changed
+                                if new_content and new_content[0].text != initial_first_item_text:
+                                    return True
+                                
+                                # Check if page number changed in pagination
+                                try:
+                                    current_page_elem = driver.find_element(By.CSS_SELECTOR, f"{next_page_selector}.active, {next_page_selector}.current")
+                                    if current_page_elem and str(current_page + 1) in current_page_elem.text:
+                                        return True
+                                except:
+                                    pass
+                                
+                                return False
+                            except:
+                                return False
+                        
+                        # Wait for page change with increased timeout
+                        WebDriverWait(driver, 20).until(page_changed)
+                        
+                        # Additional wait to ensure content is fully loaded
+                        time.sleep(3)
+                        
+                        # Verify the change
+                        new_content = driver.find_elements(By.CSS_SELECTOR, "tr.grid-row")
+                        new_content_count = len(new_content)
+                        
+                        # Log the change details
+                        logger.log(f"Content count changed: {initial_content_count} -> {new_content_count}", level=logging.INFO)
+                        if new_content:
+                            logger.log(f"First item changed: {initial_first_item_text[:50]}... -> {new_content[0].text[:50]}...", level=logging.INFO)
+                        
+                        # If we have new content or URL changed, consider it successful
+                        if new_content_count > 0 or driver.current_url != old_url:
+                            logger.log(f"Successfully moved to page {current_page + 1}", level=logging.INFO)
+                            return True
+                        else:
+                            logger.log("Page content did not change after clicking next", level=logging.WARNING)
+                            continue
+                            
+                    except TimeoutException:
+                        logger.log("Timeout waiting for page content to change", level=logging.WARNING)
+                        # Check if we're actually on a new page despite the timeout
+                        if driver.current_url != old_url:
+                            logger.log("URL changed despite timeout, considering navigation successful", level=logging.INFO)
+                            return True
+                        continue
+                    
+                else:
+                    logger.log("Next page button is not enabled or visible", level=logging.INFO)
+                    # Try to find the next page number button instead
+                    try:
+                        next_page_num = driver.find_element(By.CSS_SELECTOR, f"{next_page_selector}:not([disabled])")
+                        if next_page_num.is_displayed() and next_page_num.is_enabled():
+                            next_page_num.click()
+                            time.sleep(3)
+                            return True
+                    except:
+                        pass
+                    
+                    # If we've tried all attempts and still can't find a working next button
+                    if attempt == max_attempts - 1:
+                        logger.log("Could not find any working next page button after all attempts", level=logging.WARNING)
+                        return False
+                    
+            except Exception as e:
+                logger.log(f"Attempt {attempt + 1} failed: {str(e)}", level=logging.WARNING)
+                if attempt == max_attempts - 1:
                     return False
-            
-            # Verify page changed
-            time.sleep(3)
-            return driver.current_url != old_url
-            
-        else:
-            logger.log("Next page button is not enabled or visible", level=logging.INFO)
-            return False
+                time.sleep(2)  # Wait before retrying
+        
+        return False
         
     except Exception as e:
         logger.log(f"Click-based navigation failed: {str(e)}", level=logging.WARNING)
@@ -508,8 +678,35 @@ def scrape_subpage(driver, config, url):
         for key, selector in config.get("subpage_fields", {}).items():
             try:
                 if isinstance(selector, dict):
-                    elem = driver.find_element(By.CSS_SELECTOR, selector["selector"])
-                    subpage_data[key] = elem.get_attribute(selector["attribute"])
+                    if selector.get("use_label", False):
+                        # Find the label element first
+                        label_text = selector.get("label", key)
+                        try:
+                            # Try to find label by text content
+                            label = driver.find_element(By.XPATH, f"//label[contains(text(), '{label_text}')]")
+                            
+                            # Get the parent form-group div
+                            form_group = label.find_element(By.XPATH, "./ancestor::div[contains(@class, 'form-group')]")
+                            
+                            # Find the value div (usually the next sibling div with col-md-3 class)
+                            value_div = form_group.find_element(By.XPATH, ".//div[contains(@class, 'col-md-3')][2]")
+                            
+                            # Get the text content, excluding any validation spans
+                            value = value_div.text.strip()
+                            if value:
+                                subpage_data[key] = value
+                                logger.log(f"Extracted '{key}' using label '{label_text}': {value}", level=logging.INFO)
+                            else:
+                                subpage_data[key] = None
+                                logger.log(f"No value found for label '{label_text}'", level=logging.WARNING)
+                                
+                        except Exception as label_error:
+                            logger.log(f"Couldn't find label '{label_text}': {label_error}", level=logging.WARNING)
+                            subpage_data[key] = None
+                    else:
+                        # Use regular selector method
+                        elem = driver.find_element(By.CSS_SELECTOR, selector["selector"])
+                        subpage_data[key] = elem.get_attribute(selector["attribute"])
                 else:
                     elem = driver.find_element(By.CSS_SELECTOR, selector)
                     subpage_data[key] = elem.text.strip()
@@ -518,10 +715,6 @@ def scrape_subpage(driver, config, url):
                 subpage_data[key] = None
                 logger.log(f"Couldn't extract subpage field '{key}': {e}", level=logging.WARNING)
         
-        # Return to main page
-        # driver.get(main_page_url)
-        # time.sleep(config.get("page_wait", 2))
-        
         return subpage_data
         
     except Exception as e:
@@ -529,15 +722,7 @@ def scrape_subpage(driver, config, url):
         return {}
 
 def handle_load_more_button(driver, config):
-    """Handle dynamic 'Load More' or 'Show More' buttons that appear while scrolling.
-    
-    Args:
-        driver: Selenium WebDriver instance
-        config: Scraping configuration containing load_more_selector
-        
-    Returns:
-        bool: True if a load more button was found and clicked, False otherwise
-    """
+    """Handle dynamic 'Load More' or 'Show More' buttons that appear while scrolling."""
     try:
         # Try to find the load more button using the provided selector
         load_more_selector = config.get("load_more_selector")
@@ -557,9 +742,10 @@ def handle_load_more_button(driver, config):
             # Get current number of items for verification
             old_count = len(driver.find_elements(By.CSS_SELECTOR, config["container_selector"]))
             
-            # Scroll button into view and click
+            # Scroll button into view and highlight it
             driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", load_more_button)
-            time.sleep(2)
+            driver.execute_script("arguments[0].style.border='3px solid red';", load_more_button)
+            time.sleep(1)  # Pause to show the highlighted button
             
             try:
                 driver.execute_script("arguments[0].click();", load_more_button)
@@ -615,7 +801,8 @@ def scrape_data(config):
             logger.log("No fields defined in configuration", level=logging.ERROR)
             return 1
 
-        driver = setup_driver(config.get("headless", True))
+        # Initialize driver with headless mode disabled
+        driver = setup_driver(headless=False)
         if not driver:
             logger.log("Failed to initialize Chrome driver", level=logging.ERROR)
             return 1
@@ -623,6 +810,7 @@ def scrape_data(config):
         results = []
         page_num = config.get("start_page", 1)
         max_pages = config.get("max_pages", 10)
+        skip_pages = config.get("skip_pages", 0)  # Get number of pages to skip
         
         # Set up job-specific logging if configured
         if config.get("log_file"):
@@ -633,6 +821,12 @@ def scrape_data(config):
         try:
             driver.get(config["base_url"])
             logger.log(f"Navigated to base URL: {config['base_url']}", level=logging.INFO)
+            
+            # Add explicit wait after navigation
+            wait_time = config.get("initial_wait", 5)
+            logger.log(f"Waiting {wait_time} seconds for page to load...", level=logging.INFO)
+            time.sleep(wait_time)
+            
         except Exception as e:
             logger.log(f"Failed to navigate to base URL: {str(e)}", level=logging.ERROR)
             return 1
@@ -645,7 +839,7 @@ def scrape_data(config):
         
         # Verify page loaded successfully
         try:
-            WebDriverWait(driver, 10).until(
+            WebDriverWait(driver, config.get("initial_wait", 5)).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, config["container_selector"]))
             )
         except TimeoutException:
@@ -664,6 +858,23 @@ def scrape_data(config):
         # Determine pagination type
         current_url = driver.current_url
         is_url_based = "page/" in current_url or "page=" in current_url
+
+        # Skip pages if configured
+        if skip_pages > 0:
+            logger.log(f"Skipping {skip_pages} pages...", level=logging.INFO)
+            for _ in range(skip_pages):
+                if is_url_based:
+                    success, next_url = handle_url_based_pagination(driver, driver.current_url, page_num)
+                    if not success:
+                        logger.log("Failed to skip pages using URL-based navigation", level=logging.ERROR)
+                        return 1
+                else:
+                    if not handle_click_based_pagination(driver, config["next_page_selector"], page_num):
+                        logger.log("Failed to skip pages using click-based navigation", level=logging.ERROR)
+                        return 1
+                page_num += 1
+                time.sleep(config.get("page_wait", 5))
+            logger.log(f"Successfully skipped {skip_pages} pages. Starting scrape from page {page_num}", level=logging.INFO)
         
         while True:
             logger.log(f"Scraping main fields from page {page_num}...", level=logging.INFO)
@@ -680,7 +891,13 @@ def scrape_data(config):
                 max_scroll_attempts = config.get("max_scroll_attempts", 20)  # Prevent infinite scrolling
                 
                 while scroll_attempts < max_scroll_attempts:
-                    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                    # Smooth scroll animation
+                    driver.execute_script("""
+                        window.scrollTo({
+                            top: document.body.scrollHeight,
+                            behavior: 'smooth'
+                        });
+                    """)
                     time.sleep(config.get("scroll_wait", 3))
                     new_height = driver.execute_script("return document.body.scrollHeight")
                     if new_height == last_height:

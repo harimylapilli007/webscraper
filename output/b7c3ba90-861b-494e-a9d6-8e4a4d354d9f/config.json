@@ -1,0 +1,78 @@
+{
+    "base_url": "https://rerait.telangana.gov.in/SearchList/Search",
+    "concurrent_settings": {
+        "base_request_delay": 2,
+        "job_spacing_delay": 3,
+        "max_concurrent_jobs": 3,
+        "max_concurrent_requests": 2
+    },
+    "container_selector": "tr.grid-row",
+    "fields": {
+        "link": {
+            "attribute": "href",
+            "is_link": true,
+            "selector": "tr.grid-row a"
+        },
+        "name": "td.grid-cell[data-name=\"Name\"]"
+    },
+    "initial_wait": 30,
+    "load_more_selector": "",
+    "load_more_wait": 0,
+    "max_pages": 89,
+    "max_scroll_attempts": 20,
+    "next_page_selector": "button#btnNext.btn.btn-success.cancel",
+    "output_excel": "output/b7c3ba90-861b-494e-a9d6-8e4a4d354d9f\\scraped_data.xlsx",
+    "output_json": "output/b7c3ba90-861b-494e-a9d6-8e4a4d354d9f\\scraped_data.json",
+    "page_wait": 3,
+    "paginate": true,
+    "scrape_subpages": true,
+    "scroll": true,
+    "scroll_wait": 2,
+    "skip_pages": 88,
+    "start_page": 1,
+    "subpage_fields": {
+        "Building Name": {
+            "label": "Building Name",
+            "use_label": true
+        },
+        "District": {
+            "label": "District",
+            "use_label": true
+        },
+        "House No/Sy. No/Block No/Plot No": {
+            "label": "House No/Sy. No/Block No/Plot No",
+            "use_label": true
+        },
+        "House Number": {
+            "label": "House Number",
+            "use_label": true
+        },
+        "Landmark": {
+            "label": "Landmark",
+            "use_label": true
+        },
+        "Locality": {
+            "label": "Locality",
+            "use_label": true
+        },
+        "Office Number": {
+            "label": "Office Number",
+            "use_label": true
+        },
+        "Street Name": {
+            "label": "Street Name",
+            "use_label": true
+        }
+    },
+    "subpage_wait": 2,
+    "use_existing_chrome": true,
+    "job_id": "b7c3ba90-861b-494e-a9d6-8e4a4d354d9f",
+    "user_id": "user_yqnmsutvfc9_1745475527214",
+    "concurrent": true,
+    "output_dir": "output/b7c3ba90-861b-494e-a9d6-8e4a4d354d9f",
+    "log_file": "output/b7c3ba90-861b-494e-a9d6-8e4a4d354d9f\\scraper.log",
+    "request_delay": 6,
+    "max_concurrent_requests": 2,
+    "job_start_time": "2025-05-12T01:13:30.683754",
+    "headless": true
+}

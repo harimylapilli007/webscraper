@@ -1,0 +1,69 @@
+{
+    "base_url": "https://rerait.telangana.gov.in/SearchList/Search",
+    "concurrent_settings": {
+        "base_request_delay": 2,
+        "job_spacing_delay": 3,
+        "max_concurrent_jobs": 3,
+        "max_concurrent_requests": 2
+    },
+    "container_selector": "tr.grid-row",
+    "fields": {
+        "link": {
+            "attribute": "href",
+            "is_link": true,
+            "selector": "tr.grid-row a"
+        },
+        "name": "td.grid-cell[data-name=\"Name\"]"
+    },
+    "initial_wait": 30,
+    "load_more_selector": "",
+    "load_more_wait": 0,
+    "max_pages": 91,
+    "max_scroll_attempts": 20,
+    "next_page_selector": "button#btnNext.btn.btn-success.cancel",
+    "output_excel": "",
+    "output_json": "",
+    "page_wait": 3,
+    "paginate": true,
+    "scrape_subpages": true,
+    "scroll": true,
+    "scroll_wait": 2,
+    "skip_pages": 90,
+    "start_page": 1,
+    "subpage_fields": {
+        "Building Name": {
+            "label": "Building Name",
+            "use_label": true
+        },
+        "District": {
+            "label": "District",
+            "use_label": true
+        },
+        "House No/Sy. No/Block No/Plot No": {
+            "label": "House No/Sy. No/Block No/Plot No",
+            "use_label": true
+        },
+        "House Number": {
+            "label": "House Number",
+            "use_label": true
+        },
+        "Landmark": {
+            "label": "Landmark",
+            "use_label": true
+        },
+        "Locality": {
+            "label": "Locality",
+            "use_label": true
+        },
+        "Office Number": {
+            "label": "Office Number",
+            "use_label": true
+        },
+        "Street Name": {
+            "label": "Street Name",
+            "use_label": true
+        }
+    },
+    "subpage_wait": 2,
+    "use_existing_chrome": true
+}
