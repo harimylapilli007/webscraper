@@ -29,12 +29,18 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 import pickle
 import socket
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 
 # Load environment variables from .env file
 load_dotenv()
 
-# Google Drive API scopes - commented out
-SCOPES = ['https://www.googleapis.com/auth/drive.file']
+# Google Drive and Sheets API scopes
+SCOPES = [
+    'https://www.googleapis.com/auth/drive.file',
+    'https://www.googleapis.com/auth/spreadsheets'
+]
 
 def find_available_port(start_port=3000, max_attempts=10):
     """Find an available port starting from start_port."""
@@ -101,6 +107,7 @@ def get_google_drive_service():
                            - Add your email as a test user
                            - Add the following scopes:
                              * https://www.googleapis.com/auth/drive.file
+                             * https://www.googleapis.com/auth/spreadsheets
                        4. Go back to "Credentials"
                        5. Find your OAuth 2.0 Client ID
                        6. Under "Authorized redirect URIs", ensure these URIs are added:
@@ -110,9 +117,9 @@ def get_google_drive_service():
                           - http://localhost:3003/
                           - http://localhost:3004/
                        7. Click "Save"
-                       8. Make sure the Google Drive API is enabled:
-                          - Go to: https://console.cloud.google.com/apis/library/drive.googleapis.com
-                          - Click "Enable" if not already enabled
+                       8. Make sure both Google Drive API and Google Sheets API are enabled:
+                          - Go to: https://console.cloud.google.com/apis/library
+                          - Search for and enable both APIs
 
                        After completing these steps:
                        1. Delete the token.pickle file if it exists
@@ -1015,6 +1022,276 @@ def handle_load_more_button(driver, config):
         logger.log(f"Error handling 'Load More' button: {str(e)}", level=logging.WARNING)
         return False
 
+def create_google_sheet(service, title, folder_id):
+    """Create a new Google Sheet and return its ID."""
+    try:
+        file_metadata = {
+            'name': title,
+            'mimeType': 'application/vnd.google-apps.spreadsheet',
+            'parents': [folder_id]
+        }
+        
+        file = service.files().create(
+            body=file_metadata,
+            fields='id'
+        ).execute()
+        
+        logger.log(f"Created new Google Sheet with ID: {file.get('id')}", level=logging.INFO)
+        return file.get('id')
+    except Exception as e:
+        logger.log(f"Error creating Google Sheet: {str(e)}", level=logging.ERROR)
+        return None
+
+def update_google_sheet(service, spreadsheet_id, data):
+    """Update a Google Sheet with the scraped data."""
+    try:
+        # Convert data to list of lists format
+        if isinstance(data, pd.DataFrame):
+            values = [data.columns.tolist()] + data.values.tolist()
+        else:
+            # Convert list of dicts to DataFrame first
+            df = pd.DataFrame(data)
+            values = [df.columns.tolist()] + df.values.tolist()
+        
+        # Prepare the update request
+        body = {
+            'values': values
+        }
+        
+        # Update the sheet
+        result = service.spreadsheets().values().update(
+            spreadsheetId=spreadsheet_id,
+            range='A1',  # Start from A1
+            valueInputOption='RAW',
+            body=body
+        ).execute()
+        
+        logger.log(f"Updated {result.get('updatedCells')} cells in Google Sheet", level=logging.INFO)
+        return True
+    except Exception as e:
+        logger.log(f"Error updating Google Sheet: {str(e)}", level=logging.ERROR)
+        return False
+
+def create_sheet_in_spreadsheet(service, spreadsheet_id, sheet_name):
+    """Create a new sheet in an existing spreadsheet."""
+    try:
+        # Prepare the request to add a new sheet
+        request = {
+            'addSheet': {
+                'properties': {
+                    'title': sheet_name
+                }
+            }
+        }
+        
+        # Execute the request
+        response = service.spreadsheets().batchUpdate(
+            spreadsheetId=spreadsheet_id,
+            body={'requests': [request]}
+        ).execute()
+        
+        logger.log(f"Created new sheet '{sheet_name}' in spreadsheet", level=logging.INFO)
+        return True
+    except Exception as e:
+        logger.log(f"Error creating new sheet: {str(e)}", level=logging.ERROR)
+        return False
+
+def upload_to_google_sheets(data, file_name):
+    """Upload data to Google Sheets and return the file ID."""
+    try:
+        # Get credentials first
+        creds = None
+        if os.path.exists('token.pickle'):
+            with open('token.pickle', 'rb') as token:
+                creds = pickle.load(token)
+        
+        # If no valid credentials, go through authentication flow
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            else:
+                # Load client secrets from credentials.json
+                if not os.path.exists('credentials.json'):
+                    raise FileNotFoundError("credentials.json file not found. Please download it from Google Cloud Console.")
+                
+                # Find an available port
+                port = find_available_port()
+                logger.log(f"Using port {port} for OAuth authentication", level=logging.INFO)
+                
+                # Configure OAuth flow with specific settings
+                flow = InstalledAppFlow.from_client_secrets_file(
+                    'credentials.json', 
+                    SCOPES,
+                    redirect_uri=f'http://localhost:{port}/'
+                )
+                
+                # Try authentication with specific configuration
+                try:
+                    logger.log(f"Attempting OAuth authentication on port {port}...", level=logging.INFO)
+                    creds = flow.run_local_server(
+                        port=port,
+                        prompt='consent',
+                        authorization_prompt_message='Please authorize the application to access your Google Drive and Sheets',
+                        success_message='Authentication successful! You can close this window.',
+                        open_browser=True,
+                        access_type='offline'  # Request offline access
+                    )
+                    logger.log(f"Successfully authenticated on port {port}", level=logging.INFO)
+                except Exception as e:
+                    error_msg = str(e)
+                    if "access_denied" in error_msg:
+                        detailed_error = """
+                        Access Denied Error. Please follow these steps:
+
+                        1. Go to Google Cloud Console: https://console.cloud.google.com/apis/credentials
+                        2. Click on "OAuth consent screen" in the left sidebar
+                        3. Make sure your app is properly configured:
+                           - Set User Type to "External" if you're testing
+                           - Add your email as a test user
+                           - Add the following scopes:
+                             * https://www.googleapis.com/auth/drive.file
+                             * https://www.googleapis.com/auth/spreadsheets
+                       4. Go back to "Credentials"
+                       5. Find your OAuth 2.0 Client ID
+                       6. Under "Authorized redirect URIs", ensure these URIs are added:
+                          - http://localhost:3000/
+                          - http://localhost:3001/
+                          - http://localhost:3002/
+                          - http://localhost:3003/
+                          - http://localhost:3004/
+                       7. Click "Save"
+                       8. Make sure both Google Drive API and Google Sheets API are enabled:
+                          - Go to: https://console.cloud.google.com/apis/library
+                          - Search for and enable both APIs
+
+                       After completing these steps:
+                       1. Delete the token.pickle file if it exists
+                       2. Try running the script again
+                       """
+                        logger.log(detailed_error, level=logging.ERROR)
+                        raise Exception("Access denied. Please follow the steps in the error message above.")
+                    else:
+                        logger.log(f"Failed to authenticate on port {port}: {error_msg}", level=logging.WARNING)
+                        raise Exception(f"Authentication failed: {error_msg}")
+                
+                # Save the credentials for the next run
+                with open('token.pickle', 'wb') as token:
+                    pickle.dump(creds, token)
+        
+        # Create both services using the same credentials
+        drive_service = build('drive', 'v3', credentials=creds)
+        sheets_service = build('sheets', 'v4', credentials=creds)
+        
+        # Create a folder for the scraper results if it doesn't exist
+        folder_name = "Web Scraper Results"
+        folder_metadata = {
+            'name': folder_name,
+            'mimeType': 'application/vnd.google-apps.folder'
+        }
+        
+        # Check if folder already exists
+        results = drive_service.files().list(
+            q=f"name='{folder_name}' and mimeType='application/vnd.google-apps.folder' and trashed=false",
+            spaces='drive',
+            fields='files(id, name)'
+        ).execute()
+        
+        if not results['files']:
+            # Create the folder if it doesn't exist
+            folder = drive_service.files().create(
+                body=folder_metadata,
+                fields='id'
+            ).execute()
+            folder_id = folder.get('id')
+            logger.log(f"Created new folder '{folder_name}' in Google Drive", level=logging.INFO)
+        else:
+            folder_id = results['files'][0]['id']
+            logger.log(f"Using existing folder '{folder_name}' in Google Drive", level=logging.INFO)
+        
+        # Use a consistent name for the main spreadsheet
+        main_sheet_name = "Scraped Data"
+        
+        # Check if main spreadsheet exists
+        existing_file_id = find_existing_file(drive_service, folder_id, main_sheet_name)
+        
+        if existing_file_id:
+            # Check if "Properties" sheet exists
+            try:
+                spreadsheet = sheets_service.spreadsheets().get(
+                    spreadsheetId=existing_file_id
+                ).execute()
+                
+                sheets = spreadsheet.get('sheets', [])
+                properties_sheet_exists = any(sheet['properties']['title'] == 'Properties' for sheet in sheets)
+                
+                if not properties_sheet_exists:
+                    # Create new "Properties" sheet
+                    if create_sheet_in_spreadsheet(sheets_service, existing_file_id, 'Properties'):
+                        logger.log("Created new 'Properties' sheet in existing spreadsheet", level=logging.INFO)
+                    else:
+                        logger.log("Failed to create 'Properties' sheet", level=logging.ERROR)
+                        return None
+                
+                # Update the "Properties" sheet with new data
+                if isinstance(data, pd.DataFrame):
+                    new_df = data
+                else:
+                    new_df = pd.DataFrame(data)
+                
+                # Convert to list of lists
+                values = [new_df.columns.tolist()] + new_df.values.tolist()
+                
+                # Update the sheet
+                body = {
+                    'values': values
+                }
+                
+                result = sheets_service.spreadsheets().values().update(
+                    spreadsheetId=existing_file_id,
+                    range='Properties!A1',  # Start from A1 in Properties sheet
+                    valueInputOption='RAW',
+                    body=body
+                ).execute()
+                
+                logger.log(f"Updated 'Properties' sheet with {len(values)-1} rows of data", level=logging.INFO)
+                return existing_file_id
+                
+            except Exception as e:
+                logger.log(f"Error managing sheets: {str(e)}", level=logging.ERROR)
+                return None
+        
+        # If main spreadsheet doesn't exist, create it with both sheets
+        spreadsheet_id = create_google_sheet(drive_service, main_sheet_name, folder_id)
+        if spreadsheet_id:
+            # Create Properties sheet
+            if create_sheet_in_spreadsheet(sheets_service, spreadsheet_id, 'Properties'):
+                # Update the Properties sheet with data
+                if isinstance(data, pd.DataFrame):
+                    new_df = data
+                else:
+                    new_df = pd.DataFrame(data)
+                
+                values = [new_df.columns.tolist()] + new_df.values.tolist()
+                body = {
+                    'values': values
+                }
+                
+                result = sheets_service.spreadsheets().values().update(
+                    spreadsheetId=spreadsheet_id,
+                    range='Properties!A1',
+                    valueInputOption='RAW',
+                    body=body
+                ).execute()
+                
+                logger.log(f"Created new spreadsheet with 'Properties' sheet containing {len(values)-1} rows of data", level=logging.INFO)
+                return spreadsheet_id
+        
+        return None
+        
+    except Exception as e:
+        logger.log(f"Error uploading to Google Sheets: {str(e)}", level=logging.ERROR)
+        return None
+
 def scrape_data(config):
     if not validate_config(config):
         logger.log("Invalid configuration. Exiting.", level=logging.ERROR)
@@ -1249,44 +1526,40 @@ def scrape_data(config):
             elif not os.path.isabs(output_json) and not os.path.dirname(output_json):
                 # If only filename is provided without directory
                 output_json = os.path.join(output_dir, output_json)
-                
-            output_excel = config.get("output_excel", "")
-            if not output_excel:
-                timestamp = time.strftime("%Y%m%d_%H%M%S") 
-                output_excel = os.path.join(output_dir, f"results_{timestamp}.xlsx")
-            elif not os.path.isabs(output_excel) and not os.path.dirname(output_excel):
-                # If only filename is provided without directory
-                output_excel = os.path.join(output_dir, output_excel)
             
             # Ensure output file directories exist
             os.makedirs(os.path.dirname(output_json), exist_ok=True)
-            os.makedirs(os.path.dirname(output_excel), exist_ok=True)
             
             # Save the data
             try:
+                # Save JSON file locally
                 with open(output_json, "w", encoding="utf-8") as f:
                     json.dump(results, f, ensure_ascii=False, indent=4)
-                pd.DataFrame(results).to_excel(output_excel, index=False)
-
-                logger.log(f"\n[SUCCESS] Scraping complete. {len(results)} items saved.", level=logging.INFO)
+                
+                # Convert results to DataFrame
+                df = pd.DataFrame(results)
+                
+                # Generate Google Sheets filename
+                timestamp = time.strftime("%Y%m%d_%H%M%S")
+                sheets_filename = f"results_{timestamp}.gsheet"
+                
+                logger.log(f"\n[SUCCESS] Scraping complete. {len(results)} items scraped.", level=logging.INFO)
                 logger.log(f"Results saved to JSON: {output_json}", level=logging.INFO)
-                logger.log(f"Results saved to Excel: {output_excel}", level=logging.INFO)
-                logger.log("Scraper completed successfully", level=logging.INFO)
-
-                # Google Drive upload
-                if os.path.exists(output_excel):
-                    try:
-                        file_name = os.path.basename(output_excel)
-                        logger.log("Attempting to upload to Google Drive...", level=logging.INFO)
-                        drive_file_id = upload_to_google_drive(output_excel, file_name)
-                        if drive_file_id:
-                            logger.log(f"Successfully uploaded Excel file to Google Drive with ID: {drive_file_id}", level=logging.INFO)
-                        else:
-                            logger.log("Failed to upload Excel file to Google Drive", level=logging.WARNING)
-                    except Exception as e:
-                        logger.log(f"Error during Google Drive upload: {str(e)}", level=logging.ERROR)
-                else:
-                    logger.log("Excel file not found for Google Drive upload", level=logging.WARNING)
+                
+                # Upload to Google Sheets
+                try:
+                    logger.log("Attempting to upload to Google Sheets...", level=logging.INFO)
+                    sheets_id = upload_to_google_sheets(df, sheets_filename)
+                    if sheets_id:
+                        logger.log(f"Successfully uploaded data to Google Sheets with ID: {sheets_id}", level=logging.INFO)
+                        # Get the web view link
+                        drive_service = get_google_drive_service()
+                        file = drive_service.files().get(fileId=sheets_id, fields='webViewLink').execute()
+                        logger.log(f"Google Sheet can be accessed at: {file.get('webViewLink')}", level=logging.INFO)
+                    else:
+                        logger.log("Failed to upload data to Google Sheets", level=logging.WARNING)
+                except Exception as e:
+                    logger.log(f"Error during Google Sheets upload: {str(e)}", level=logging.ERROR)
 
                 return 0  # Success
             except Exception as e:
