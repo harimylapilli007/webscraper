@@ -22,9 +22,248 @@ import re
 from dotenv import load_dotenv
 import subprocess
 from selenium.webdriver.common.action_chains import ActionChains
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
+import pickle
+import socket
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Google Drive API scopes - commented out
+SCOPES = ['https://www.googleapis.com/auth/drive.file']
+
+def find_available_port(start_port=3000, max_attempts=10):
+    """Find an available port starting from start_port."""
+    for port in range(start_port, start_port + max_attempts):
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind(('localhost', port))
+                return port
+        except OSError:
+            continue
+    raise Exception(f"Could not find an available port after {max_attempts} attempts")
+
+def get_google_drive_service():
+    """Set up and return Google Drive API service."""
+    creds = None
+    # The file token.pickle stores the user's access and refresh tokens
+    if os.path.exists('token.pickle'):
+        with open('token.pickle', 'rb') as token:
+            creds = pickle.load(token)
+    
+    # If there are no (valid) credentials available, let the user log in
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            try:
+                # Load client secrets from credentials.json
+                if not os.path.exists('credentials.json'):
+                    raise FileNotFoundError("credentials.json file not found. Please download it from Google Cloud Console.")
+                
+                # Find an available port
+                port = find_available_port()
+                logger.log(f"Using port {port} for OAuth authentication", level=logging.INFO)
+                
+                # Configure OAuth flow with specific settings
+                flow = InstalledAppFlow.from_client_secrets_file(
+                    'credentials.json', 
+                    SCOPES,
+                    redirect_uri=f'http://localhost:{port}/'
+                )
+                
+                # Try authentication with specific configuration
+                try:
+                    logger.log(f"Attempting OAuth authentication on port {port}...", level=logging.INFO)
+                    creds = flow.run_local_server(
+                        port=port,
+                        prompt='consent',
+                        authorization_prompt_message='Please authorize the application to access your Google Drive',
+                        success_message='Authentication successful! You can close this window.',
+                        open_browser=True,
+                        access_type='offline'  # Request offline access
+                    )
+                    logger.log(f"Successfully authenticated on port {port}", level=logging.INFO)
+                except Exception as e:
+                    error_msg = str(e)
+                    if "access_denied" in error_msg:
+                        detailed_error = """
+                        Access Denied Error. Please follow these steps:
+
+                        1. Go to Google Cloud Console: https://console.cloud.google.com/apis/credentials
+                        2. Click on "OAuth consent screen" in the left sidebar
+                        3. Make sure your app is properly configured:
+                           - Set User Type to "External" if you're testing
+                           - Add your email as a test user
+                           - Add the following scopes:
+                             * https://www.googleapis.com/auth/drive.file
+                       4. Go back to "Credentials"
+                       5. Find your OAuth 2.0 Client ID
+                       6. Under "Authorized redirect URIs", ensure these URIs are added:
+                          - http://localhost:3000/
+                          - http://localhost:3001/
+                          - http://localhost:3002/
+                          - http://localhost:3003/
+                          - http://localhost:3004/
+                       7. Click "Save"
+                       8. Make sure the Google Drive API is enabled:
+                          - Go to: https://console.cloud.google.com/apis/library/drive.googleapis.com
+                          - Click "Enable" if not already enabled
+
+                       After completing these steps:
+                       1. Delete the token.pickle file if it exists
+                       2. Try running the script again
+                       """
+                        logger.log(detailed_error, level=logging.ERROR)
+                        raise Exception("Access denied. Please follow the steps in the error message above.")
+                    else:
+                        logger.log(f"Failed to authenticate on port {port}: {error_msg}", level=logging.WARNING)
+                        raise Exception(f"Authentication failed: {error_msg}")
+                
+            except Exception as e:
+                logger.log(f"Authentication failed: {str(e)}", level=logging.ERROR)
+                raise Exception("Failed to authenticate with Google Drive. Please check your credentials.json file and make sure the OAuth consent screen is properly configured.")
+        
+        # Save the credentials for the next run
+        with open('token.pickle', 'wb') as token:
+            pickle.dump(creds, token)
+
+    return build('drive', 'v3', credentials=creds)
+
+def find_existing_file(service, folder_id, file_name):
+    """Find an existing file in the specified folder."""
+    try:
+        results = service.files().list(
+            q=f"name='{file_name}' and '{folder_id}' in parents and trashed=false",
+            spaces='drive',
+            fields='files(id, name)'
+        ).execute()
+        
+        if results['files']:
+            return results['files'][0]['id']
+        return None
+    except Exception as e:
+        logger.log(f"Error finding existing file: {str(e)}", level=logging.ERROR)
+        return None
+
+def update_existing_file(service, file_id, new_data):
+    """Update an existing file with new data."""
+    try:
+        # Get the existing file
+        file = service.files().get(fileId=file_id, fields='id, name').execute()
+        
+        # Create a temporary file with combined data
+        temp_file = 'temp_combined.xlsx'
+        
+        # Read existing data from Google Drive
+        request = service.files().get_media(fileId=file_id)
+        with open('temp_existing.xlsx', 'wb') as f:
+            downloader = MediaIoBaseDownload(f, request)
+            done = False
+            while done is False:
+                status, done = downloader.next_chunk()
+        
+        # Read both files and combine data
+        existing_df = pd.read_excel('temp_existing.xlsx')
+        new_df = pd.read_excel(new_data)
+        combined_df = pd.concat([existing_df, new_df], ignore_index=True)
+        
+        # Save combined data
+        combined_df.to_excel(temp_file, index=False)
+        
+        # Update the file in Google Drive
+        media = MediaFileUpload(
+            temp_file,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            resumable=True
+        )
+        
+        updated_file = service.files().update(
+            fileId=file_id,
+            media_body=media,
+            fields='id, webViewLink'
+        ).execute()
+        
+        # Clean up temporary files
+        os.remove('temp_existing.xlsx')
+        os.remove(temp_file)
+        
+        logger.log(f"Successfully updated existing file with new data", level=logging.INFO)
+        logger.log(f"Updated file can be accessed at: {updated_file.get('webViewLink')}", level=logging.INFO)
+        return updated_file.get('id')
+        
+    except Exception as e:
+        logger.log(f"Error updating existing file: {str(e)}", level=logging.ERROR)
+        return None
+
+def upload_to_google_drive(file_path, file_name):
+    """Upload a file to Google Drive with folder selection and append to existing files."""
+    try:
+        service = get_google_drive_service()
+        
+        # Create a folder for the scraper results if it doesn't exist
+        folder_name = "Web Scraper Results"
+        folder_metadata = {
+            'name': folder_name,
+            'mimeType': 'application/vnd.google-apps.folder'
+        }
+        
+        # Check if folder already exists
+        results = service.files().list(
+            q=f"name='{folder_name}' and mimeType='application/vnd.google-apps.folder' and trashed=false",
+            spaces='drive',
+            fields='files(id, name)'
+        ).execute()
+        
+        if not results['files']:
+            # Create the folder if it doesn't exist
+            folder = service.files().create(
+                body=folder_metadata,
+                fields='id'
+            ).execute()
+            folder_id = folder.get('id')
+            logger.log(f"Created new folder '{folder_name}' in Google Drive", level=logging.INFO)
+        else:
+            folder_id = results['files'][0]['id']
+            logger.log(f"Using existing folder '{folder_name}' in Google Drive", level=logging.INFO)
+        
+        # Check if file already exists
+        existing_file_id = find_existing_file(service, folder_id, file_name)
+        
+        if existing_file_id:
+            logger.log(f"Found existing file '{file_name}', appending new data...", level=logging.INFO)
+            return update_existing_file(service, existing_file_id, file_path)
+        
+        # If file doesn't exist, create new file
+        file_metadata = {
+            'name': file_name,
+            'parents': [folder_id],
+            'mimeType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        }
+        
+        media = MediaFileUpload(
+            file_path,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            resumable=True
+        )
+        
+        file = service.files().create(
+            body=file_metadata,
+            media_body=media,
+            fields='id, webViewLink'
+        ).execute()
+        
+        logger.log(f"Created new file in Google Drive with ID: {file.get('id')}", level=logging.INFO)
+        logger.log(f"File can be accessed at: {file.get('webViewLink')}", level=logging.INFO)
+        return file.get('id')
+        
+    except Exception as e:
+        logger.log(f"Error uploading to Google Drive: {str(e)}", level=logging.ERROR)
+        return None
 
 class Logger:
     def __init__(self):
@@ -1033,6 +1272,22 @@ def scrape_data(config):
                 logger.log(f"Results saved to JSON: {output_json}", level=logging.INFO)
                 logger.log(f"Results saved to Excel: {output_excel}", level=logging.INFO)
                 logger.log("Scraper completed successfully", level=logging.INFO)
+
+                # Google Drive upload
+                if os.path.exists(output_excel):
+                    try:
+                        file_name = os.path.basename(output_excel)
+                        logger.log("Attempting to upload to Google Drive...", level=logging.INFO)
+                        drive_file_id = upload_to_google_drive(output_excel, file_name)
+                        if drive_file_id:
+                            logger.log(f"Successfully uploaded Excel file to Google Drive with ID: {drive_file_id}", level=logging.INFO)
+                        else:
+                            logger.log("Failed to upload Excel file to Google Drive", level=logging.WARNING)
+                    except Exception as e:
+                        logger.log(f"Error during Google Drive upload: {str(e)}", level=logging.ERROR)
+                else:
+                    logger.log("Excel file not found for Google Drive upload", level=logging.WARNING)
+
                 return 0  # Success
             except Exception as e:
                 logger.log(f"Error saving results: {str(e)}", level=logging.ERROR)

@@ -1,0 +1,271 @@
+2025-05-31 11:33:48,542 - INFO - [2025-05-31 11:33:48] INFO - Added file handler for log file: output/7a3d155f-80f6-4503-a026-066d71e854cd\scraper.log
+2025-05-31 11:33:48,542 - INFO - [2025-05-31 11:33:48] INFO - Starting scraper with configuration:
+2025-05-31 11:33:48,542 - INFO - [2025-05-31 11:33:48] INFO - base_url: https://www.booking.com/searchresults.html?label=gog235jc-1DCAEoggI46AdIM1gDaGyIAQGYATG4AQfIAQzYAQPoAQH4AQKIAgGoAgO4As_0h8AGwAIB0gIkMzJhOGRkNTItN2Y0NS00OGIyLWI0NDMtOGRjODk1MjQxNDlh2AIE4AIB&aid=397594&ss=Goa%2C%20India&efdco=1&lang=en-us&src=index&dest_id=4127&dest_type=region&group_adults=2&no_rooms=1&group_children=0&nflt=ht_id%3D206%3Bhotelfacility%3D54
+2025-05-31 11:33:48,542 - INFO - [2025-05-31 11:33:48] INFO - concurrent_settings: {'base_request_delay': 2, 'job_spacing_delay': 3, 'max_concurrent_jobs': 3, 'max_concurrent_requests': 2}
+2025-05-31 11:33:48,542 - INFO - [2025-05-31 11:33:48] INFO - container_selector: div.aa97d6032f
+2025-05-31 11:33:48,542 - INFO - [2025-05-31 11:33:48] INFO - initial_wait: 5
+2025-05-31 11:33:48,542 - INFO - [2025-05-31 11:33:48] INFO - load_more_selector: button.de576f5064.b46cd7aad7.d0a01e3d83.dda427e6b5.bbf83acb81.a0ddd706cc
+2025-05-31 11:33:48,543 - INFO - [2025-05-31 11:33:48] INFO - load_more_wait: 10
+2025-05-31 11:33:48,543 - INFO - [2025-05-31 11:33:48] INFO - max_pages: 1
+2025-05-31 11:33:48,543 - INFO - [2025-05-31 11:33:48] INFO - max_scroll_attempts: 50
+2025-05-31 11:33:48,543 - INFO - [2025-05-31 11:33:48] INFO - next_page_selector: 
+2025-05-31 11:33:48,543 - INFO - [2025-05-31 11:33:48] INFO - output_excel: output/7a3d155f-80f6-4503-a026-066d71e854cd\scraped_data.xlsx
+2025-05-31 11:33:48,543 - INFO - [2025-05-31 11:33:48] INFO - output_json: output/7a3d155f-80f6-4503-a026-066d71e854cd\scraped_data.json
+2025-05-31 11:33:48,543 - INFO - [2025-05-31 11:33:48] INFO - page_wait: 2
+2025-05-31 11:33:48,543 - INFO - [2025-05-31 11:33:48] INFO - paginate: False
+2025-05-31 11:33:48,543 - INFO - [2025-05-31 11:33:48] INFO - scrape_subpages: False
+2025-05-31 11:33:48,543 - INFO - [2025-05-31 11:33:48] INFO - scroll: True
+2025-05-31 11:33:48,543 - INFO - [2025-05-31 11:33:48] INFO - scroll_wait: 10
+2025-05-31 11:33:48,543 - INFO - [2025-05-31 11:33:48] INFO - start_page: 1
+2025-05-31 11:33:48,543 - INFO - [2025-05-31 11:33:48] INFO - subpage_wait: 3
+2025-05-31 11:33:48,543 - INFO - [2025-05-31 11:33:48] INFO - job_id: 7a3d155f-80f6-4503-a026-066d71e854cd
+2025-05-31 11:33:48,543 - INFO - [2025-05-31 11:33:48] INFO - user_id: user_l8tq82mtc4d_1748601150733
+2025-05-31 11:33:48,543 - INFO - [2025-05-31 11:33:48] INFO - concurrent: True
+2025-05-31 11:33:48,543 - INFO - [2025-05-31 11:33:48] INFO - output_dir: output/7a3d155f-80f6-4503-a026-066d71e854cd
+2025-05-31 11:33:48,544 - INFO - [2025-05-31 11:33:48] INFO - log_file: output/7a3d155f-80f6-4503-a026-066d71e854cd\scraper.log
+2025-05-31 11:33:48,544 - INFO - [2025-05-31 11:33:48] INFO - request_delay: 6
+2025-05-31 11:33:48,544 - INFO - [2025-05-31 11:33:48] INFO - max_concurrent_requests: 2
+2025-05-31 11:33:48,544 - INFO - [2025-05-31 11:33:48] INFO - job_start_time: 2025-05-31T11:33:47.437932
+2025-05-31 11:33:48,544 - INFO - [2025-05-31 11:33:48] INFO - headless: True
+2025-05-31 11:33:48,544 - INFO - [2025-05-31 11:33:48] INFO - Concurrent scraping settings:
+2025-05-31 11:33:48,544 - INFO - [2025-05-31 11:33:48] INFO - Job ID: 7a3d155f-80f6-4503-a026-066d71e854cd
+2025-05-31 11:33:48,544 - INFO - [2025-05-31 11:33:48] INFO - User ID: user_l8tq82mtc4d_1748601150733
+2025-05-31 11:33:48,544 - INFO - [2025-05-31 11:33:48] INFO - Request delay: 6s
+2025-05-31 11:33:48,544 - INFO - [2025-05-31 11:33:48] INFO - Max concurrent requests: 2
+2025-05-31 11:33:48,544 - INFO - [2025-05-31 11:33:48] INFO - Concurrent scraping settings:
+2025-05-31 11:33:48,544 - INFO - [2025-05-31 11:33:48] INFO - Job ID: 7a3d155f-80f6-4503-a026-066d71e854cd
+2025-05-31 11:33:48,544 - INFO - [2025-05-31 11:33:48] INFO - User ID: user_l8tq82mtc4d_1748601150733
+2025-05-31 11:33:48,544 - INFO - [2025-05-31 11:33:48] INFO - Request delay: 6s
+2025-05-31 11:33:48,544 - INFO - [2025-05-31 11:33:48] INFO - Max concurrent requests: 2
+2025-05-31 11:33:48,544 - INFO - [2025-05-31 11:33:48] INFO - Starting scraper with configuration:
+2025-05-31 11:33:48,544 - INFO - [2025-05-31 11:33:48] INFO - {
+  "base_url": "https://www.booking.com/searchresults.html?label=gog235jc-1DCAEoggI46AdIM1gDaGyIAQGYATG4AQfIAQzYAQPoAQH4AQKIAgGoAgO4As_0h8AGwAIB0gIkMzJhOGRkNTItN2Y0NS00OGIyLWI0NDMtOGRjODk1MjQxNDlh2AIE4AIB&aid=397594&ss=Goa%2C%20India&efdco=1&lang=en-us&src=index&dest_id=4127&dest_type=region&group_adults=2&no_rooms=1&group_children=0&nflt=ht_id%3D206%3Bhotelfacility%3D54",
+  "concurrent_settings": {
+    "base_request_delay": 2,
+    "job_spacing_delay": 3,
+    "max_concurrent_jobs": 3,
+    "max_concurrent_requests": 2
+  },
+  "container_selector": "div.aa97d6032f",
+  "initial_wait": 5,
+  "load_more_selector": "button.de576f5064.b46cd7aad7.d0a01e3d83.dda427e6b5.bbf83acb81.a0ddd706cc",
+  "load_more_wait": 10,
+  "max_pages": 1,
+  "max_scroll_attempts": 50,
+  "next_page_selector": "",
+  "output_excel": "output/7a3d155f-80f6-4503-a026-066d71e854cd\\scraped_data.xlsx",
+  "output_json": "output/7a3d155f-80f6-4503-a026-066d71e854cd\\scraped_data.json",
+  "page_wait": 2,
+  "paginate": false,
+  "scrape_subpages": false,
+  "scroll": true,
+  "scroll_wait": 10,
+  "start_page": 1,
+  "subpage_wait": 3,
+  "job_id": "7a3d155f-80f6-4503-a026-066d71e854cd",
+  "user_id": "user_l8tq82mtc4d_1748601150733",
+  "concurrent": true,
+  "output_dir": "output/7a3d155f-80f6-4503-a026-066d71e854cd",
+  "log_file": "output/7a3d155f-80f6-4503-a026-066d71e854cd\\scraper.log",
+  "request_delay": 6,
+  "max_concurrent_requests": 2,
+  "job_start_time": "2025-05-31T11:33:47.437932",
+  "headless": true
+}
+2025-05-31 11:33:48,544 - INFO - [2025-05-31 11:33:48] INFO - Detected Chrome version from registry: 137.0.7151.55
+2025-05-31 11:33:48,544 - INFO - [2025-05-31 11:33:48] INFO - Detected Chrome version: 137.0.7151.55
+2025-05-31 11:33:49,968 - INFO - [2025-05-31 11:33:49] INFO - Installed ChromeDriver at: C:\Users\harim\.wdm\drivers\chromedriver\win64\137.0.7151.55\chromedriver-win32/chromedriver.exe
+2025-05-31 11:33:51,024 - INFO - [2025-05-31 11:33:51] INFO - ChromeDriver version: 137.0.7151.55
+2025-05-31 11:33:51,024 - INFO - [2025-05-31 11:33:51] INFO - Chrome WebDriver initialized successfully
+2025-05-31 11:33:51,024 - INFO - [2025-05-31 11:33:51] INFO - Job started for user user_l8tq82mtc4d_1748601150733 (Job ID: 7a3d155f-80f6-4503-a026-066d71e854cd)
+2025-05-31 11:33:51,025 - INFO - [2025-05-31 11:33:51] INFO - Phase 1: Collecting main fields and links from all pages...
+2025-05-31 11:33:53,952 - INFO - [2025-05-31 11:33:53] INFO - Navigated to base URL: https://www.booking.com/searchresults.html?label=gog235jc-1DCAEoggI46AdIM1gDaGyIAQGYATG4AQfIAQzYAQPoAQH4AQKIAgGoAgO4As_0h8AGwAIB0gIkMzJhOGRkNTItN2Y0NS00OGIyLWI0NDMtOGRjODk1MjQxNDlh2AIE4AIB&aid=397594&ss=Goa%2C%20India&efdco=1&lang=en-us&src=index&dest_id=4127&dest_type=region&group_adults=2&no_rooms=1&group_children=0&nflt=ht_id%3D206%3Bhotelfacility%3D54
+2025-05-31 11:33:53,952 - INFO - [2025-05-31 11:33:53] INFO - Waiting 5 seconds for page to load...
+2025-05-31 11:34:04,979 - INFO - [2025-05-31 11:34:04] INFO - Scraping main fields from page 1...
+2025-05-31 11:34:04,980 - INFO - [2025-05-31 11:34:04] INFO - Starting to scroll down the page to load all content...
+2025-05-31 11:34:35,048 - INFO - [2025-05-31 11:34:35] INFO - Found 58 containers on page 1
+2025-05-31 11:34:35,074 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Anjuna Beach, Anjuna
+2025-05-31 11:34:35,092 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': Zulu Land cottages - near Curlies beach shack and shiva valley - Anjuna beach
+2025-05-31 11:34:35,092 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,107 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Calangute
+2025-05-31 11:34:35,129 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': Summit Calangute Resort & Spa
+2025-05-31 11:34:35,129 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,165 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Calangute
+2025-05-31 11:34:35,180 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': Storii By ITC Hotels, Shanti Morada Goa
+2025-05-31 11:34:35,180 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,213 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Panaji
+2025-05-31 11:34:35,289 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': Taj Cidade de Goa Horizon, Goa
+2025-05-31 11:34:35,289 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,314 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Betalbatim
+2025-05-31 11:34:35,330 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': Goa Villagio Resort & Spa - A Unit of IHM, 10 Min Walk from Beach
+2025-05-31 11:34:35,330 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,345 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Mandrem
+2025-05-31 11:34:35,359 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': Palma Beach Resort
+2025-05-31 11:34:35,359 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,390 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Calangute
+2025-05-31 11:34:35,406 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': Hyatt Ronil Goa - a JdV by Hyatt Hotel
+2025-05-31 11:34:35,406 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,420 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Panaji
+2025-05-31 11:34:35,434 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': Taj Cidade de Goa Heritage, Goa
+2025-05-31 11:34:35,434 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,450 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Baga
+2025-05-31 11:34:35,466 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': Radisson Resort Goa Baga
+2025-05-31 11:34:35,466 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,485 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Old Goa
+2025-05-31 11:34:35,502 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': Mercure Goa Devaaya Resort
+2025-05-31 11:34:35,502 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,516 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Mandrem
+2025-05-31 11:34:35,535 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': Larisa Resort Ashwem
+2025-05-31 11:34:35,535 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,575 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Goa Velha
+2025-05-31 11:34:35,590 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': Skon Morjim Beach Resort by Orion Hotels
+2025-05-31 11:34:35,590 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,604 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Candolim
+2025-05-31 11:34:35,617 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': Grand Mercure Goa Candolim - An Accor Hotels Brand
+2025-05-31 11:34:35,617 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,632 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Candolim
+2025-05-31 11:34:35,681 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': Golden Tulip Candolim, Goa
+2025-05-31 11:34:35,681 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,712 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Agonda
+2025-05-31 11:34:35,725 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': The Rose Goa Beach Resort
+2025-05-31 11:34:35,725 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,740 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Panaji
+2025-05-31 11:34:35,753 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': DoubleTree by Hilton Goa - Panaji
+2025-05-31 11:34:35,753 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,766 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Cavelossim Beach, Cavelossim
+2025-05-31 11:34:35,781 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': Holiday Inn Resort Goa by IHG
+2025-05-31 11:34:35,781 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,793 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Calangute Beach, Calangute
+2025-05-31 11:34:35,806 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': Chalston Beach Resort
+2025-05-31 11:34:35,806 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,820 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Baga
+2025-05-31 11:34:35,835 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': Acron Waterfront Resort
+2025-05-31 11:34:35,835 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,849 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Candolim Beach, Candolim
+2025-05-31 11:34:35,863 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': Taj Holiday Village Resort & Spa, Goa
+2025-05-31 11:34:35,863 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,894 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Mandrem Beach , Mandrem
+2025-05-31 11:34:35,908 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': Riva Beach Resort
+2025-05-31 11:34:35,908 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,923 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Colva
+2025-05-31 11:34:35,935 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': Beleza By The Beach
+2025-05-31 11:34:35,935 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,948 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Panaji
+2025-05-31 11:34:35,963 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': Goa Marriott Resort & Spa
+2025-05-31 11:34:35,963 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:35,976 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'location': Mandrem Beach , Mandrem
+2025-05-31 11:34:35,989 - INFO - [2025-05-31 11:34:35] INFO - Extracted 'resort ': Anahata Retreat Beach Front Ashwem Goa
+2025-05-31 11:34:35,989 - INFO - [2025-05-31 11:34:35] INFO - Successfully added item to results
+2025-05-31 11:34:36,003 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Candolim
+2025-05-31 11:34:36,017 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Novotel Goa Resort & Spa Candolim
+2025-05-31 11:34:36,017 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,029 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Palolem Beach, Palolem
+2025-05-31 11:34:36,042 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Art Resort Goa
+2025-05-31 11:34:36,042 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,058 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Candolim
+2025-05-31 11:34:36,073 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Park Inn by Radisson Goa Candolim
+2025-05-31 11:34:36,074 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,087 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Candolim Beach, Candolim
+2025-05-31 11:34:36,100 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Taj Fort Aguada Resort & Spa, Goa
+2025-05-31 11:34:36,100 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,114 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Canacona
+2025-05-31 11:34:36,128 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': The LaLiT Golf & Spa Resort Goa
+2025-05-31 11:34:36,128 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,143 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Majorda
+2025-05-31 11:34:36,158 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Diwa Club by Alila - A Hyatt Brand
+2025-05-31 11:34:36,158 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,173 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Colva Beach, Colva
+2025-05-31 11:34:36,188 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Sea Queen Beach Resort & Spa
+2025-05-31 11:34:36,188 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,202 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Vichondrem
+2025-05-31 11:34:36,217 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': The Postcard Hideaway, Netravali Wildlife Sanctuary, Goa
+2025-05-31 11:34:36,217 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,232 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Vagator Beach, Vagator
+2025-05-31 11:34:36,246 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': W Goa
+2025-05-31 11:34:36,246 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,261 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Goa Velha
+2025-05-31 11:34:36,276 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Thalassa Beach Boutique Resort
+2025-05-31 11:34:36,276 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,289 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Patnem
+2025-05-31 11:34:36,318 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Palm Trees Ayurvedic Heritage
+2025-05-31 11:34:36,318 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,347 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Varca Beach, Varca
+2025-05-31 11:34:36,366 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Sterling Goa Varca
+2025-05-31 11:34:36,366 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,382 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Bogmalo
+2025-05-31 11:34:36,409 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Coconut Creek Resort - Dabolim Airport
+2025-05-31 11:34:36,409 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,425 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Mandrem Beach , Mandrem
+2025-05-31 11:34:36,440 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': La Cabana Beach & Spa, By Ashvem Beach
+2025-05-31 11:34:36,440 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,455 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Vagator
+2025-05-31 11:34:36,469 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': 3102bce - A Vedic Resort
+2025-05-31 11:34:36,470 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,491 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Calangute Beach, Calangute
+2025-05-31 11:34:36,508 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Resort Terra Paraiso
+2025-05-31 11:34:36,508 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,525 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Benaulim Beach, Benaulim
+2025-05-31 11:34:36,542 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Fairfield by Marriott Goa Benaulim
+2025-05-31 11:34:36,542 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,557 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Nerul
+2025-05-31 11:34:36,570 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Ahilya By The Sea
+2025-05-31 11:34:36,571 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,584 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Morjim Beach, Morjim
+2025-05-31 11:34:36,596 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Montego Bay Beach Village - Morjim
+2025-05-31 11:34:36,596 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,610 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Benaulim
+2025-05-31 11:34:36,622 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Regenta Beach House Resort, Goa
+2025-05-31 11:34:36,622 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,636 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Agonda
+2025-05-31 11:34:36,648 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Simrose
+2025-05-31 11:34:36,648 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,661 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Utorda
+2025-05-31 11:34:36,675 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Royal Orchid Beach Resort & Spa, Utorda Beach Goa
+2025-05-31 11:34:36,676 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,688 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Calangute Beach, Calangute
+2025-05-31 11:34:36,702 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Andores Resort And Spa - Calangute
+2025-05-31 11:34:36,702 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,714 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Benaulim Beach, Benaulim
+2025-05-31 11:34:36,729 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Azaya Beach Resort Goa
+2025-05-31 11:34:36,730 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,743 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Bogmalo
+2025-05-31 11:34:36,757 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Bogmallo Beach Resort
+2025-05-31 11:34:36,757 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,788 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Baga Beach, Baga
+2025-05-31 11:34:36,804 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Colonia Santa Maria
+2025-05-31 11:34:36,804 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,820 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Calangute
+2025-05-31 11:34:36,839 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Somy Plaza Calangute Goa - Formerly Somy Resort
+2025-05-31 11:34:36,839 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,856 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Colva Beach, Colva
+2025-05-31 11:34:36,871 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Soul Vacation Resort and Spa,Colva
+2025-05-31 11:34:36,871 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,885 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Moira
+2025-05-31 11:34:36,898 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Storii By ITC Hotels Moira Riviera
+2025-05-31 11:34:36,898 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,913 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Arpora
+2025-05-31 11:34:36,953 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Ramada by Wyndham Goa Arpora
+2025-05-31 11:34:36,953 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:36,970 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'location': Morjim Beach, Morjim
+2025-05-31 11:34:36,984 - INFO - [2025-05-31 11:34:36] INFO - Extracted 'resort ': Sibaya Beach Resort, Morjim
+2025-05-31 11:34:36,984 - INFO - [2025-05-31 11:34:36] INFO - Successfully added item to results
+2025-05-31 11:34:37,007 - INFO - [2025-05-31 11:34:37] INFO - Extracted 'location': Candolim Beach, Candolim
+2025-05-31 11:34:37,022 - INFO - [2025-05-31 11:34:37] INFO - Extracted 'resort ': Marquis Beach Resort
+2025-05-31 11:34:37,022 - INFO - [2025-05-31 11:34:37] INFO - Successfully added item to results
+2025-05-31 11:34:37,051 - INFO - [2025-05-31 11:34:37] INFO - Extracted 'location': Goa
+2025-05-31 11:34:37,067 - INFO - [2025-05-31 11:34:37] INFO - Extracted 'resort ': The Kimaya - By the Sea
+2025-05-31 11:34:37,067 - INFO - [2025-05-31 11:34:37] INFO - Successfully added item to results
+2025-05-31 11:34:37,080 - INFO - [2025-05-31 11:34:37] INFO - Extracted 'location': Candolim
+2025-05-31 11:34:37,102 - INFO - [2025-05-31 11:34:37] INFO - Extracted 'resort ': Acron Candolim Regina
+2025-05-31 11:34:37,102 - INFO - [2025-05-31 11:34:37] INFO - Successfully added item to results
+2025-05-31 11:34:37,457 - INFO - [2025-05-31 11:34:37] INFO - 
+[SUCCESS] Scraping complete. 58 items saved.
+2025-05-31 11:34:37,458 - INFO - [2025-05-31 11:34:37] INFO - Results saved to JSON: output/7a3d155f-80f6-4503-a026-066d71e854cd\scraped_data.json
+2025-05-31 11:34:37,458 - INFO - [2025-05-31 11:34:37] INFO - Results saved to Excel: output/7a3d155f-80f6-4503-a026-066d71e854cd\scraped_data.xlsx
+2025-05-31 11:34:37,458 - INFO - [2025-05-31 11:34:37] INFO - Scraper completed successfully
+2025-05-31 11:34:37,458 - INFO - [2025-05-31 11:34:37] INFO - Attempting to upload to Google Drive...
+2025-05-31 11:34:37,459 - INFO - [2025-05-31 11:34:37] INFO - Using port 3001 for OAuth authentication
+2025-05-31 11:34:37,459 - INFO - [2025-05-31 11:34:37] INFO - Attempting OAuth authentication on port 3001...
+2025-05-31 11:34:46,242 - INFO - [2025-05-31 11:34:46] INFO - Successfully authenticated on port 3001
+2025-05-31 11:34:48,476 - INFO - [2025-05-31 11:34:48] INFO - File uploaded to Google Drive with ID: 1M9wppcK6U1KA3bs9exQnYV9ZgqU1bHWL
+2025-05-31 11:34:48,477 - INFO - [2025-05-31 11:34:48] INFO - Successfully uploaded Excel file to Google Drive with ID: 1M9wppcK6U1KA3bs9exQnYV9ZgqU1bHWL
