@@ -1232,28 +1232,85 @@ def upload_to_google_sheets(data, file_name):
                         logger.log("Failed to create 'Properties' sheet", level=logging.ERROR)
                         return None
                 
-                # Update the "Properties" sheet with new data
-                if isinstance(data, pd.DataFrame):
-                    new_df = data
-                else:
-                    new_df = pd.DataFrame(data)
-                
-                # Convert to list of lists
-                values = [new_df.columns.tolist()] + new_df.values.tolist()
-                
-                # Update the sheet
-                body = {
-                    'values': values
-                }
-                
-                result = sheets_service.spreadsheets().values().update(
-                    spreadsheetId=existing_file_id,
-                    range='Properties!A1',  # Start from A1 in Properties sheet
-                    valueInputOption='RAW',
-                    body=body
-                ).execute()
-                
-                logger.log(f"Updated 'Properties' sheet with {len(values)-1} rows of data", level=logging.INFO)
+                # Get current data to check if we need to append or create new
+                try:
+                    # Get the current values to see if there's existing data
+                    current_values = sheets_service.spreadsheets().values().get(
+                        spreadsheetId=existing_file_id,
+                        range='Properties!A:Z'
+                    ).execute()
+                    
+                    existing_rows = current_values.get('values', [])
+                    
+                    if len(existing_rows) > 1:  # More than just header
+                        # Append new data (skip header since it already exists)
+                        if isinstance(data, pd.DataFrame):
+                            new_df = data
+                        else:
+                            new_df = pd.DataFrame(data)
+                        
+                        # Convert to list of lists (skip header)
+                        values = new_df.values.tolist()
+                        
+                        # Append the new data
+                        body = {
+                            'values': values
+                        }
+                        
+                        result = sheets_service.spreadsheets().values().append(
+                            spreadsheetId=existing_file_id,
+                            range='Properties!A:A',  # Append to the end
+                            valueInputOption='RAW',
+                            insertDataOption='INSERT_ROWS',
+                            body=body
+                        ).execute()
+                        
+                        logger.log(f"Appended {len(values)} new rows to existing 'Properties' sheet", level=logging.INFO)
+                    else:
+                        # No existing data, add header and data
+                        if isinstance(data, pd.DataFrame):
+                            new_df = data
+                        else:
+                            new_df = pd.DataFrame(data)
+                        
+                        # Convert to list of lists (include header)
+                        values = [new_df.columns.tolist()] + new_df.values.tolist()
+                        
+                        # Update the sheet with header and data
+                        body = {
+                            'values': values
+                        }
+                        
+                        result = sheets_service.spreadsheets().values().update(
+                            spreadsheetId=existing_file_id,
+                            range='Properties!A1',
+                            valueInputOption='RAW',
+                            body=body
+                        ).execute()
+                        
+                        logger.log(f"Created 'Properties' sheet with {len(values)-1} rows of data", level=logging.INFO)
+                        
+                except Exception as e:
+                    logger.log(f"Error checking existing data: {str(e)}", level=logging.WARNING)
+                    # Fallback to update method
+                    if isinstance(data, pd.DataFrame):
+                        new_df = data
+                    else:
+                        new_df = pd.DataFrame(data)
+                    
+                    values = [new_df.columns.tolist()] + new_df.values.tolist()
+                    body = {
+                        'values': values
+                    }
+                    
+                    result = sheets_service.spreadsheets().values().update(
+                        spreadsheetId=existing_file_id,
+                        range='Properties!A1',
+                        valueInputOption='RAW',
+                        body=body
+                    ).execute()
+                    
+                    logger.log(f"Updated 'Properties' sheet with {len(values)-1} rows of data (fallback)", level=logging.INFO)
                 return existing_file_id
                 
             except Exception as e:

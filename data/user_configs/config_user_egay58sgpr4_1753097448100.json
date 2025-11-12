@@ -1,0 +1,30 @@
+{
+    "base_url": "https://www.booking.com/searchresults.html?label=gog235jc-1DCAEoggI46AdIM1gDaGyIAQGYATG4AQfIAQzYAQPoAQH4AQKIAgGoAgO4As_0h8AGwAIB0gIkMzJhOGRkNTItN2Y0NS00OGIyLWI0NDMtOGRjODk1MjQxNDlh2AIE4AIB&aid=397594&ss=Amarn%C4%81th%2C+Jammu+%26+Kashmir%2C+India&ssne=Amarnath+Temple&ssne_untouched=Amarnath+Temple&lang=en-us&src=searchresults&dest_id=-2088602&dest_type=city&ac_position=2&ac_click_type=b&ac_langcode=en&ac_suggestion_list_length=3&search_selected=true&search_pageview_id=d1b221e772bf446710819967930469e2&checkin=2025-08-12&checkout=2025-08-31&group_adults=2&no_rooms=1&group_children=0&nflt=ht_id%3D206%3Bht_id%3D204",
+    "concurrent_settings": {
+        "base_request_delay": 2,
+        "job_spacing_delay": 3,
+        "max_concurrent_jobs": 3,
+        "max_concurrent_requests": 2
+    },
+    "container_selector": "div.c91dad2a8f",
+    "fields": {
+        "Location": "span.d823fbbeed.f9b3563dd4",
+        "Property Name": "div.b87c397a13.a3e0b4ffd1"
+    },
+    "initial_wait": 8,
+    "load_more_selector": "",
+    "load_more_wait": 5,
+    "max_pages": 1,
+    "max_scroll_attempts": 20,
+    "next_page_selector": "",
+    "output_excel": "",
+    "output_json": "",
+    "page_wait": 2,
+    "paginate": false,
+    "scrape_subpages": false,
+    "scroll": true,
+    "scroll_wait": 5,
+    "start_page": 1,
+    "subpage_fields": {},
+    "subpage_wait": 3
+}

@@ -1,0 +1,38 @@
+{
+    "base_url": "https://www.magicbricks.com/independent-house-for-rent-in-hyderabad-pppfr",
+    "concurrent_settings": {
+        "base_request_delay": 2,
+        "job_spacing_delay": 3,
+        "max_concurrent_jobs": 3,
+        "max_concurrent_requests": 2
+    },
+    "container_selector": "div.mb-srp__card",
+    "fields": {
+        "property": "h2.mb-srp__card--title"
+    },
+    "initial_wait": 3,
+    "load_more_selector": "",
+    "load_more_wait": 3,
+    "max_pages": 1,
+    "max_scroll_attempts": 20,
+    "next_page_selector": "",
+    "output_excel": "output/89453eaf-c827-470c-89b4-5a90168f4975\\scraped_data.xlsx",
+    "output_json": "output/89453eaf-c827-470c-89b4-5a90168f4975\\scraped_data.json",
+    "page_wait": 2,
+    "paginate": false,
+    "scrape_subpages": false,
+    "scroll": true,
+    "scroll_wait": 3,
+    "start_page": 1,
+    "subpage_fields": {},
+    "subpage_wait": 3,
+    "job_id": "89453eaf-c827-470c-89b4-5a90168f4975",
+    "user_id": "user_yz3gu3yqji_1762944433310",
+    "concurrent": true,
+    "output_dir": "output/89453eaf-c827-470c-89b4-5a90168f4975",
+    "log_file": "output/89453eaf-c827-470c-89b4-5a90168f4975\\scraper.log",
+    "request_delay": 4,
+    "max_concurrent_requests": 2,
+    "job_start_time": "2025-11-12T16:19:24.216173",
+    "headless": true
+}

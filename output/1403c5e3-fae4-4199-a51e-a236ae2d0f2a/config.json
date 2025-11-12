@@ -1,0 +1,39 @@
+{
+    "base_url": "https://www.booking.com/searchresults.html?label=gog235jc-1DCAEoggI46AdIM1gDaGyIAQGYATG4AQfIAQzYAQPoAQH4AQKIAgGoAgO4As_0h8AGwAIB0gIkMzJhOGRkNTItN2Y0NS00OGIyLWI0NDMtOGRjODk1MjQxNDlh2AIE4AIB&aid=397594&ss=Vaishno+Devi%2C+Katra%2C+Jammu+%26+Kashmir%2C+India&ssne=Dharms%C4%81la&ssne_untouched=Dharms%C4%81la&efdco=1&lang=en-us&src=searchresults&dest_id=900072139&dest_type=landmark&ac_position=0&ac_click_type=b&ac_langcode=en&ac_suggestion_list_length=5&search_selected=true&search_pageview_id=957bf42bbfaa5e14c896a9c4a56cc7a4&checkin=2025-08-12&checkout=2025-08-31&group_adults=2&no_rooms=1&group_children=0&nflt=ht_id%3D204%3Bht_id%3D216",
+    "concurrent_settings": {
+        "base_request_delay": 2,
+        "job_spacing_delay": 3,
+        "max_concurrent_jobs": 3,
+        "max_concurrent_requests": 2
+    },
+    "container_selector": "div.c91dad2a8f",
+    "fields": {
+        "Location": "span.d823fbbeed.f9b3563dd4",
+        "Property Name": "div.b87c397a13.a3e0b4ffd1"
+    },
+    "initial_wait": 8,
+    "load_more_selector": "",
+    "load_more_wait": 5,
+    "max_pages": 1,
+    "max_scroll_attempts": 20,
+    "next_page_selector": "",
+    "output_excel": "output/1403c5e3-fae4-4199-a51e-a236ae2d0f2a\\scraped_data.xlsx",
+    "output_json": "output/1403c5e3-fae4-4199-a51e-a236ae2d0f2a\\scraped_data.json",
+    "page_wait": 2,
+    "paginate": false,
+    "scrape_subpages": false,
+    "scroll": true,
+    "scroll_wait": 5,
+    "start_page": 1,
+    "subpage_fields": {},
+    "subpage_wait": 3,
+    "job_id": "1403c5e3-fae4-4199-a51e-a236ae2d0f2a",
+    "user_id": "user_egay58sgpr4_1753097448100",
+    "concurrent": true,
+    "output_dir": "output/1403c5e3-fae4-4199-a51e-a236ae2d0f2a",
+    "log_file": "output/1403c5e3-fae4-4199-a51e-a236ae2d0f2a\\scraper.log",
+    "request_delay": 4,
+    "max_concurrent_requests": 2,
+    "job_start_time": "2025-08-12T11:27:56.004545",
+    "headless": true
+}
